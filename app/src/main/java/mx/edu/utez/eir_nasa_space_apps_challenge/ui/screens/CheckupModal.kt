@@ -1,3 +1,4 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 package mx.edu.utez.eir_nasa_space_apps_challenge.ui.screens
 
 import android.Manifest
@@ -149,7 +150,8 @@ fun CheckupModalContent(
                 .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                 .background(modalBg)
                 .border(1.dp, modalBorder, RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-                .padding(20.dp),
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Bottom))
+                .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Header & 4-Step Progress Bar
@@ -225,6 +227,7 @@ fun CheckupModalContent(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
+                    .imeNestedScroll()
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {

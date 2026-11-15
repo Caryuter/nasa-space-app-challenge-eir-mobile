@@ -102,11 +102,6 @@ fun AgenteIaScreenContent(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                MascotAvatar(
-                    emotion = currentHeaderEmotion,
-                    size = 42.dp,
-                    showGlow = true
-                )
 
                 Column(modifier = Modifier.weight(1f)) {
                     Row(
@@ -120,12 +115,6 @@ fun AgenteIaScreenContent(
                             color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
                         )
                     }
-
-                    Text(
-                        text = if (state.isAgentLoading) "Generando respuesta..." else if (state.isChatUnlocked) "IA On-Device lista" else "Asistente limitado",
-                        fontSize = 11.sp,
-                        color = if (state.isAgentLoading) EirSky else if (isDark) EirDarkTextSecondary else EirLightTextSecondary
-                    )
                 }
             }
         }
@@ -138,6 +127,7 @@ fun AgenteIaScreenContent(
         ) {
             SimpleDownloadBanner(
                 status = state.modelStatus,
+                isDownloadingOrConnecting = state.isDownloadingOrConnecting,
                 onStartDownload = onStartDownload,
                 onCancelDownload = onCancelDownload,
                 isDark = isDark,
@@ -308,6 +298,7 @@ fun AgenteIaScreenContent(
 @Composable
 private fun SimpleDownloadBanner(
     status: LiteRtModelStatus,
+    isDownloadingOrConnecting: Boolean,
     onStartDownload: () -> Unit,
     onCancelDownload: () -> Unit,
     isDark: Boolean,
@@ -348,17 +339,31 @@ private fun SimpleDownloadBanner(
                     Spacer(modifier = Modifier.width(8.dp))
                     Button(
                         onClick = onStartDownload,
+                        enabled = !isDownloadingOrConnecting,
                         shape = RoundedCornerShape(10.dp),
                         contentPadding = PaddingValues(horizontal = 14.dp, vertical = 6.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = EirSky)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Download,
-                            contentDescription = null,
-                            modifier = Modifier.size(15.dp)
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = EirSky,
+                            disabledContainerColor = EirSky.copy(alpha = 0.5f)
                         )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(text = "Descargar", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    ) {
+                        if (isDownloadingOrConnecting) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 2.dp,
+                                color = Color.White
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = "Iniciando...", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        } else {
+                            Icon(
+                                imageVector = Icons.Default.Download,
+                                contentDescription = null,
+                                modifier = Modifier.size(15.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(text = "Descargar", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
                     }
                 }
             }
@@ -368,26 +373,36 @@ private fun SimpleDownloadBanner(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 14.dp, vertical = 10.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text(
-                            text = "Descargando asistente... ${status.progressPercent}%",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(14.dp),
+                                strokeWidth = 2.dp,
+                                color = EirSky
+                            )
+                            Text(
+                                text = "Descargando modelo local...",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                            )
+                        }
                         IconButton(
                             onClick = onCancelDownload,
                             modifier = Modifier.size(24.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Cancelar",
+                                contentDescription = "Cancelar descarga",
                                 tint = Color.Red.copy(alpha = 0.8f),
                                 modifier = Modifier.size(18.dp)
                             )
@@ -395,7 +410,7 @@ private fun SimpleDownloadBanner(
                     }
 
                     LinearProgressIndicator(
-                        progress = { status.progressPercent / 100f },
+                        progress = { (status.progressPercent / 100f).coerceIn(0f, 1f) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(6.dp)
@@ -403,6 +418,35 @@ private fun SimpleDownloadBanner(
                         color = EirSky,
                         trackColor = EirSky.copy(alpha = 0.15f)
                     )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = "Descargado:",
+                                fontSize = 11.sp,
+                                color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                            )
+                            Text(
+                                text = "${status.downloadedMb} / ${status.totalMb}",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = EirSky
+                            )
+                        }
+                        Text(
+                            text = "${status.progressPercent}%",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                        )
+                    }
                 }
             }
 
@@ -435,14 +479,24 @@ private fun SimpleDownloadBanner(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(
-                        text = "No se pudo descargar",
-                        fontSize = 12.sp,
-                        color = Color.Red,
-                        modifier = Modifier.weight(1f)
-                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "Error al descargar el modelo",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFFEF4444)
+                        )
+                        Text(
+                            text = status.message,
+                            fontSize = 10.sp,
+                            maxLines = 2,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                        )
+                    }
                     IconButton(
                         onClick = onStartDownload,
+                        enabled = !isDownloadingOrConnecting,
                         modifier = Modifier.size(28.dp)
                     ) {
                         Icon(

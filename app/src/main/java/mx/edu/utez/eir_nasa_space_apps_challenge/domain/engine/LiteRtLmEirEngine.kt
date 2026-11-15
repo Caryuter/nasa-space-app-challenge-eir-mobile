@@ -24,14 +24,16 @@ import kotlin.time.Duration.Companion.milliseconds
 
 sealed class LiteRtModelStatus {
     data class NotDownloaded(
-        val sizeLabel: String = "~600 MB",
+        val sizeLabel: String = "~614 MB",
         val modelName: String = "Qwen3-0.6B (LiteRT-LM)"
     ) : LiteRtModelStatus()
 
     data class Downloading(
         val progressPercent: Int,
         val downloadedMb: String,
-        val totalMb: String
+        val totalMb: String,
+        val downloadedBytes: Long = 0L,
+        val totalBytes: Long = 0L
     ) : LiteRtModelStatus()
 
     object Initializing : LiteRtModelStatus()
@@ -86,17 +88,31 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
                 File(context.filesDir, "model.litertlm")
             )
 
-            val existingModel = possibleModelFiles.firstOrNull { it.exists() && it.length() > 0 }
+            val existingModel = possibleModelFiles.firstOrNull { it.exists() && it.length() > 500_000_000L }
 
             if (existingModel != null) {
                 initLiteRtLmModel(existingModel)
             } else {
                 _modelStatus.value = LiteRtModelStatus.NotDownloaded(
-                    sizeLabel = "~600 MB",
+                    sizeLabel = "~614 MB",
                     modelName = "Qwen3-0.6B (LiteRT-LM)"
                 )
             }
         }
+    }
+
+    private fun formatFileSize(bytes: Long): String {
+        if (bytes <= 0L) return "0 KB"
+        val kb = bytes / 1024.0
+        if (kb < 1000.0) {
+            return String.format(java.util.Locale.US, "%.1f KB", kb)
+        }
+        val mb = kb / 1024.0
+        if (mb < 1000.0) {
+            return String.format(java.util.Locale.US, "%.1f MB", mb)
+        }
+        val gb = mb / 1024.0
+        return String.format(java.util.Locale.US, "%.2f GB", gb)
     }
 
     fun startModelDownload(customUrl: String? = null) {
@@ -104,21 +120,30 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
             return
         }
 
+        // Set status to Downloading immediately so UI transitions and disables repeated clicks
+        _modelStatus.value = LiteRtModelStatus.Downloading(
+            progressPercent = 0,
+            downloadedMb = "0 KB",
+            totalMb = formatFileSize(ModelDownloader.EXPECTED_MODEL_BYTES),
+            downloadedBytes = 0L,
+            totalBytes = ModelDownloader.EXPECTED_MODEL_BYTES
+        )
+
         downloadJob?.cancel()
         downloadJob = scope.launch {
             val url = customUrl ?: DEFAULT_MODEL_URL
             downloader.downloadModel(url, DEFAULT_MODEL_NAME).collect { state ->
                 when (state) {
                     is ModelDownloadState.Progress -> {
-                        val downloadedMb = String.format("%.1f MB", state.downloadedBytes / (1024.0 * 1024.0))
-                        val totalMb = if (state.totalBytes > 0) {
-                            String.format("%.1f MB", state.totalBytes / (1024.0 * 1024.0))
-                        } else "Desconocido"
+                        val downloadedStr = formatFileSize(state.downloadedBytes)
+                        val totalStr = formatFileSize(state.totalBytes)
 
                         _modelStatus.value = LiteRtModelStatus.Downloading(
                             progressPercent = state.percentage,
-                            downloadedMb = downloadedMb,
-                            totalMb = totalMb
+                            downloadedMb = downloadedStr,
+                            totalMb = totalStr,
+                            downloadedBytes = state.downloadedBytes,
+                            totalBytes = state.totalBytes
                         )
                     }
                     is ModelDownloadState.Success -> {
@@ -146,6 +171,10 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
         val targetFile = File(context.filesDir, DEFAULT_MODEL_NAME)
         if (targetFile.exists()) {
             try { targetFile.delete() } catch (_: Exception) {}
+        }
+        val tempFile = File(context.filesDir, "$DEFAULT_MODEL_NAME.tmp")
+        if (tempFile.exists()) {
+            try { tempFile.delete() } catch (_: Exception) {}
         }
         _modelStatus.value = LiteRtModelStatus.NotDownloaded()
     }

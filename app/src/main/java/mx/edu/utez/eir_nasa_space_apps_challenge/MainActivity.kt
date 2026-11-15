@@ -1,3 +1,4 @@
+@file:OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
 package mx.edu.utez.eir_nasa_space_apps_challenge
 
 import android.os.Bundle
@@ -41,6 +42,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            window.isNavigationBarContrastEnforced = false
+        }
         setContent {
             val mainViewModel: EirMainViewModel = viewModel()
             val saludViewModel: SaludViewModel = viewModel()
@@ -109,18 +113,18 @@ fun EirApp(
                 EirTopBar(
                     isDarkMode = mainState.isDarkMode,
                     onToggleDarkMode = { mainViewModel.toggleDarkMode() },
-                    onOpenSos = { sosViewModel.openSos() },
-                    modifier = Modifier.statusBarsPadding()
+                    onOpenSos = { sosViewModel.openSos() }
                 )
             },
             bottomBar = {
-                EirBottomBar(
-                    activeTab = mainState.activeTab,
-                    isDarkMode = mainState.isDarkMode,
-                    onTabSelected = { mainViewModel.setActiveTab(it) },
-                    onOpenCheckup = { checkupViewModel.openCheckup() },
-                    modifier = Modifier.navigationBarsPadding()
-                )
+                if (!WindowInsets.isImeVisible) {
+                    EirBottomBar(
+                        activeTab = mainState.activeTab,
+                        isDarkMode = mainState.isDarkMode,
+                        onTabSelected = { mainViewModel.setActiveTab(it) },
+                        onOpenCheckup = { checkupViewModel.openCheckup() }
+                    )
+                }
             },
             containerColor = if (mainState.isDarkMode) EirDarkBg else EirLightBg
         ) { innerPadding ->
@@ -128,6 +132,8 @@ fun EirApp(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
+                    .consumeWindowInsets(innerPadding)
+                    .imePadding()
             ) {
                 when (mainState.activeTab) {
                     "salud" -> {
@@ -145,24 +151,18 @@ fun EirApp(
                         }
                     }
                     "habitos" -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState())
-                                .padding(bottom = 16.dp)
-                        ) {
-                            HabitosScreen(state = habitosState, viewModel = habitosViewModel)
-                        }
+                        HabitosScreen(
+                            state = habitosState,
+                            viewModel = habitosViewModel,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                     "bitacora" -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState())
-                                .padding(bottom = 16.dp)
-                        ) {
-                            BitacoraScreen(state = bitacoraState, viewModel = bitacoraViewModel)
-                        }
+                        BitacoraScreen(
+                            state = bitacoraState,
+                            viewModel = bitacoraViewModel,
+                            modifier = Modifier.fillMaxSize()
+                        )
                     }
                     "agente" -> {
                         AgenteIaScreen(state = agenteIaState, viewModel = agenteIaViewModel)
@@ -226,7 +226,7 @@ fun EirApp(
         }
 
         // Floating Mascot Companion Overlay
-        if (!checkupState.checkupOpen && !sosState.sosOpen) {
+        if (!checkupState.checkupOpen && !sosState.sosOpen && !WindowInsets.isImeVisible && mainState.activeTab != "agente") {
             val currentGlobalMascotEmotion = when {
                 agenteIaState.isAgentLoading -> MascotEmotion.THINKING
                 mainState.showCheckupReminderPopup -> MascotEmotion.CONCERNED
@@ -237,7 +237,7 @@ fun EirApp(
             MascotCompanionOverlay(
                 isDarkMode = mainState.isDarkMode,
                 currentEmotion = currentGlobalMascotEmotion,
-                modifier = Modifier.align(Alignment.BottomEnd)
+                modifier = Modifier.fillMaxSize()
             )
         }
 

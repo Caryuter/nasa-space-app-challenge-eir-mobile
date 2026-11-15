@@ -36,25 +36,32 @@ fun EirBottomBar(
     val unselectedColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8)
     val activeColor = EirEmerald
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(82.dp)
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = containerBg,
+        tonalElevation = 1.dp,
+        shadowElevation = 2.dp
     ) {
-        Surface(
+        Box(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
                 .fillMaxWidth()
-                .height(68.dp),
-            color = containerBg,
-            tonalElevation = 1.dp,
-            shadowElevation = 2.dp
+                .navigationBarsPadding()
+                .height(82.dp)
         ) {
-            NavigationBar(
-                containerColor = containerBg,
-                tonalElevation = 0.dp,
-                modifier = Modifier.fillMaxSize()
+            Surface(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .height(68.dp),
+                color = containerBg,
+                tonalElevation = 0.dp
             ) {
+                NavigationBar(
+                    containerColor = containerBg,
+                    tonalElevation = 0.dp,
+                    windowInsets = WindowInsets(0, 0, 0, 0),
+                    modifier = Modifier.fillMaxSize()
+                ) {
                 // 1. Salud
                 NavigationBarItem(
                     selected = activeTab == "salud",
@@ -201,6 +208,7 @@ fun EirBottomBar(
             )
         }
     }
+}
 }
 
 @Preview(showBackground = true, name = "EirBottomBar Light Mode")

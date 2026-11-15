@@ -779,6 +779,8 @@ fun HabitosScreenContent(
                 }
             }
         }
+
+        Spacer(modifier = Modifier.height(24.dp))
     }
 }
 

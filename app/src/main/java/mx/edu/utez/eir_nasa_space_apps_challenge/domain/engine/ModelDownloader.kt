@@ -27,15 +27,22 @@ sealed class ModelDownloadState {
 class ModelDownloader(private val context: Context) {
 
     private val client = OkHttpClient.Builder()
-        .connectTimeout(15, TimeUnit.SECONDS)
+        .connectTimeout(30, TimeUnit.SECONDS)
         .readTimeout(60, TimeUnit.SECONDS)
+        .followRedirects(true)
+        .followSslRedirects(true)
         .build()
+
+    companion object {
+        const val EXPECTED_MODEL_BYTES = 613_722_264L // Qwen3-0.6B.litertlm size
+    }
 
     fun downloadModel(url: String, fileName: String): Flow<ModelDownloadState> = flow {
         val targetFile = File(context.filesDir, fileName)
+        val tempFile = File(context.filesDir, "$fileName.tmp")
 
-        // If file already exists and is non-empty, report success immediately
-        if (targetFile.exists() && targetFile.length() > 0) {
+        // If target file already exists and is complete (> 500 MB), report success immediately
+        if (targetFile.exists() && targetFile.length() > 500_000_000L) {
             emit(ModelDownloadState.Success(targetFile))
             return@flow
         }
@@ -43,6 +50,7 @@ class ModelDownloader(private val context: Context) {
         val request = Request.Builder()
             .url(url)
             .header("User-Agent", "EirNASASpaceAppsChallenge/1.0")
+            .header("Accept-Encoding", "identity") // Avoid gzip stripping Content-Length
             .build()
 
         var outputStream: FileOutputStream? = null
@@ -56,50 +64,92 @@ class ModelDownloader(private val context: Context) {
             }
 
             val body = response.body!!
-            val totalBytes = body.contentLength()
-            var downloadedBytes = 0L
+            val rawLength = body.contentLength()
+            val headerLength = response.header("Content-Length")?.toLongOrNull()
+            val xLinkedSize = response.header("x-linked-size")?.toLongOrNull()
+            val totalBytes = when {
+                rawLength > 0 -> rawLength
+                headerLength != null && headerLength > 0 -> headerLength
+                xLinkedSize != null && xLinkedSize > 0 -> xLinkedSize
+                else -> EXPECTED_MODEL_BYTES
+            }
 
-            outputStream = FileOutputStream(targetFile)
-            val buffer = ByteArray(32 * 1024)
+            // Clean up old temp file if it exists
+            if (tempFile.exists()) {
+                tempFile.delete()
+            }
+
+            outputStream = FileOutputStream(tempFile)
+            val buffer = ByteArray(64 * 1024)
             var read: Int
+            var downloadedBytes = 0L
+            var lastEmittedPercent = -1
+            var lastEmittedTime = 0L
+
+            // Emit initial 0% progress
+            emit(
+                ModelDownloadState.Progress(
+                    percentage = 0,
+                    downloadedBytes = 0L,
+                    totalBytes = totalBytes
+                )
+            )
 
             body.byteStream().use { inputStream ->
                 while (inputStream.read(buffer).also { read = it } != -1) {
-                    // Check if coroutine was cancelled
                     kotlinx.coroutines.currentCoroutineContext().ensureActive()
 
                     outputStream.write(buffer, 0, read)
                     downloadedBytes += read
 
-                    val progress = if (totalBytes > 0) {
-                        ((downloadedBytes * 100) / totalBytes).toInt()
-                    } else 0
+                    val progress = ((downloadedBytes * 100) / totalBytes).toInt().coerceIn(0, 100)
+                    val now = System.currentTimeMillis()
 
-                    emit(
-                        ModelDownloadState.Progress(
-                            percentage = progress,
-                            downloadedBytes = downloadedBytes,
-                            totalBytes = totalBytes
+                    if (progress != lastEmittedPercent || (now - lastEmittedTime) >= 200L) {
+                        lastEmittedPercent = progress
+                        lastEmittedTime = now
+                        emit(
+                            ModelDownloadState.Progress(
+                                percentage = progress,
+                                downloadedBytes = downloadedBytes,
+                                totalBytes = totalBytes
+                            )
                         )
-                    )
+                    }
                 }
             }
             outputStream.flush()
             outputStream.close()
             outputStream = null
 
+            // Atomically replace target file
+            if (targetFile.exists()) {
+                targetFile.delete()
+            }
+            if (!tempFile.renameTo(targetFile)) {
+                tempFile.copyTo(targetFile, overwrite = true)
+                tempFile.delete()
+            }
+
+            emit(
+                ModelDownloadState.Progress(
+                    percentage = 100,
+                    downloadedBytes = downloadedBytes,
+                    totalBytes = totalBytes
+                )
+            )
             emit(ModelDownloadState.Success(targetFile))
         } catch (e: kotlinx.coroutines.CancellationException) {
             try { outputStream?.close() } catch (_: Exception) {}
-            if (targetFile.exists()) {
-                targetFile.delete()
+            if (tempFile.exists()) {
+                try { tempFile.delete() } catch (_: Exception) {}
             }
             emit(ModelDownloadState.Canceled)
             throw e
         } catch (e: Exception) {
             try { outputStream?.close() } catch (_: Exception) {}
-            if (targetFile.exists()) {
-                targetFile.delete()
+            if (tempFile.exists()) {
+                try { tempFile.delete() } catch (_: Exception) {}
             }
             emit(ModelDownloadState.Error("Fallo durante la descarga: ${e.localizedMessage ?: e.message}"))
         }

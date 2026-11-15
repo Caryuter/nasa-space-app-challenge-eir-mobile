@@ -67,7 +67,8 @@ data class ChatMessage(
 data class SosStep(
     val instruction: String,
     val why: String,
-    val kitAction: String
+    val kitAction: String,
+    val imageRes: Int? = null
 )
 
 data class SosScenario(

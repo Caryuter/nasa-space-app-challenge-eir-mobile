@@ -20,7 +20,8 @@ data class AgenteIaUiState(
     val isAgentLoading: Boolean = false,
     val modelStatus: LiteRtModelStatus = LiteRtModelStatus.NotDownloaded(),
     val isChatUnlocked: Boolean = false,
-    val personalizedContextPill: String = "Sincronizado: Latidos 68 • Sueño 7.5h"
+    val personalizedContextPill: String = "Sincronizado: Latidos 68 • Sueño 7.5h",
+    val isDownloadingOrConnecting: Boolean = false
 )
 
 class AgenteIaViewModel(application: Application) : AndroidViewModel(application) {
@@ -65,11 +66,13 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
             viewModelScope.launch {
                 engine.modelStatus.collect { status ->
                     val isUnlocked = status is LiteRtModelStatus.Ready
+                    val isBusy = status is LiteRtModelStatus.Downloading || status is LiteRtModelStatus.Initializing
 
                     _uiState.update {
                         it.copy(
                             modelStatus = status,
-                            isChatUnlocked = isUnlocked
+                            isChatUnlocked = isUnlocked,
+                            isDownloadingOrConnecting = isBusy
                         )
                     }
                 }
@@ -78,10 +81,13 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun startDownloadModel() {
+        if (_uiState.value.isDownloadingOrConnecting) return
+        _uiState.update { it.copy(isDownloadingOrConnecting = true) }
         (aiEngine as? LiteRtLmEirEngine)?.startModelDownload()
     }
 
     fun cancelDownloadModel() {
+        _uiState.update { it.copy(isDownloadingOrConnecting = false) }
         (aiEngine as? LiteRtLmEirEngine)?.cancelModelDownload()
     }
 
