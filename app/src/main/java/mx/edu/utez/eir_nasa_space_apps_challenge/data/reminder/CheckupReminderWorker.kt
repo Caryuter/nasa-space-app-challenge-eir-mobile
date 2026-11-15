@@ -34,10 +34,10 @@ class CheckupReminderWorker(
 
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Recordatorios de chequeo",
+                context.getString(R.string.notif_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Notificaciones para el seguimiento de salud"
+                description = context.getString(R.string.notif_channel_desc)
                 enableVibration(true)
             }
             notificationManager.createNotificationChannel(channel)
@@ -56,11 +56,11 @@ class CheckupReminderWorker(
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("Recordatorio de chequeo")
-                .setContentText("Completa tu seguimiento de salud de hoy.")
+                .setContentTitle(context.getString(R.string.notif_title))
+                .setContentText(context.getString(R.string.notif_content))
                 .setStyle(
                     NotificationCompat.BigTextStyle()
-                        .bigText("Completa tu seguimiento de salud de hoy para registrar tus signos vitales y mantener tu historial al día.")
+                        .bigText(context.getString(R.string.notif_big_text))
                 )
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)

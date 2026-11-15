@@ -20,11 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.BodyZoneInfo
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.HealthMetric
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.BodyZoneStatus
@@ -129,7 +131,7 @@ fun SaludScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            text = "ESTADO DE PREPARACIÓN $bodyBatteryVal%",
+                            text = stringResource(R.string.readiness_state, bodyBatteryVal),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Black,
                             letterSpacing = 0.5.sp,
@@ -138,9 +140,9 @@ fun SaludScreenContent(
                     }
                     Text(
                         text = when (mascotReadinessEmotion) {
-                            MascotEmotion.HAPPY -> "¡Tus signos vitales y energía están óptimos para operaciones de misión!"
-                            MascotEmotion.IDLE -> "Nivel de energía estable. Recuerda mantener la hidratación en cabina."
-                            else -> "Atención: Nivel de energía o descanso bajo. Te recomendamos tomar una pausa."
+                            MascotEmotion.HAPPY -> stringResource(R.string.readiness_optimal)
+                            MascotEmotion.IDLE -> stringResource(R.string.readiness_stable)
+                            else -> stringResource(R.string.readiness_low)
                         },
                         fontSize = 12.sp,
                         lineHeight = 16.sp,
@@ -171,12 +173,12 @@ fun SaludScreenContent(
                 ) {
                     Column {
                         Text(
-                            text = "¿Cómo se siente tu cuerpo?",
+                            text = stringResource(R.string.body_feeling_question),
                             fontWeight = FontWeight.Black,
                             fontSize = 14.sp
                         )
                         Text(
-                            text = "Toca una parte para entender qué pasa en el espacio",
+                            text = stringResource(R.string.body_feeling_sub),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -195,16 +197,16 @@ fun SaludScreenContent(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         ZoneQuickButton(
-                            label = "Cabeza",
-                            sub = "${state.healthMetrics.find { it.id == "sleep" }?.value ?: "7.5"}h sueño",
+                            label = stringResource(R.string.zone_head),
+                            sub = stringResource(R.string.hours_sleep_sub, state.healthMetrics.find { it.id == "sleep" }?.value ?: "7.5"),
                             isSelected = state.selectedZoneId == "head",
                             hasNote = state.discomforts.any { it.zoneId == "head" },
                             isDark = isDark,
                             onClick = { onSelectZone("head") }
                         )
                         ZoneQuickButton(
-                            label = "Estómago",
-                            sub = "Agua 4/6",
+                            label = stringResource(R.string.zone_abdomen),
+                            sub = stringResource(R.string.water_sub, "4/6"),
                             isSelected = state.selectedZoneId == "abdomen",
                             hasNote = state.discomforts.any { it.zoneId == "abdomen" },
                             isDark = isDark,
@@ -234,16 +236,16 @@ fun SaludScreenContent(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         ZoneQuickButton(
-                            label = "Pecho",
-                            sub = "${state.healthMetrics.find { it.id == "heartRate" }?.value ?: "68"} lat/m",
+                            label = stringResource(R.string.zone_chest),
+                            sub = stringResource(R.string.bpm_sub, state.healthMetrics.find { it.id == "heartRate" }?.value ?: "68"),
                             isSelected = state.selectedZoneId == "chest",
                             hasNote = state.discomforts.any { it.zoneId == "chest" },
                             isDark = isDark,
                             onClick = { onSelectZone("chest") }
                         )
                         ZoneQuickButton(
-                            label = "Piernas",
-                            sub = "Bat. ${state.healthMetrics.find { it.id == "bodyBattery" }?.value ?: "84"}%",
+                            label = stringResource(R.string.zone_legs),
+                            sub = stringResource(R.string.battery_sub, state.healthMetrics.find { it.id == "bodyBattery" }?.value ?: "84"),
                             isSelected = state.selectedZoneId == "legs",
                             hasNote = state.discomforts.any { it.zoneId == "legs" },
                             isDark = isDark,
@@ -298,7 +300,7 @@ fun SaludScreenContent(
                                     modifier = Modifier.width(70.dp)
                                 )
                                 Text(
-                                    text = "Últimos 7 días",
+                                    text = stringResource(R.string.last_7_days),
                                     fontSize = 9.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(top = 2.dp)
@@ -341,7 +343,7 @@ fun SaludScreenContent(
                                         color = EirAmber
                                     )
                                     Text(
-                                        text = "Ya pasó",
+                                        text = stringResource(R.string.past_discomfort),
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = EirAmber,
@@ -354,7 +356,7 @@ fun SaludScreenContent(
                         if (state.reportingZoneId == state.selectedZoneId) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                 Text(
-                                    text = "Elige cómo se siente o escríbelo con tus palabras:",
+                                    text = stringResource(R.string.report_discomfort_prompt),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -380,7 +382,7 @@ fun SaludScreenContent(
                                     OutlinedTextField(
                                         value = state.customDiscomfortInput,
                                         onValueChange = { onSetCustomDiscomfortInput(it) },
-                                        placeholder = { Text(text = "Otra molestia...", fontSize = 11.sp) },
+                                        placeholder = { Text(text = stringResource(R.string.other_discomfort_placeholder), fontSize = 11.sp) },
                                         singleLine = true,
                                         modifier = Modifier.weight(1f),
                                         shape = RoundedCornerShape(12.dp)
@@ -396,7 +398,7 @@ fun SaludScreenContent(
                                         colors = ButtonDefaults.buttonColors(containerColor = EirAmber),
                                         shape = RoundedCornerShape(12.dp)
                                     ) {
-                                        Text(text = "Anotar", fontSize = 11.sp, color = Color.Black)
+                                        Text(text = stringResource(R.string.record_discomfort), fontSize = 11.sp, color = Color.Black)
                                     }
                                 }
                             }
@@ -408,11 +410,11 @@ fun SaludScreenContent(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Reportar",
+                                    contentDescription = stringResource(R.string.record_discomfort),
                                     modifier = Modifier.size(14.dp)
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
-                                Text(text = "Reportar molestia aquí", fontSize = 11.sp)
+                                Text(text = stringResource(R.string.report_discomfort_here), fontSize = 11.sp)
                             }
                         }
                     }
@@ -422,27 +424,27 @@ fun SaludScreenContent(
 
         // 8 HEALTH METRICS LIST
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            val metrics = if (state.healthMetrics.isNotEmpty()) state.healthMetrics else sampleHealthMetrics
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "ESTADO DE TU CUERPO (8)",
+                    text = stringResource(R.string.body_status_header, metrics.size),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 1.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
-                    text = "Desliza para ver más • Toca “?”",
+                    text = stringResource(R.string.swipe_for_more),
                     fontSize = 10.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             // Horizontal Carousel for Health Metrics (1 card per row/view)
-            val metrics = if (state.healthMetrics.isNotEmpty()) state.healthMetrics else sampleHealthMetrics
             val lazyListState = rememberLazyListState()
             val snapFlingBehavior = rememberSnapFlingBehavior(
                 lazyListState = lazyListState,
@@ -593,7 +595,7 @@ private fun MetricCard(
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = if (isExpanded) "Cerrar" else "?",
+                            text = if (isExpanded) stringResource(R.string.close) else "?",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Black,
                             color = if (isExpanded) Color.White else MaterialTheme.colorScheme.primary
@@ -663,7 +665,7 @@ private fun MetricCard(
                     verticalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
-                        text = "¿Qué significa esto?",
+                        text = stringResource(R.string.metric_what_means),
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
                         color = EirSky
@@ -676,7 +678,7 @@ private fun MetricCard(
                     )
 
                     Text(
-                        text = "¿Qué hago?",
+                        text = stringResource(R.string.metric_what_do),
                         fontWeight = FontWeight.Bold,
                         fontSize = 11.sp,
                         color = EirEmerald,
@@ -690,7 +692,7 @@ private fun MetricCard(
                     )
 
                     Text(
-                        text = "Actualizado: ${metric.updatedAt}",
+                        text = stringResource(R.string.metric_updated, metric.updatedAt),
                         fontSize = 10.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp)

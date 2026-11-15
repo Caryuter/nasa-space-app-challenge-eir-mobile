@@ -18,10 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
 
 @Composable
@@ -85,12 +87,12 @@ fun EirBottomBar(
                         icon = {
                             Icon(
                                 imageVector = if (activeTab == "salud") Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                                contentDescription = "Salud"
+                                contentDescription = stringResource(R.string.nav_health)
                             )
                         },
                         label = {
                             Text(
-                                text = "Salud",
+                                text = stringResource(R.string.nav_health),
                                 fontWeight = if (activeTab == "salud") FontWeight.Black else FontWeight.Medium,
                                 fontSize = 10.sp
                             )
@@ -111,12 +113,12 @@ fun EirBottomBar(
                         icon = {
                             Icon(
                                 imageVector = if (activeTab == "habitos") Icons.Filled.FitnessCenter else Icons.Outlined.FitnessCenter,
-                                contentDescription = "Hábitos"
+                                contentDescription = stringResource(R.string.nav_habits)
                             )
                         },
                         label = {
                             Text(
-                                text = "Hábitos",
+                                text = stringResource(R.string.nav_habits),
                                 fontWeight = if (activeTab == "habitos") FontWeight.Black else FontWeight.Medium,
                                 fontSize = 10.sp
                             )
@@ -140,12 +142,12 @@ fun EirBottomBar(
                         icon = {
                             Icon(
                                 imageVector = if (activeTab == "bitacora") Icons.Filled.AutoStories else Icons.Outlined.AutoStories,
-                                contentDescription = "Bitácora"
+                                contentDescription = stringResource(R.string.nav_logbook)
                             )
                         },
                         label = {
                             Text(
-                                text = "Bitácora",
+                                text = stringResource(R.string.nav_logbook),
                                 fontWeight = if (activeTab == "bitacora") FontWeight.Black else FontWeight.Medium,
                                 fontSize = 10.sp
                             )
@@ -166,12 +168,12 @@ fun EirBottomBar(
                         icon = {
                             Icon(
                                 imageVector = if (activeTab == "agente") Icons.Filled.ChatBubble else Icons.Outlined.ChatBubbleOutline,
-                                contentDescription = "Agente IA"
+                                contentDescription = stringResource(R.string.nav_ai_agent)
                             )
                         },
                         label = {
                             Text(
-                                text = "Agente IA",
+                                text = stringResource(R.string.nav_ai_agent),
                                 fontWeight = if (activeTab == "agente") FontWeight.Black else FontWeight.Medium,
                                 fontSize = 10.sp
                             )
@@ -209,14 +211,14 @@ fun EirBottomBar(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Iniciar Chequeo Diario Obligatorio",
+                    contentDescription = stringResource(R.string.cd_start_daily_checkup),
                     tint = Color.White,
                     modifier = Modifier.size(32.dp)
                 )
             }
 
             Text(
-                text = "Chequeo",
+                text = stringResource(R.string.nav_checkup),
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
                 color = activeColor,

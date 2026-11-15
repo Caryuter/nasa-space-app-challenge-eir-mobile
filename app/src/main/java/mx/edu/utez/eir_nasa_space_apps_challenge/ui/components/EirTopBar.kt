@@ -13,10 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
 
 @Composable
@@ -56,7 +58,7 @@ fun EirTopBar(
                 )
 
                 Text(
-                    text = "Misión Ares IV • Sol 142",
+                    text = stringResource(R.string.mission_subtitle),
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
                     color = textSecondary,
@@ -78,7 +80,7 @@ fun EirTopBar(
                 ) {
                     Icon(
                         imageVector = if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode,
-                        contentDescription = "Cambiar Tema",
+                        contentDescription = stringResource(R.string.cd_toggle_theme),
                         tint = if (isDark) EirAmber else textPrimary,
                         modifier = Modifier.size(20.dp)
                     )
@@ -97,13 +99,13 @@ fun EirTopBar(
                 ) {
                     Icon(
                         imageVector = Icons.Default.Warning,
-                        contentDescription = "SOS",
+                        contentDescription = stringResource(R.string.sos_button),
                         tint = Color.White,
                         modifier = Modifier.size(16.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = "SOS",
+                        text = stringResource(R.string.sos_button),
                         color = Color.White,
                         fontWeight = FontWeight.Black,
                         fontSize = 13.sp,

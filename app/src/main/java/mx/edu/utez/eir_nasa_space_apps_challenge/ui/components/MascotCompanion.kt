@@ -29,6 +29,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -43,12 +44,12 @@ import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
 /**
  * Emociones disponibles para la mascota espacial EIR
  */
-enum class MascotEmotion(val iconRes: Int, val displayName: String) {
-    IDLE(R.drawable.mascot_idle, "Tranquilo"),
-    HAPPY(R.drawable.mascot_happy, "Alegre"),
-    THINKING(R.drawable.mascot_thinking, "Analizando"),
-    CONCERNED(R.drawable.mascot_concerned, "Preocupado"),
-    SLEEP(R.drawable.mascot_sleep, "Descansando")
+enum class MascotEmotion(val iconRes: Int, val displayNameRes: Int) {
+    IDLE(R.drawable.mascot_idle, R.string.mascot_emotion_idle),
+    HAPPY(R.drawable.mascot_happy, R.string.mascot_emotion_happy),
+    THINKING(R.drawable.mascot_thinking, R.string.mascot_emotion_thinking),
+    CONCERNED(R.drawable.mascot_concerned, R.string.mascot_emotion_concerned),
+    SLEEP(R.drawable.mascot_sleep, R.string.mascot_emotion_sleep)
 }
 
 /**
@@ -73,6 +74,8 @@ fun MascotAvatar(
         label = "scale"
     )
 
+    val emotionName = stringResource(emotion.displayNameRes)
+
     Box(
         modifier = modifier
             .size(size)
@@ -85,7 +88,7 @@ fun MascotAvatar(
     ) {
         Image(
             painter = painterResource(id = emotion.iconRes),
-            contentDescription = "Mascota EIR (${emotion.displayName})",
+            contentDescription = stringResource(R.string.mascot_cd, emotionName),
             modifier = Modifier.fillMaxSize()
         )
     }
@@ -106,15 +109,13 @@ fun MascotCompanionOverlay(
     var tipIndex by remember { mutableIntStateOf(0) }
     var isDragging by remember { mutableStateOf(false) }
 
-    val spaceTips = remember {
-        listOf(
-            "¡Hola Astronauta! Tus biometrías del Sol 142 están bajo monitoreo continuo 🚀",
-            "Recuerda hidratarte regularmente. El entorno de cabina seca requiere 2.5L de agua al día.",
-            "Una siesta de 20 minutos puede optimizar tus niveles de enfoque cognitivo.",
-            "Tus niveles de Varianza de Frecuencia Cardíaca (HRV) sugieren un descanso balanceado.",
-            "¡Excelente trabajo completando tu registro de hábitos diarios!"
-        )
-    }
+    val spaceTips = listOf(
+        stringResource(R.string.mascot_tip_1),
+        stringResource(R.string.mascot_tip_2),
+        stringResource(R.string.mascot_tip_3),
+        stringResource(R.string.mascot_tip_4),
+        stringResource(R.string.mascot_tip_5)
+    )
 
     val mascotSize = 56.dp
 
@@ -236,12 +237,12 @@ fun MascotCompanionOverlay(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Lightbulb,
-                                contentDescription = "Consejo",
+                                contentDescription = stringResource(R.string.mascot_tip_title),
                                 tint = EirAmber,
                                 modifier = Modifier.size(16.dp)
                             )
                             Text(
-                                text = "EIR Compañero",
+                                text = stringResource(R.string.mascot_companion_name),
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = EirSky
@@ -254,7 +255,7 @@ fun MascotCompanionOverlay(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Cerrar",
+                                contentDescription = stringResource(R.string.close),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(14.dp)
                             )
@@ -280,13 +281,13 @@ fun MascotCompanionOverlay(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Refresh,
-                                contentDescription = "Otro consejo",
+                                contentDescription = stringResource(R.string.mascot_another_tip),
                                 tint = EirSky,
                                 modifier = Modifier.size(12.dp)
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Otro consejo",
+                                text = stringResource(R.string.mascot_another_tip),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = EirSky

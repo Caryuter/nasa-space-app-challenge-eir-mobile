@@ -10,9 +10,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
 
 @Composable
@@ -57,7 +59,7 @@ fun CheckupReminderPopup(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Chequeo diario pendiente",
+                        text = stringResource(R.string.reminder_title),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.SemiBold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -69,7 +71,7 @@ fun CheckupReminderPopup(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Cerrar",
+                            contentDescription = stringResource(R.string.close),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.size(18.dp)
                         )
@@ -78,7 +80,7 @@ fun CheckupReminderPopup(
 
                 // Mensaje conciso sin sobrecarga de texto
                 Text(
-                    text = "Completa tu registro de hoy para mantener tu seguimiento al día.",
+                    text = stringResource(R.string.reminder_message),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -96,7 +98,7 @@ fun CheckupReminderPopup(
                         shape = RoundedCornerShape(10.dp)
                     ) {
                         Text(
-                            text = "Posponer",
+                            text = stringResource(R.string.reminder_snooze),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -111,7 +113,7 @@ fun CheckupReminderPopup(
                         )
                     ) {
                         Text(
-                            text = "Iniciar chequeo",
+                            text = stringResource(R.string.reminder_start),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.SemiBold
                         )

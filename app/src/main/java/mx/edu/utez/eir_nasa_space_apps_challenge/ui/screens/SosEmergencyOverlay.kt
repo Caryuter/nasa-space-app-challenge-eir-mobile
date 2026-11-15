@@ -21,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -98,7 +99,7 @@ fun SosEmergencyOverlayContent(
                     .padding(horizontal = 20.dp, vertical = 12.dp)
             ) {
                 Text(
-                    text = "Cerrar",
+                    text = stringResource(R.string.close),
                     color = Color.White,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -149,7 +150,7 @@ fun SosEmergencyOverlayContent(
                             Spacer(modifier = Modifier.width(4.dp))
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
-                                contentDescription = "Cambiar emergencia",
+                                contentDescription = stringResource(R.string.change_emergency),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(22.dp)
                             )
@@ -172,12 +173,12 @@ fun SosEmergencyOverlayContent(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.VolumeUp,
-                                    contentDescription = "Audio",
+                                    contentDescription = stringResource(R.string.sos_audio_btn),
                                     tint = if (state.isVoiceGuidePlaying) redBannerColor else textPrimaryColor,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 Text(
-                                    text = if (state.isVoiceGuidePlaying) "Leyendo..." else "Audio",
+                                    text = if (state.isVoiceGuidePlaying) stringResource(R.string.sos_audio_reading) else stringResource(R.string.sos_audio_btn),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = if (state.isVoiceGuidePlaying) redBannerColor else textPrimaryColor
@@ -190,7 +191,7 @@ fun SosEmergencyOverlayContent(
 
                     // Indicador de paso
                     Text(
-                        text = "PASO ${state.sosStepIndex + 1} DE ${currentScenario.steps.size}",
+                        text = stringResource(R.string.sos_step_indicator, state.sosStepIndex + 1, currentScenario.steps.size),
                         fontSize = 13.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 0.5.sp,
@@ -258,7 +259,7 @@ fun SosEmergencyOverlayContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Equipo: ",
+                            text = stringResource(R.string.equipment_label),
                             fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                             color = textPrimaryColor
@@ -281,6 +282,7 @@ fun SosEmergencyOverlayContent(
                         .navigationBarsPadding()
                         .padding(top = 16.dp, bottom = 20.dp)
                 ) {
+                    val completedToast = stringResource(R.string.sos_completed_toast)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -300,12 +302,12 @@ fun SosEmergencyOverlayContent(
                             ) {
                                 Icon(
                                     Icons.Default.ChevronLeft,
-                                    contentDescription = "Anterior",
+                                    contentDescription = stringResource(R.string.previous),
                                     tint = textPrimaryColor
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "Anterior",
+                                    text = stringResource(R.string.previous),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = textPrimaryColor
@@ -319,7 +321,7 @@ fun SosEmergencyOverlayContent(
                                     onNextStep()
                                 } else {
                                     onClose()
-                                    onCompleteSuccess("Protocolo de emergencia completado")
+                                    onCompleteSuccess(completedToast)
                                 }
                             },
                             shape = RoundedCornerShape(14.dp),
@@ -332,9 +334,9 @@ fun SosEmergencyOverlayContent(
                         ) {
                             Text(
                                 text = if (state.sosStepIndex < currentScenario.steps.size - 1) {
-                                    "Siguiente paso"
+                                    stringResource(R.string.next_step)
                                 } else {
-                                    "Finalizar asistencia ✓"
+                                    stringResource(R.string.finish_assistance)
                                 },
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold,
@@ -363,7 +365,7 @@ fun SosEmergencyOverlayContent(
                         .navigationBarsPadding()
                 ) {
                     Text(
-                        text = "Seleccionar Emergencia",
+                        text = stringResource(R.string.select_emergency_title),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Black,
                         color = textPrimaryColor,
@@ -404,7 +406,7 @@ fun SosEmergencyOverlayContent(
                             if (isSelected) {
                                 Icon(
                                     imageVector = Icons.Default.Check,
-                                    contentDescription = "Seleccionado",
+                                    contentDescription = stringResource(R.string.selected),
                                     tint = redBannerColor,
                                     modifier = Modifier.size(20.dp)
                                 )
@@ -441,20 +443,20 @@ private fun SosBreathingIllustration() {
         ) {
             Icon(
                 imageVector = Icons.Default.Air,
-                contentDescription = "Respiración",
+                contentDescription = stringResource(R.string.sos_breath_tag),
                 tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(54.dp)
             )
         }
         Spacer(modifier = Modifier.height(14.dp))
         Text(
-            text = "4 seg. Inhala  •  6 seg. Exhala",
+            text = stringResource(R.string.sos_breathing_pattern),
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = "Mantén la respiración lenta y constante",
+            text = stringResource(R.string.sos_breathing_keep_slow),
             fontSize = 13.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

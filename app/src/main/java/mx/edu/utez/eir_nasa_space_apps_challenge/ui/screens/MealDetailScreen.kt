@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,19 +64,19 @@ fun MealDetailScreen(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
+                    contentDescription = stringResource(R.string.back),
                     tint = textPrimary
                 )
             }
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "Detalle de Nutrición",
+                    text = stringResource(R.string.nutrition_detail),
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
                     color = textPrimary
                 )
                 Text(
-                    text = "Misión Ares IV • Sol 142",
+                    text = stringResource(R.string.mission_subtitle),
                     fontSize = 11.sp,
                     color = textSecondary
                 )
@@ -98,13 +99,13 @@ fun MealDetailScreen(
                     if (meal.done) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Consumida",
+                            contentDescription = stringResource(R.string.consumed),
                             tint = EirEmerald,
                             modifier = Modifier.size(14.dp)
                         )
                     }
                     Text(
-                        text = if (meal.done) "Consumida" else "Pendiente",
+                        text = if (meal.done) stringResource(R.string.consumed) else stringResource(R.string.pending),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         color = if (meal.done) EirEmerald else textSecondary
@@ -136,7 +137,7 @@ fun MealDetailScreen(
                         {
                             Icon(
                                 imageVector = Icons.Default.Check,
-                                contentDescription = "Listo",
+                                contentDescription = stringResource(R.string.done),
                                 modifier = Modifier.size(14.dp),
                                 tint = if (isSelected) Color.White else EirEmerald
                             )
@@ -260,7 +261,7 @@ fun MealDetailScreen(
                     lineHeight = 28.sp
                 )
                 Text(
-                    text = "${meal.mealType} • Menú calculado para mantener tu densidad ósea en microgravedad",
+                    text = stringResource(R.string.menu_calculated_subtitle, meal.mealType),
                     fontSize = 12.sp,
                     color = textSecondary
                 )
@@ -283,13 +284,13 @@ fun MealDetailScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Aporte de Energía y Macros",
+                            text = stringResource(R.string.energy_and_macros),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = textPrimary
                         )
                         Text(
-                            text = "${meal.kcal} / 2400 kcal día",
+                            text = stringResource(R.string.kcal_per_day, meal.kcal),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = EirEmerald
@@ -336,7 +337,7 @@ fun MealDetailScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         MacroBadgeItem(
-                            label = "Proteína",
+                            label = stringResource(R.string.macro_protein),
                             grams = "${meal.proteinGrams}g",
                             percentage = "${(proteinFraction * 100).toInt()}%",
                             color = Color(0xFF38BDF8),
@@ -344,7 +345,7 @@ fun MealDetailScreen(
                             textSecondary = textSecondary
                         )
                         MacroBadgeItem(
-                            label = "Carbohidratos",
+                            label = stringResource(R.string.macro_carbs),
                             grams = "${meal.carbsGrams}g",
                             percentage = "${(carbsFraction * 100).toInt()}%",
                             color = Color(0xFFFBBF24),
@@ -352,7 +353,7 @@ fun MealDetailScreen(
                             textSecondary = textSecondary
                         )
                         MacroBadgeItem(
-                            label = "Grasas",
+                            label = stringResource(R.string.macro_fat),
                             grams = "${meal.fatGrams}g",
                             percentage = "${(fatFraction * 100).toInt()}%",
                             color = Color(0xFFF43F5E),
@@ -360,9 +361,9 @@ fun MealDetailScreen(
                             textSecondary = textSecondary
                         )
                         MacroBadgeItem(
-                            label = "Fibra",
+                            label = stringResource(R.string.macro_fiber),
                             grams = "${meal.fiberGrams}g",
-                            percentage = "Óptima",
+                            percentage = stringResource(R.string.optimal),
                             color = EirEmerald,
                             textPrimary = textPrimary,
                             textSecondary = textSecondary
@@ -388,7 +389,7 @@ fun MealDetailScreen(
                     ) {
                         Text(text = "🛡️", fontSize = 16.sp)
                         Text(
-                            text = "¿Por qué tu cuerpo necesita esta comida hoy?",
+                            text = stringResource(R.string.why_body_needs_food),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = if (isDark) EirEmerald else Color(0xFF166534)
@@ -426,7 +427,7 @@ fun MealDetailScreen(
                     }
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
-                            text = "Modo de preparación en la estación",
+                            text = stringResource(R.string.prep_method_station),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = textPrimary
@@ -449,13 +450,13 @@ fun MealDetailScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Raciones y Alimentos Incluidos",
+                        text = stringResource(R.string.portions_and_food_included),
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp,
                         color = textPrimary
                     )
                     Text(
-                        text = "${meal.items.size} raciones",
+                        text = stringResource(R.string.portions_count, meal.items.size),
                         fontSize = 12.sp,
                         color = textSecondary
                     )
@@ -473,7 +474,7 @@ fun MealDetailScreen(
                     ) {
                         if (meal.items.isEmpty()) {
                             Text(
-                                text = "Ración nutricional completa formulada por el equipo biomédico.",
+                                text = stringResource(R.string.meal_empty_ration),
                                 fontSize = 12.sp,
                                 color = textSecondary,
                                 modifier = Modifier.padding(8.dp)
@@ -564,7 +565,7 @@ fun MealDetailScreen(
                         modifier = Modifier.size(20.dp)
                     )
                     Text(
-                        text = if (meal.done) "Comida registrada (Toca para desmarcar)" else "Marcar como consumida",
+                        text = if (meal.done) stringResource(R.string.meal_registered_unmark) else stringResource(R.string.mark_as_consumed),
                         fontWeight = FontWeight.Bold,
                         fontSize = 15.sp
                     )

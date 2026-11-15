@@ -400,7 +400,7 @@ class EirViewModel(application: Application) : AndroidViewModel(application) {
     init {
         tts = TextToSpeech(application) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                tts?.language = Locale.Builder().setLanguage("es").setRegion("MX").build()
+                tts?.language = Locale.getDefault()
                 isTtsInitialized = true
             }
         }
@@ -842,7 +842,7 @@ class EirViewModel(application: Application) : AndroidViewModel(application) {
                     checkupOpen = false
                 )
             }
-            showToast("Chequeo guardado y sincronizado vía Outbox")
+            showToast(getApplication<Application>().getString(R.string.checkup_completed_toast))
         }
     }
 

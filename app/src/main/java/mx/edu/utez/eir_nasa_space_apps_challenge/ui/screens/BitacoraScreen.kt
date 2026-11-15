@@ -27,12 +27,14 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.JournalEntry
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.Emotional2DQuadrant
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
@@ -154,10 +156,10 @@ fun BitacoraScreenContent(
     }
 
     val breathGuides = listOf(
-        BreathGuide("Toma aire despacio", "Llena tus pulmones sin prisa • 4 seg", 1.25f),
-        BreathGuide("Sostén el aire", "Quédate quieto un momento • 4 seg", 1.25f),
-        BreathGuide("Suelta el aire suave", "Deja caer los hombros • 4 seg", 0.85f),
-        BreathGuide("Descansa antes de seguir", "Siente la calma de la cabina • 4 seg", 0.85f)
+        BreathGuide(stringResource(R.string.breathe_in), stringResource(R.string.breathe_in_sub), 1.25f),
+        BreathGuide(stringResource(R.string.breathe_hold), stringResource(R.string.breathe_hold_sub), 1.25f),
+        BreathGuide(stringResource(R.string.breathe_out), stringResource(R.string.breathe_out_sub), 0.85f),
+        BreathGuide(stringResource(R.string.breathe_rest), stringResource(R.string.breathe_rest_sub), 0.85f)
     )
 
     val currentGuide = breathGuides[state.breathingPhase]
@@ -178,14 +180,14 @@ fun BitacoraScreenContent(
         // SCREEN HEADER
         Column {
             Text(
-                text = "Bitácora de Eir",
+                text = stringResource(R.string.logbook_title),
                 fontWeight = FontWeight.Black,
                 fontSize = 28.sp,
                 letterSpacing = (-0.5).sp,
                 color = textPrimary
             )
             Text(
-                text = "Tu rincón de calma, reflexión por voz y seguimiento de racha",
+                text = stringResource(R.string.logbook_subtitle),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = textSecondary,
@@ -219,7 +221,7 @@ fun BitacoraScreenContent(
                         color = textPrimary
                     )
                     Text(
-                        text = "Días de racha",
+                        text = stringResource(R.string.streak_days),
                         fontWeight = FontWeight.Black,
                         fontSize = 20.sp,
                         color = textPrimary
@@ -272,7 +274,7 @@ fun BitacoraScreenContent(
 
                 // Motivational Text
                 Text(
-                    text = "¡Increíble! Ahora, ¡a por el hito de 7 días!",
+                    text = stringResource(R.string.streak_motivational),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Medium,
                     color = textSecondary
@@ -291,7 +293,7 @@ fun BitacoraScreenContent(
                         .height(48.dp)
                 ) {
                     Text(
-                        text = "Me comprometo",
+                        text = stringResource(R.string.i_commit),
                         fontWeight = FontWeight.Bold,
                         fontSize = 14.sp
                     )
@@ -322,13 +324,13 @@ fun BitacoraScreenContent(
                             .padding(end = 12.dp)
                     ) {
                         Text(
-                            text = "Pausa de Respiración",
+                            text = stringResource(R.string.breathing_pause_title),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Black,
                             color = textPrimary
                         )
                         Text(
-                            text = "Técnica 4-4-4-4 para desacelerar el ritmo cardiaco",
+                            text = stringResource(R.string.breathing_technique_sub),
                             fontSize = 11.sp,
                             color = textSecondary
                         )
@@ -345,12 +347,12 @@ fun BitacoraScreenContent(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Air,
-                            contentDescription = "Respirar",
+                            contentDescription = stringResource(R.string.breathing_pause_title),
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = if (state.breathingActive) "Detener" else "Iniciar",
+                            text = if (state.breathingActive) stringResource(R.string.stop) else stringResource(R.string.start),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -423,13 +425,13 @@ fun BitacoraScreenContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Estado Emocional",
+                        text = stringResource(R.string.emotional_state_title),
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Black,
                         color = textPrimary
                     )
                     Text(
-                        text = "Hoy: ${state.moodLabel}",
+                        text = stringResource(R.string.today_mood, state.moodLabel),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = EirEmerald
@@ -466,13 +468,13 @@ fun BitacoraScreenContent(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Escribe algo para ti hoy",
+                            text = stringResource(R.string.write_for_yourself),
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Black,
                             color = textPrimary
                         )
                         Text(
-                            text = "La forma más fácil y natural: habla y Eir lo transcribirá",
+                            text = stringResource(R.string.voice_first_sub),
                             fontSize = 12.sp,
                             color = textSecondary
                         )
@@ -495,7 +497,7 @@ fun BitacoraScreenContent(
                                 modifier = Modifier.size(12.dp)
                             )
                             Text(
-                                text = "Voz Primero",
+                                text = stringResource(R.string.voice_first_badge),
                                 fontSize = 10.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = EirEmerald
@@ -546,7 +548,7 @@ fun BitacoraScreenContent(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Mic,
-                                    contentDescription = "Grabar con voz",
+                                    contentDescription = stringResource(R.string.tap_to_record_voice),
                                     tint = Color.White,
                                     modifier = Modifier.size(36.dp)
                                 )
@@ -554,13 +556,13 @@ fun BitacoraScreenContent(
 
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
-                                    text = "Toca para grabar con voz",
+                                    text = stringResource(R.string.tap_to_record_voice),
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.ExtraBold,
                                     color = textPrimary
                                 )
                                 Text(
-                                    text = "Dicta cómo te sientes. Se transcribirá al instante a texto.",
+                                    text = stringResource(R.string.dictate_how_you_feel),
                                     fontSize = 11.sp,
                                     color = textSecondary,
                                     textAlign = TextAlign.Center
@@ -580,7 +582,7 @@ fun BitacoraScreenContent(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "O insertar dictado de prueba",
+                                    text = stringResource(R.string.insert_sample_speech),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Medium,
                                     color = EirSky
@@ -619,7 +621,7 @@ fun BitacoraScreenContent(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Stop,
-                                        contentDescription = "Detener grabación",
+                                        contentDescription = stringResource(R.string.stop_recording),
                                         tint = Color.White,
                                         modifier = Modifier.size(32.dp)
                                     )
@@ -642,7 +644,7 @@ fun BitacoraScreenContent(
                                         .background(EirRoseEmergency)
                                 )
                                 Text(
-                                    text = "Grabando reflexión: $timerString",
+                                    text = stringResource(R.string.recording_reflection, timerString),
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.Black,
                                     color = EirRoseEmergency
@@ -656,7 +658,7 @@ fun BitacoraScreenContent(
                             )
 
                             Text(
-                                text = "Eir te está escuchando con atención... Habla sin prisa.",
+                                text = stringResource(R.string.listening_carefully),
                                 fontSize = 11.sp,
                                 color = textSecondary,
                                 textAlign = TextAlign.Center
@@ -678,7 +680,7 @@ fun BitacoraScreenContent(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Terminar y transcribir a texto",
+                                    text = stringResource(R.string.finish_and_transcribe),
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp,
                                     color = Color.White
@@ -720,7 +722,7 @@ fun BitacoraScreenContent(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
-                                    contentDescription = "Cerrar",
+                                    contentDescription = stringResource(R.string.close),
                                     tint = EirEmerald,
                                     modifier = Modifier.size(14.dp)
                                 )
@@ -763,7 +765,7 @@ fun BitacoraScreenContent(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Close,
-                                        contentDescription = "Cerrar",
+                                        contentDescription = stringResource(R.string.close),
                                         tint = textSecondary,
                                         modifier = Modifier.size(14.dp)
                                     )
@@ -789,7 +791,7 @@ fun BitacoraScreenContent(
                                     }
                                 ) {
                                     Text(
-                                        text = "Reintentar con diálogo del sistema",
+                                        text = stringResource(R.string.retry_system_dialog),
                                         fontSize = 11.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = EirSky
@@ -806,7 +808,7 @@ fun BitacoraScreenContent(
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Text(
-                        text = "Texto transcrito de tu reflexión:",
+                        text = stringResource(R.string.transcribed_text_label),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = textSecondary
@@ -817,7 +819,7 @@ fun BitacoraScreenContent(
                         onValueChange = onSetJournalInput,
                         placeholder = {
                             Text(
-                                text = "¿Cómo estuvo tu día en la cabina? Graba con voz arriba o edita aquí libremente...",
+                                text = stringResource(R.string.transcribed_placeholder),
                                 fontSize = 13.sp,
                                 color = textSecondary
                             )
@@ -856,7 +858,7 @@ fun BitacoraScreenContent(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = if (state.isTtsSpeaking && state.activeTtsEntryId == null) "Detener audio" else "Escuchar (TTS)",
+                                    text = if (state.isTtsSpeaking && state.activeTtsEntryId == null) stringResource(R.string.stop_audio) else stringResource(R.string.listen_tts),
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -881,7 +883,7 @@ fun BitacoraScreenContent(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.DeleteOutline,
-                                        contentDescription = "Limpiar texto",
+                                        contentDescription = stringResource(R.string.clear_text),
                                         tint = textSecondary,
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -906,7 +908,7 @@ fun BitacoraScreenContent(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Guardar Nota",
+                                    text = stringResource(R.string.save_note),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
@@ -924,7 +926,7 @@ fun BitacoraScreenContent(
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             Text(
-                text = "TUS DÍAS ANTERIORES",
+                text = stringResource(R.string.previous_days_header),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Black,
                 letterSpacing = 1.sp,
@@ -980,7 +982,7 @@ fun BitacoraScreenContent(
                             ) {
                                 Icon(
                                     imageVector = if (state.isTtsSpeaking && state.activeTtsEntryId == entry.id) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
-                                    contentDescription = "Escuchar con Text-to-Speech",
+                                    contentDescription = stringResource(R.string.listen_tts_cd),
                                     tint = if (state.isTtsSpeaking && state.activeTtsEntryId == entry.id) EirRoseEmergency else textSecondary,
                                     modifier = Modifier.size(18.dp)
                                 )

@@ -30,10 +30,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.ChatMessage
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LiteRtModelStatus
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotAvatar
@@ -109,7 +111,7 @@ fun AgenteIaScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
                         Text(
-                            text = "EIR • Asistente Médico",
+                            text = stringResource(R.string.ai_assistant_header),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
@@ -148,6 +150,8 @@ fun AgenteIaScreenContent(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(messages) { msg ->
+                val explainSimplerPrompt = stringResource(R.string.explain_simpler_query, msg.text)
+                val giveStepsPrompt = stringResource(R.string.give_steps_query, msg.text)
                 ChatMessageItem(
                     message = msg,
                     isDark = isDark,
@@ -155,14 +159,14 @@ fun AgenteIaScreenContent(
                     cardBorder = cardBorder,
                     onSimplify = {
                         onSendChatMessage(
-                            "Explícame esto aún más simple: \"${msg.text}\"",
+                            explainSimplerPrompt,
                             true,
                             false
                         )
                     },
                     onGiveSteps = {
                         onSendChatMessage(
-                            "Dame los pasos a seguir para esto: \"${msg.text}\"",
+                            giveStepsPrompt,
                             false,
                             true
                         )
@@ -183,7 +187,7 @@ fun AgenteIaScreenContent(
                             showGlow = true
                         )
                         Text(
-                            text = "EIR está analizando los datos...",
+                            text = stringResource(R.string.ai_analyzing),
                             fontSize = 12.sp,
                             fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                             color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
@@ -206,6 +210,10 @@ fun AgenteIaScreenContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (state.isChatUnlocked) {
+                    val promptHeavyHead = stringResource(R.string.prompt_heavy_head)
+                    val promptAnxiety = stringResource(R.string.prompt_anxiety)
+                    val promptVitals = stringResource(R.string.prompt_vitals)
+                    val promptSleepTip = stringResource(R.string.prompt_sleep_tip)
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -213,10 +221,10 @@ fun AgenteIaScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         listOf(
-                            "¿Por qué siento la cabeza pesada?",
-                            "Siento un poco de ansiedad hoy",
-                            "¿Cómo van mis signos vitales?",
-                            "Dame un consejo para descansar mejor"
+                            promptHeavyHead,
+                            promptAnxiety,
+                            promptVitals,
+                            promptSleepTip
                         ).forEach { chip ->
                             SuggestionChip(
                                 onClick = { onSendChatMessage(chip, false, false) },
@@ -245,9 +253,9 @@ fun AgenteIaScreenContent(
                         placeholder = {
                             Text(
                                 text = if (state.isChatUnlocked) {
-                                    "Escribe un mensaje..."
+                                    stringResource(R.string.type_message_placeholder)
                                 } else {
-                                    "Descarga el asistente arriba para chatear"
+                                    stringResource(R.string.download_assistant_to_chat)
                                 },
                                 fontSize = 13.sp
                             )
@@ -256,7 +264,7 @@ fun AgenteIaScreenContent(
                             if (!state.isChatUnlocked) {
                                 Icon(
                                     imageVector = Icons.Default.Lock,
-                                    contentDescription = "Bloqueado",
+                                    contentDescription = stringResource(R.string.locked),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     modifier = Modifier.size(18.dp)
                                 )
@@ -284,7 +292,7 @@ fun AgenteIaScreenContent(
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.Send,
-                            contentDescription = "Enviar",
+                            contentDescription = stringResource(R.string.send),
                             tint = Color.White,
                             modifier = Modifier.size(18.dp)
                         )
@@ -325,13 +333,13 @@ private fun SimpleDownloadBanner(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Asistente inteligente",
+                            text = stringResource(R.string.smart_assistant_title),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Descárgalo para usarlo sin conexión (${status.sizeLabel})",
+                            text = stringResource(R.string.download_for_offline, status.sizeLabel),
                             fontSize = 11.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -354,7 +362,7 @@ private fun SimpleDownloadBanner(
                                 color = Color.White
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(text = "Iniciando...", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text(text = stringResource(R.string.starting), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         } else {
                             Icon(
                                 imageVector = Icons.Default.Download,
@@ -362,7 +370,7 @@ private fun SimpleDownloadBanner(
                                 modifier = Modifier.size(15.dp)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
-                            Text(text = "Descargar", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                            Text(text = stringResource(R.string.download), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -390,7 +398,7 @@ private fun SimpleDownloadBanner(
                                 color = EirSky
                             )
                             Text(
-                                text = "Descargando modelo local...",
+                                text = stringResource(R.string.downloading_local_model),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onSurface
@@ -402,7 +410,7 @@ private fun SimpleDownloadBanner(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
-                                contentDescription = "Cancelar descarga",
+                                contentDescription = stringResource(R.string.cancel_download),
                                 tint = Color.Red.copy(alpha = 0.8f),
                                 modifier = Modifier.size(18.dp)
                             )
@@ -429,7 +437,7 @@ private fun SimpleDownloadBanner(
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
                             Text(
-                                text = "Descargado:",
+                                text = stringResource(R.string.downloaded),
                                 fontSize = 11.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -464,7 +472,7 @@ private fun SimpleDownloadBanner(
                         color = EirSky
                     )
                     Text(
-                        text = "Preparando asistente...",
+                        text = stringResource(R.string.preparing_assistant),
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -481,7 +489,7 @@ private fun SimpleDownloadBanner(
                 ) {
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Error al descargar el modelo",
+                            text = stringResource(R.string.error_downloading_model),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.error
@@ -501,7 +509,7 @@ private fun SimpleDownloadBanner(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Refresh,
-                            contentDescription = "Reintentar",
+                            contentDescription = stringResource(R.string.retry),
                             tint = EirSky,
                             modifier = Modifier.size(18.dp)
                         )
@@ -579,12 +587,12 @@ private fun ChatMessageItem(
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.HelpOutline,
-                        contentDescription = "Simplificar",
+                        contentDescription = stringResource(R.string.explain_simpler),
                         tint = EirSky,
                         modifier = Modifier.size(12.dp)
                     )
                     Text(
-                        text = "Explicar más simple",
+                        text = stringResource(R.string.explain_simpler),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = EirSky
@@ -598,12 +606,12 @@ private fun ChatMessageItem(
                 ) {
                     Icon(
                         imageVector = Icons.Default.FormatListNumbered,
-                        contentDescription = "Pasos",
+                        contentDescription = stringResource(R.string.steps_to_follow),
                         tint = EirEmerald,
                         modifier = Modifier.size(12.dp)
                     )
                     Text(
-                        text = "Pasos a seguir",
+                        text = stringResource(R.string.steps_to_follow),
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         color = EirEmerald

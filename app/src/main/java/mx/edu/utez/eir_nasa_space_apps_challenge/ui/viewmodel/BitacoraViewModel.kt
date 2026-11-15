@@ -83,10 +83,10 @@ class BitacoraViewModel(application: Application) : AndroidViewModel(application
         // Inicializar Text-to-Speech (TTS)
         tts = TextToSpeech(application.applicationContext) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                val locale = Locale("es", "MX")
+                val locale = Locale.getDefault()
                 val res = tts?.setLanguage(locale)
                 if (res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED) {
-                    tts?.setLanguage(Locale("es", "ES"))
+                    tts?.setLanguage(Locale.US)
                 }
                 tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                     override fun onStart(utteranceId: String?) {

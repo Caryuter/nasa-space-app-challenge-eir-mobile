@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.VitalsDraft
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.Emotional2DQuadrant
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotAvatar
@@ -179,10 +181,10 @@ fun CheckupModalContent(
                         Column {
                             Text(
                                 text = when (state.checkupStep) {
-                                    1 -> "1. Escaneo Facial Rápido"
-                                    2 -> "2. Prueba de Voz Guiada"
-                                    3 -> "3. Signos Básicos del Kit"
-                                    else -> "4. Ánimo y Energía Hoy"
+                                    1 -> stringResource(R.string.step_1_title)
+                                    2 -> stringResource(R.string.step_2_title)
+                                    3 -> stringResource(R.string.step_3_title)
+                                    else -> stringResource(R.string.step_4_title)
                                 },
                                 fontWeight = FontWeight.Black,
                                 fontSize = 16.sp,
@@ -198,7 +200,7 @@ fun CheckupModalContent(
                             .clip(CircleShape)
                             .background(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
-                        Icon(Icons.Default.Close, contentDescription = "Cerrar", modifier = Modifier.size(18.dp))
+                        Icon(Icons.Default.Close, contentDescription = stringResource(R.string.close), modifier = Modifier.size(18.dp))
                     }
                 }
 
@@ -234,7 +236,7 @@ fun CheckupModalContent(
                 if (state.checkupStep == 1) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(
-                            text = "Toma una foto real de tu rostro. Usamos la cámara del dispositivo para verificar hinchazón microgravitacional o cansancio en los ojos.",
+                            text = stringResource(R.string.step_1_desc),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 16.sp
@@ -262,7 +264,7 @@ fun CheckupModalContent(
                                             // Show real captured photo
                                             Image(
                                                 bitmap = state.capturedFaceBitmap.asImageBitmap(),
-                                                contentDescription = "Foto capturada",
+                                                contentDescription = stringResource(R.string.captured_photo),
                                                 modifier = Modifier.fillMaxSize()
                                             )
                                         } else {
@@ -277,8 +279,8 @@ fun CheckupModalContent(
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             modifier = Modifier.padding(12.dp)
                                         ) {
-                                            Icon(Icons.Default.CameraAlt, contentDescription = "Camera", tint = EirSky, modifier = Modifier.size(32.dp))
-                                            Text(text = "Se requiere acceso a la Cámara", fontSize = 10.sp, color = Color.White, modifier = Modifier.padding(top = 4.dp))
+                                            Icon(Icons.Default.CameraAlt, contentDescription = null, tint = EirSky, modifier = Modifier.size(32.dp))
+                                            Text(text = stringResource(R.string.camera_permission_required), fontSize = 10.sp, color = Color.White, modifier = Modifier.padding(top = 4.dp))
                                         }
                                     }
 
@@ -307,7 +309,7 @@ fun CheckupModalContent(
                                     ) {
                                         Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
                                         Spacer(modifier = Modifier.width(6.dp))
-                                        Text(text = "Repetir Foto", fontSize = 11.sp, color = Color.White)
+                                        Text(text = stringResource(R.string.retake_photo), fontSize = 11.sp, color = Color.White)
                                     }
                                 }
                             }
@@ -319,7 +321,7 @@ fun CheckupModalContent(
                 if (state.checkupStep == 2) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text(
-                            text = "Lee en voz alta la frase aleatoria asignada. Grabamos el audio del micrófono real para analizar tono, ritmo de respiración y modulación.",
+                            text = stringResource(R.string.step_2_desc),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 16.sp
@@ -328,9 +330,9 @@ fun CheckupModalContent(
                         OutlinedCard(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                    Text(text = "FRASE ALEATORIA DEL CATÁLOGO:", fontSize = 10.sp, fontWeight = FontWeight.Black, color = EirIndigo)
+                                    Text(text = stringResource(R.string.random_phrase_catalog), fontSize = 10.sp, fontWeight = FontWeight.Black, color = EirIndigo)
                                     Text(
-                                        text = "🎲 Otra frase",
+                                        text = stringResource(R.string.another_phrase),
                                         fontSize = 10.sp,
                                         fontWeight = FontWeight.Bold,
                                         color = EirIndigo,
@@ -348,7 +350,7 @@ fun CheckupModalContent(
                         ) {
                             if (!hasAudioPermission) {
                                 Text(
-                                    text = "Se requiere permiso de micrófono para realizar la prueba de voz.",
+                                    text = stringResource(R.string.mic_permission_required),
                                     fontSize = 12.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -366,7 +368,7 @@ fun CheckupModalContent(
                                         .clip(CircleShape)
                                         .background(
                                             if (state.voiceScanStatus == "recording") EirRoseEmergency
-                                            else if (state.voiceScanStatus == "done") EirEmerald
+                                             else if (state.voiceScanStatus == "done") EirEmerald
                                             else EirSky
                                         )
                                 ) {
@@ -374,7 +376,7 @@ fun CheckupModalContent(
                                         imageVector = if (state.voiceScanStatus == "done") Icons.Default.Check
                                         else if (state.voiceScanStatus == "recording") Icons.Default.Stop
                                         else Icons.Default.Mic,
-                                        contentDescription = "Micrófono Real",
+                                        contentDescription = stringResource(R.string.real_mic),
                                         tint = Color.White,
                                         modifier = Modifier.size(28.dp)
                                     )
@@ -401,9 +403,9 @@ fun CheckupModalContent(
 
                                 Text(
                                     text = when (state.voiceScanStatus) {
-                                        "idle" -> "Toca el micrófono para grabar la frase"
-                                        "recording" -> "Grabando micrófono real... Toca para finalizar"
-                                        else -> "Prueba de voz grabada"
+                                        "idle" -> stringResource(R.string.tap_mic_to_record)
+                                        "recording" -> stringResource(R.string.recording_real_mic)
+                                        else -> stringResource(R.string.voice_test_recorded)
                                     },
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold
@@ -416,12 +418,12 @@ fun CheckupModalContent(
                 // STEP 3: VITALS
                 if (state.checkupStep == 3) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(text = "Introduce manualmente o ajusta los 4 datos básicos de tu kit de bolsillo y confirma.", fontSize = 12.sp)
+                        Text(text = stringResource(R.string.step_3_desc), fontSize = 12.sp)
 
                         VitalRow(
-                            label = "Latidos por minuto",
-                            hint = "Normal: 60-85",
-                            placeholder = "Ej. 70",
+                            label = stringResource(R.string.vital_heart_rate),
+                            hint = stringResource(R.string.vital_heart_rate_hint),
+                            placeholder = "70",
                             value = state.vitalsDraft.heartRateInput,
                             unit = "bpm",
                             onValueChange = { newValue ->
@@ -442,9 +444,9 @@ fun CheckupModalContent(
                         )
 
                         VitalRow(
-                            label = "Presión arterial alta",
-                            hint = "Normal: 115-125",
-                            placeholder = "Ej. 120",
+                            label = stringResource(R.string.vital_sys),
+                            hint = stringResource(R.string.vital_sys_hint),
+                            placeholder = "120",
                             value = state.vitalsDraft.sysInput,
                             unit = "mmHg",
                             onValueChange = { newValue ->
@@ -465,9 +467,9 @@ fun CheckupModalContent(
                         )
 
                         VitalRow(
-                            label = "Calor corporal (°C)",
-                            hint = "Normal: 36.2°-37.2°",
-                            placeholder = "Ej. 36.7",
+                            label = stringResource(R.string.vital_temp),
+                            hint = stringResource(R.string.vital_temp_hint),
+                            placeholder = "36.7",
                             value = state.vitalsDraft.tempInput,
                             unit = "°C",
                             onValueChange = { newValue ->
@@ -488,9 +490,9 @@ fun CheckupModalContent(
                         )
 
                         VitalRow(
-                            label = "Horas que dormiste",
-                            hint = "Ideal: 7-8 horas",
-                            placeholder = "Ej. 7.5",
+                            label = stringResource(R.string.vital_sleep),
+                            hint = stringResource(R.string.vital_sleep_hint),
+                            placeholder = "7.5",
                             value = state.vitalsDraft.sleepHoursInput,
                             unit = "hrs",
                             onValueChange = { newValue ->
@@ -515,9 +517,9 @@ fun CheckupModalContent(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(14.dp)
                         ) {
-                            Icon(imageVector = if (state.vitalsConfirmed) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked, contentDescription = "Confirmar", tint = if (state.vitalsConfirmed) EirEmerald else Color.Gray)
+                            Icon(imageVector = if (state.vitalsConfirmed) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked, contentDescription = stringResource(R.string.confirm), tint = if (state.vitalsConfirmed) EirEmerald else Color.Gray)
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = "Confirmo que estos son mis valores de hoy", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                            Text(text = stringResource(R.string.confirm_vitals_text), fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         }
                     }
                 }
@@ -525,7 +527,7 @@ fun CheckupModalContent(
                 // STEP 4: MOOD & ENERGY
                 if (state.checkupStep == 4) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text(text = "Por último, toca en el cuadro cómo está tu ánimo y cuánta energía sientes hoy.", fontSize = 12.sp)
+                        Text(text = stringResource(R.string.step_4_desc), fontSize = 12.sp)
 
                         Emotional2DQuadrant(
                             selectedPoint = state.moodDraftPoint,
@@ -535,12 +537,18 @@ fun CheckupModalContent(
                             onPointChanged = { x, y -> onSetMoodDraftPoint(x, y) }
                         )
 
+                        val moodOptions = listOf(
+                            "Tranquilo" to R.string.mood_tag_calm,
+                            "Enfocado" to R.string.mood_tag_focused,
+                            "Motivado" to R.string.mood_tag_motivated,
+                            "Cansado" to R.string.mood_tag_tired
+                        )
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            listOf("Tranquilo", "Enfocado", "Motivado", "Cansado").forEach { tag ->
+                            moodOptions.forEach { (tagKey, stringResId) ->
                                 FilterChip(
-                                    selected = state.moodDraftLabel == tag,
-                                    onClick = { onSetMoodDraftLabel(tag) },
-                                    label = { Text(text = tag, fontSize = 11.sp) },
+                                    selected = state.moodDraftLabel == tagKey,
+                                    onClick = { onSetMoodDraftLabel(tagKey) },
+                                    label = { Text(text = stringResource(stringResId), fontSize = 11.sp) },
                                     modifier = Modifier.weight(1f)
                                 )
                             }
@@ -562,7 +570,7 @@ fun CheckupModalContent(
                                 shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = EirSky)
                             ) {
-                                Text(text = "Permitir uso de Cámara", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.Black)
+                                Text(text = stringResource(R.string.allow_camera), fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.Black)
                             }
                         } else if (state.faceScanStatus == "done") {
                             Button(
@@ -571,7 +579,7 @@ fun CheckupModalContent(
                                 shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = EirSky)
                             ) {
-                                Text(text = "Siguiente: Prueba de Voz →", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
+                                Text(text = stringResource(R.string.next_voice_test), fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
                             }
                         } else {
                             Button(
@@ -587,7 +595,7 @@ fun CheckupModalContent(
                                 colors = ButtonDefaults.buttonColors(containerColor = EirSky)
                             ) {
                                 Text(
-                                    text = if (state.faceScanStatus == "scanning") "Escaneando rostro..." else "Tomar Foto del Rostro",
+                                    text = if (state.faceScanStatus == "scanning") stringResource(R.string.scanning_face) else stringResource(R.string.take_face_photo),
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.Black,
                                     color = Color.Black
@@ -603,7 +611,7 @@ fun CheckupModalContent(
                                 shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = EirSky)
                             ) {
-                                Text(text = "Permitir uso del Micrófono", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.Black)
+                                Text(text = stringResource(R.string.allow_mic), fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.Black)
                             }
                         } else if (state.voiceScanStatus == "recording") {
                             Button(
@@ -612,7 +620,7 @@ fun CheckupModalContent(
                                 shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = EirRoseEmergency)
                             ) {
-                                Text(text = "Detener Grabación", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
+                                Text(text = stringResource(R.string.stop_recording_btn), fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
                             }
                         } else {
                             Button(
@@ -622,7 +630,7 @@ fun CheckupModalContent(
                                 shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = EirSky)
                             ) {
-                                Text(text = "Siguiente: Signos Básicos →", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
+                                Text(text = stringResource(R.string.next_basic_signs), fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
                             }
                         }
                     }
@@ -634,7 +642,7 @@ fun CheckupModalContent(
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = EirSky)
                         ) {
-                            Text(text = "Siguiente: Ánimo y Energía →", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            Text(text = stringResource(R.string.next_mood_energy), fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
                         }
                     }
                     4 -> {
@@ -644,7 +652,7 @@ fun CheckupModalContent(
                             shape = RoundedCornerShape(16.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = EirEmerald)
                         ) {
-                            Text(text = "Finalizar Chequeo Diario ✓", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.Black)
+                            Text(text = stringResource(R.string.finish_daily_checkup), fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.Black)
                         }
                     }
                 }

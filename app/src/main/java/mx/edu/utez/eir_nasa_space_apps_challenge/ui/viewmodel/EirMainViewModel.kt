@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.reminder.CheckupReminderWorker
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.repository.EirHealthRepository
 
@@ -62,10 +63,11 @@ class EirMainViewModel(application: Application) : AndroidViewModel(application)
 
     fun snoozeReminder15Min() {
         CheckupReminderWorker.scheduleTestReminderIn15Min(getApplication())
+        val msg = getApplication<Application>().getString(R.string.reminder_snoozed_toast)
         _uiState.update {
             it.copy(
                 showCheckupReminderPopup = false,
-                toastMessage = "Recordatorio pospuesto 15 minutos"
+                toastMessage = msg
             )
         }
     }

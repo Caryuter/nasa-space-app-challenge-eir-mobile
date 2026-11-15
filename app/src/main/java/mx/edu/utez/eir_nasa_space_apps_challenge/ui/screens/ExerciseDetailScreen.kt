@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,7 +69,7 @@ fun ExerciseDetailScreen(
             IconButton(onClick = onBack) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Volver",
+                    contentDescription = stringResource(R.string.back),
                     tint = textPrimary
                 )
             }
@@ -144,7 +145,7 @@ fun ExerciseDetailScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Series y\nRepeticiones",
+                                text = stringResource(R.string.sets_and_reps),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = textSecondary,
@@ -152,7 +153,7 @@ fun ExerciseDetailScreen(
                             )
                             Icon(
                                 imageVector = Icons.Default.Edit,
-                                contentDescription = "Editar series",
+                                contentDescription = stringResource(R.string.edit_sets),
                                 tint = textSecondary,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -186,14 +187,14 @@ fun ExerciseDetailScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Carga (kg)",
+                                text = stringResource(R.string.load_kg),
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Medium,
                                 color = textSecondary
                             )
                             Icon(
                                 imageVector = Icons.Default.Edit,
-                                contentDescription = "Editar carga",
+                                contentDescription = stringResource(R.string.edit_load),
                                 tint = textSecondary,
                                 modifier = Modifier.size(16.dp)
                             )
@@ -237,7 +238,7 @@ fun ExerciseDetailScreen(
                             )
                         }
                         Text(
-                            text = "Preservación Ósea",
+                            text = stringResource(R.string.bone_preservation),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                             color = textPrimary
@@ -252,7 +253,7 @@ fun ExerciseDetailScreen(
                     )
 
                     Text(
-                        text = "Instrucciones de postura:",
+                        text = stringResource(R.string.posture_instructions),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = textPrimary,
@@ -291,19 +292,19 @@ fun ExerciseDetailScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Timer,
-                            contentDescription = "Temporizador",
+                            contentDescription = stringResource(R.string.rest_timer),
                             tint = if (isRestRunning) EirEmerald else textSecondary
                         )
                         Column {
                             val formatted = String.format(java.util.Locale.US, "%02d:%02d", restTimerSec / 60, restTimerSec % 60)
                             Text(
-                                text = if (isRestRunning) "$formatted Restante" else "00:45",
+                                text = if (isRestRunning) stringResource(R.string.rest_remaining, formatted) else "00:45",
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Black,
                                 color = if (isRestRunning) EirEmerald else textPrimary
                             )
                             Text(
-                                text = "Descanso entre series",
+                                text = stringResource(R.string.rest_label),
                                 fontSize = 11.sp,
                                 color = textSecondary
                             )
@@ -319,7 +320,7 @@ fun ExerciseDetailScreen(
                     ) {
                         Icon(
                             imageVector = if (isRestRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
-                            contentDescription = "Iniciar descanso",
+                            contentDescription = stringResource(R.string.start_rest),
                             tint = Color.White
                         )
                     }
@@ -345,7 +346,7 @@ fun ExerciseDetailScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = if (exercise.done) "Ejercicio completado" else "Marcar ejercicio como realizado",
+                    text = if (exercise.done) stringResource(R.string.exercise_completed) else stringResource(R.string.mark_exercise_done),
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
                 )
@@ -361,7 +362,7 @@ fun ExerciseDetailScreen(
             onDismissRequest = { showEditDialog = false },
             title = {
                 Text(
-                    text = "Ajustar Parámetros",
+                    text = stringResource(R.string.adjust_parameters_title),
                     fontWeight = FontWeight.Black,
                     fontSize = 18.sp
                 )
@@ -371,14 +372,14 @@ fun ExerciseDetailScreen(
                     OutlinedTextField(
                         value = editSetsReps,
                         onValueChange = { editSetsReps = it },
-                        label = { Text("Series y Repeticiones") },
+                        label = { Text(stringResource(R.string.sets_reps_label)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
                     OutlinedTextField(
                         value = editLoadKg,
                         onValueChange = { editLoadKg = it },
-                        label = { Text("Carga (kg o nivel ARED)") },
+                        label = { Text(stringResource(R.string.load_label)) },
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth()
                     )
@@ -392,12 +393,12 @@ fun ExerciseDetailScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = EirCharcoal)
                 ) {
-                    Text("Guardar", color = Color.White)
+                    Text(stringResource(R.string.save), color = Color.White)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showEditDialog = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )

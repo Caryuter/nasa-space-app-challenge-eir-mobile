@@ -25,6 +25,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -125,14 +126,14 @@ fun HabitosScreenContent(
             ) {
                 Column {
                     Text(
-                        text = "Hoy",
+                        text = stringResource(R.string.habits_today),
                         fontWeight = FontWeight.Black,
                         fontSize = 28.sp,
                         letterSpacing = (-0.5).sp,
                         color = textPrimary
                     )
                     Text(
-                        text = "Semana 175 • Misión Ares IV",
+                        text = stringResource(R.string.habits_week_mission),
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = textSecondary
@@ -205,9 +206,9 @@ fun HabitosScreenContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 listOf(
-                    "all" to "Todo",
-                    "food" to "Nutrición",
-                    "exercise" to "Entrenamiento"
+                    "all" to stringResource(R.string.filter_all),
+                    "food" to stringResource(R.string.filter_nutrition),
+                    "exercise" to stringResource(R.string.filter_training)
                 ).forEach { (id, label) ->
                     val selected = state.habitFilter == id
                     FilterChip(
@@ -249,7 +250,7 @@ fun HabitosScreenContent(
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Text(
-                        text = "Summary",
+                        text = stringResource(R.string.summary_title),
                         fontWeight = FontWeight.Black,
                         fontSize = 20.sp,
                         color = textPrimary
@@ -294,7 +295,7 @@ fun HabitosScreenContent(
                                     color = textPrimary
                                 )
                                 Text(
-                                    text = "Eaten",
+                                    text = stringResource(R.string.summary_eaten),
                                     fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
                                     color = textSecondary
@@ -315,7 +316,7 @@ fun HabitosScreenContent(
                                     color = textPrimary
                                 )
                                 Text(
-                                    text = "Kcal Remaining",
+                                    text = stringResource(R.string.kcal_remaining),
                                     fontSize = 11.sp,
                                     color = textSecondary
                                 )
@@ -329,7 +330,7 @@ fun HabitosScreenContent(
                                     color = textPrimary
                                 )
                                 Text(
-                                    text = "Kcal Burned",
+                                    text = stringResource(R.string.kcal_burned),
                                     fontSize = 11.sp,
                                     color = textSecondary
                                 )
@@ -343,7 +344,7 @@ fun HabitosScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         MacroProgressBar(
-                            name = "Carbs",
+                            name = stringResource(R.string.macro_carbs),
                             current = 145,
                             target = 220,
                             color = EirAmber,
@@ -351,7 +352,7 @@ fun HabitosScreenContent(
                             modifier = Modifier.weight(1f)
                         )
                         MacroProgressBar(
-                            name = "Protein",
+                            name = stringResource(R.string.macro_protein),
                             current = 98,
                             target = 130,
                             color = Color(0xFFEF4444),
@@ -359,7 +360,7 @@ fun HabitosScreenContent(
                             modifier = Modifier.weight(1f)
                         )
                         MacroProgressBar(
-                            name = "Fat",
+                            name = stringResource(R.string.macro_fat),
                             current = 42,
                             target = 70,
                             color = EirSky,
@@ -384,7 +385,7 @@ fun HabitosScreenContent(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Text(
-                        text = "Registro de agua",
+                        text = stringResource(R.string.water_tracker_title),
                         fontWeight = FontWeight.Black,
                         fontSize = 22.sp,
                         color = textPrimary,
@@ -393,13 +394,13 @@ fun HabitosScreenContent(
 
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Text(
-                            text = "Agua",
+                            text = stringResource(R.string.water_label),
                             fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
                             color = textPrimary
                         )
                         Text(
-                            text = "Objetivo: 2,20 litros",
+                            text = stringResource(R.string.water_target),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = textSecondary,
@@ -455,7 +456,7 @@ fun HabitosScreenContent(
                     }
 
                     Text(
-                        text = "+ Agua de los alimentos: 0 mL",
+                        text = stringResource(R.string.water_from_food),
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Medium,
                         color = textSecondary
@@ -481,14 +482,14 @@ fun HabitosScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Nutrición Espacial",
+                            text = stringResource(R.string.space_nutrition_title),
                             fontWeight = FontWeight.Black,
                             fontSize = 20.sp,
                             color = textPrimary
                         )
 
                         Text(
-                            text = "Ver detalle",
+                            text = stringResource(R.string.view_detail),
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             color = EirEmerald,
@@ -567,7 +568,7 @@ fun HabitosScreenContent(
 
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = "Ver detalle",
+                                    contentDescription = stringResource(R.string.view_detail),
                                     tint = textSecondary.copy(alpha = 0.6f),
                                     modifier = Modifier.size(18.dp)
                                 )
@@ -631,7 +632,7 @@ fun HabitosScreenContent(
                             )
                         }
                         Text(
-                            text = if (state.isWorkoutRunning) "Cronómetro activo • Sesión en curso" else "En pausa (toca para reanudar)",
+                            text = if (state.isWorkoutRunning) stringResource(R.string.chronometer_active) else stringResource(R.string.chronometer_paused),
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Medium,
                             color = if (state.isWorkoutRunning) EirEmerald else textSecondary
@@ -657,7 +658,7 @@ fun HabitosScreenContent(
                 )
 
                 Text(
-                    text = "Editar rutina",
+                    text = stringResource(R.string.edit_routine),
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     color = EirAmber,
@@ -707,7 +708,7 @@ fun HabitosScreenContent(
                                     if (ex.done) {
                                         Icon(
                                             imageVector = Icons.Default.Check,
-                                            contentDescription = "Completado",
+                                            contentDescription = stringResource(R.string.completed),
                                             tint = EirCharcoal,
                                             modifier = Modifier.size(16.dp)
                                         )
@@ -764,7 +765,7 @@ fun HabitosScreenContent(
                                 ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                        contentDescription = "Ver detalle",
+                                        contentDescription = stringResource(R.string.view_detail),
                                         tint = textSecondary,
                                         modifier = Modifier.size(24.dp)
                                     )
@@ -797,7 +798,7 @@ fun HabitosScreenContent(
                                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                                 ) {
                                     Text(
-                                        text = "$restDisplay (Descanso entre series)",
+                                        text = stringResource(R.string.rest_between_sets, restDisplay),
                                         fontSize = 12.sp,
                                         fontWeight = if (isThisExerciseResting) FontWeight.Black else FontWeight.SemiBold,
                                         color = if (isThisExerciseResting) EirEmerald else textSecondary
@@ -813,7 +814,7 @@ fun HabitosScreenContent(
                                 ) {
                                     Icon(
                                         imageVector = if (isThisExerciseResting) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                        contentDescription = "Descanso",
+                                        contentDescription = stringResource(R.string.rest_label),
                                         tint = if (isThisExerciseResting) Color.White else textPrimary,
                                         modifier = Modifier.size(18.dp)
                                     )
@@ -837,7 +838,7 @@ fun HabitosScreenContent(
                     .height(54.dp)
             ) {
                 Text(
-                    text = if (state.workoutCompleted) "Entrenamiento finalizado ✓" else "Finalizar entrenamiento",
+                    text = if (state.workoutCompleted) stringResource(R.string.workout_finished) else stringResource(R.string.finish_workout),
                     fontWeight = FontWeight.Black,
                     fontSize = 16.sp,
                     letterSpacing = 0.2.sp
@@ -854,7 +855,7 @@ fun HabitosScreenContent(
             onDismissRequest = { showRoutineDialog = false },
             title = {
                 Text(
-                    text = "Seleccionar Rutina",
+                    text = stringResource(R.string.select_routine_dialog_title),
                     fontWeight = FontWeight.Black,
                     fontSize = 18.sp
                 )
@@ -862,9 +863,9 @@ fun HabitosScreenContent(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     listOf(
-                        "Piernas" to "Desplantes y peso muerto con fijación ARED",
-                        "Tren Superior" to "Remo y press de hombro contra atrofia",
-                        "Cardio Contramedidas" to "Caminadora T2 con arnés elástico"
+                        stringResource(R.string.routine_legs_title) to stringResource(R.string.routine_legs_desc),
+                        stringResource(R.string.routine_upper_title) to stringResource(R.string.routine_upper_desc),
+                        stringResource(R.string.routine_cardio_title) to stringResource(R.string.routine_cardio_desc)
                     ).forEach { (name, desc) ->
                         Surface(
                             modifier = Modifier
@@ -894,7 +895,7 @@ fun HabitosScreenContent(
             },
             confirmButton = {
                 TextButton(onClick = { showRoutineDialog = false }) {
-                    Text("Cerrar")
+                    Text(stringResource(R.string.close))
                 }
             }
         )
@@ -964,7 +965,7 @@ private fun WaterGlassIcon(
             painter = painterResource(
                 id = if (isFilled) R.drawable.ic_glass_water_full else R.drawable.ic_glass_water_empty
             ),
-            contentDescription = if (isFilled) "Vaso con agua lleno" else "Vaso de agua vacío",
+            contentDescription = if (isFilled) stringResource(R.string.glass_full) else stringResource(R.string.glass_empty),
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Fit
         )
@@ -980,7 +981,7 @@ private fun WaterGlassIcon(
             ) {
                 Icon(
                     imageVector = Icons.Default.Check,
-                    contentDescription = "Completado",
+                    contentDescription = stringResource(R.string.completed),
                     tint = Color.White,
                     modifier = Modifier.size(12.dp)
                 )
@@ -996,7 +997,7 @@ private fun WaterGlassIcon(
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "Agregar vaso",
+                    contentDescription = stringResource(R.string.add_glass),
                     tint = EirEmerald,
                     modifier = Modifier.size(15.dp)
                 )

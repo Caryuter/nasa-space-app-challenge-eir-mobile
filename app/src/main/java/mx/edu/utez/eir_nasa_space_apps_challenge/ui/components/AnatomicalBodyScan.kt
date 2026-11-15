@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import mx.edu.utez.eir_nasa_space_apps_challenge.R
@@ -63,11 +64,11 @@ fun RealisticBodyScan(
 
     // 5 anatomical zones: Head, Chest, Abdomen, Arms, Legs
     val zoneNodes = listOf(
-        AnatomicalZoneNode("head", "Cabeza", 0.50f, 0.12f, radiusFactor = 0.22f, leaderTargetX = -1f),
-        AnatomicalZoneNode("chest", "Pecho", 0.50f, 0.28f, radiusFactor = 0.25f, leaderTargetX = 1f),
-        AnatomicalZoneNode("abdomen", "Abdomen", 0.50f, 0.44f, radiusFactor = 0.22f, leaderTargetX = -1f),
-        AnatomicalZoneNode("arms", "Brazos", 0.32f, 0.36f, radiusFactor = 0.18f, leaderTargetX = -1f),
-        AnatomicalZoneNode("legs", "Piernas", 0.44f, 0.70f, radiusFactor = 0.28f, leaderTargetX = 1f)
+        AnatomicalZoneNode("head", stringResource(R.string.zone_head), 0.50f, 0.12f, radiusFactor = 0.22f, leaderTargetX = -1f),
+        AnatomicalZoneNode("chest", stringResource(R.string.zone_chest), 0.50f, 0.28f, radiusFactor = 0.25f, leaderTargetX = 1f),
+        AnatomicalZoneNode("abdomen", stringResource(R.string.zone_abdomen), 0.50f, 0.44f, radiusFactor = 0.22f, leaderTargetX = -1f),
+        AnatomicalZoneNode("arms", stringResource(R.string.zone_arms), 0.32f, 0.36f, radiusFactor = 0.18f, leaderTargetX = -1f),
+        AnatomicalZoneNode("legs", stringResource(R.string.zone_legs), 0.44f, 0.70f, radiusFactor = 0.28f, leaderTargetX = 1f)
     )
 
     // Zone animated colors
@@ -147,7 +148,7 @@ fun RealisticBodyScan(
             // Layer 1: Base Image (Silhouette Source & Alpha Mask)
             Image(
                 painter = painterResource(id = R.drawable.human_body),
-                contentDescription = "Cuerpo Humano Volumétrico",
+                contentDescription = stringResource(R.string.cd_volumetric_human_body),
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Fit
             )

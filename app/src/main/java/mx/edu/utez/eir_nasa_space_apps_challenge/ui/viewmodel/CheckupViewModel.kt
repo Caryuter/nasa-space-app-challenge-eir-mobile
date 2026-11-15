@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.FaceScanFindings
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.VitalsDraft
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.VoiceScanFindings
@@ -256,7 +257,7 @@ class CheckupViewModel(application: Application) : AndroidViewModel(application)
             )
 
             _uiState.update { it.copy(checkupOpen = false) }
-            onSuccess("Chequeo guardado y sincronizado vía Outbox")
+            onSuccess(getApplication<Application>().getString(R.string.checkup_completed_toast))
         }
     }
 

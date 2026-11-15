@@ -1,3 +1,339 @@
 <resources>
-    <string name="app_name">Eir-NASA-Space-Apps-Challenge</string>
+    <string name="app_name">Eir - NASA Space Apps</string>
+
+    <!-- General & Navigation -->
+    <string name="mission_title">EIR</string>
+    <string name="mission_subtitle">Ares IV Mission • Sol 142</string>
+    <string name="nav_health">Health</string>
+    <string name="nav_habits">Habits</string>
+    <string name="nav_checkup">Checkup</string>
+    <string name="nav_logbook">Logbook</string>
+    <string name="nav_ai_agent">AI Agent</string>
+    <string name="cd_start_daily_checkup">Start Mandatory Daily Checkup</string>
+    <string name="cd_toggle_theme">Toggle theme</string>
+    <string name="sos_button">SOS</string>
+    <string name="close">Close</string>
+    <string name="back">Back</string>
+    <string name="done">Done</string>
+    <string name="success">Success</string>
+    <string name="previous">Previous</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
+    <string name="completed">Completed</string>
+    <string name="just_now">Just now</string>
+    <string name="optimal">Optimal</string>
+    <string name="locked">Locked</string>
+
+    <!-- Checkup Reminder Popup & Notifications -->
+    <string name="reminder_title">Pending daily checkup</string>
+    <string name="reminder_message">Complete today\'s log to keep your health tracking up to date.</string>
+    <string name="reminder_snooze">Snooze</string>
+    <string name="reminder_start">Start checkup</string>
+    <string name="reminder_snoozed_toast">Reminder postponed for 15 minutes</string>
+    <string name="notif_channel_name">Checkup reminders</string>
+    <string name="notif_channel_desc">Notifications for health monitoring</string>
+    <string name="notif_title">Checkup reminder</string>
+    <string name="notif_content">Complete your health tracking for today.</string>
+    <string name="notif_big_text">Complete your health tracking for today to record your vitals and keep your history up to date.</string>
+
+    <!-- Mascot Companion -->
+    <string name="mascot_companion_name">EIR Companion</string>
+    <string name="mascot_cd">EIR Companion (%1$s)</string>
+    <string name="mascot_emotion_idle">Calm</string>
+    <string name="mascot_emotion_happy">Happy</string>
+    <string name="mascot_emotion_thinking">Thinking</string>
+    <string name="mascot_emotion_concerned">Concerned</string>
+    <string name="mascot_emotion_sleep">Resting</string>
+    <string name="mascot_tip_title">Tip</string>
+    <string name="mascot_another_tip">Another tip</string>
+    <string name="mascot_tip_1">Hello Astronaut! Your Sol 142 biometrics are under continuous monitoring 🚀</string>
+    <string name="mascot_tip_2">Remember to hydrate regularly. The dry cabin environment requires 2.5L of water daily.</string>
+    <string name="mascot_tip_3">A 20-minute nap can optimize your cognitive focus levels.</string>
+    <string name="mascot_tip_4">Your Heart Rate Variability (HRV) levels suggest balanced rest.</string>
+    <string name="mascot_tip_5">Great job completing your daily habits log!</string>
+
+    <!-- Emotional 2D Quadrant -->
+    <string name="quadrant_high_energy">High Energy</string>
+    <string name="quadrant_low_energy">Low Energy</string>
+    <string name="quadrant_low_mood">Low Mood</string>
+    <string name="quadrant_high_mood">High Mood</string>
+    <string name="mood_tag_calm">Calm</string>
+    <string name="mood_tag_focused">Focused</string>
+    <string name="mood_tag_motivated">Motivated</string>
+    <string name="mood_tag_tired">Tired</string>
+    <string name="confirm">Confirm</string>
+
+    <!-- Anatomical Body Scan & Zones -->
+    <string name="cd_volumetric_human_body">Volumetric Human Body</string>
+    <string name="zone_head">Head</string>
+    <string name="zone_chest">Chest</string>
+    <string name="zone_abdomen">Stomach</string>
+    <string name="zone_arms">Arms</string>
+    <string name="zone_legs">Legs</string>
+
+    <!-- Health Screen (Salud) -->
+    <string name="readiness_state">READINESS STATE %1$d%%</string>
+    <string name="readiness_optimal">Your vital signs and energy are optimal for mission operations!</string>
+    <string name="readiness_stable">Stable energy level. Remember to stay hydrated in the cabin.</string>
+    <string name="readiness_low">Attention: Low energy or rest level. We recommend taking a break.</string>
+    <string name="body_feeling_question">How does your body feel?</string>
+    <string name="body_feeling_sub">Tap a part to understand what happens in space</string>
+    <string name="last_7_days">Last 7 days</string>
+    <string name="past_discomfort">Resolved</string>
+    <string name="report_discomfort_prompt">Choose how it feels or write it in your own words:</string>
+    <string name="other_discomfort_placeholder">Other discomfort...</string>
+    <string name="record_discomfort">Log</string>
+    <string name="report_discomfort_here">Report discomfort here</string>
+    <string name="body_status_header">BODY STATUS (%1$d)</string>
+    <string name="swipe_for_more">Swipe to see more • Tap \"?\"</string>
+    <string name="metric_what_means">What does this mean?</string>
+    <string name="metric_what_do">What should I do?</string>
+    <string name="metric_updated">Updated: %1$s</string>
+    <string name="hours_sleep_sub">%1$sh sleep</string>
+    <string name="water_sub">Water %1$s</string>
+    <string name="bpm_sub">%1$s bpm</string>
+    <string name="battery_sub">Bat. %1$s%%</string>
+
+    <!-- Habits Screen (Habitos) -->
+    <string name="habits_today">Today</string>
+    <string name="habits_week_mission">Week 175 • Ares IV Mission</string>
+    <string name="filter_all">All</string>
+    <string name="filter_nutrition">Nutrition</string>
+    <string name="filter_training">Workout</string>
+    <string name="summary_title">Summary</string>
+    <string name="summary_eaten">Eaten</string>
+    <string name="kcal_remaining">Kcal Remaining</string>
+    <string name="kcal_burned">Kcal Burned</string>
+    <string name="macro_carbs">Carbs</string>
+    <string name="macro_protein">Protein</string>
+    <string name="macro_fat">Fat</string>
+    <string name="water_tracker_title">Water tracker</string>
+    <string name="water_label">Water</string>
+    <string name="water_target">Target: 2.20 liters</string>
+    <string name="water_from_food">+ Water from food: 0 mL</string>
+    <string name="glass_full">Full glass of water</string>
+    <string name="glass_empty">Empty glass of water</string>
+    <string name="add_glass">Add glass</string>
+    <string name="space_nutrition_title">Space Nutrition</string>
+    <string name="view_detail">View detail</string>
+    <string name="chronometer_active">Chronometer active • Session in progress</string>
+    <string name="chronometer_paused">Paused (tap to resume)</string>
+    <string name="edit_routine">Edit routine</string>
+    <string name="rest_between_sets">%1$s (Rest between sets)</string>
+    <string name="rest_label">Rest</string>
+    <string name="finish_workout">Finish workout</string>
+    <string name="workout_finished">Workout finished ✓</string>
+    <string name="select_routine_dialog_title">Select Routine</string>
+    <string name="routine_legs_title">Legs</string>
+    <string name="routine_legs_desc">Lunges and deadlifts with ARED attachment</string>
+    <string name="routine_upper_title">Upper Body</string>
+    <string name="routine_upper_desc">Row and shoulder press against atrophy</string>
+    <string name="routine_cardio_title">Cardio Countermeasures</string>
+    <string name="routine_cardio_desc">T2 treadmill with elastic harness</string>
+
+    <!-- Exercise Detail Screen -->
+    <string name="sets_and_reps">Sets &amp;\nReps</string>
+    <string name="load_kg">Load (kg)</string>
+    <string name="edit_sets">Edit sets</string>
+    <string name="edit_load">Edit load</string>
+    <string name="bone_preservation">Bone Preservation</string>
+    <string name="posture_instructions">Posture instructions:</string>
+    <string name="rest_timer">Rest timer</string>
+    <string name="rest_remaining">%1$s Remaining</string>
+    <string name="start_rest">Start rest</string>
+    <string name="exercise_completed">Exercise completed</string>
+    <string name="mark_exercise_done">Mark exercise as completed</string>
+    <string name="adjust_parameters_title">Adjust Parameters</string>
+    <string name="sets_reps_label">Sets and Reps</string>
+    <string name="load_label">Load (kg or ARED level)</string>
+
+    <!-- Meal Detail Screen -->
+    <string name="nutrition_detail">Nutrition Detail</string>
+    <string name="consumed">Consumed</string>
+    <string name="pending">Pending</string>
+    <string name="menu_calculated_subtitle">%1$s • Menu calculated to maintain bone density in microgravity</string>
+    <string name="energy_and_macros">Energy and Macro Intake</string>
+    <string name="kcal_per_day">%1$d / 2400 kcal daily</string>
+    <string name="macro_fiber">Fiber</string>
+    <string name="why_body_needs_food">Why does your body need this meal today?</string>
+    <string name="prep_method_station">Preparation method on station</string>
+    <string name="portions_and_food_included">Portions and Included Food</string>
+    <string name="portions_count">%1$d portions</string>
+    <string name="meal_empty_ration">Complete nutritional ration formulated by biomedical team.</string>
+    <string name="meal_registered_unmark">Meal logged (Tap to unmark)</string>
+    <string name="mark_as_consumed">Mark as consumed</string>
+
+    <!-- Logbook Screen (Bitacora) -->
+    <string name="logbook_title">Eir Logbook</string>
+    <string name="logbook_subtitle">Your space of calm, voice reflection and streak tracking</string>
+    <string name="streak_days">Day streak</string>
+    <string name="streak_motivational">Incredible! Now, on to the 7-day milestone!</string>
+    <string name="i_commit">I commit</string>
+    <string name="breathing_pause_title">Breathing Pause</string>
+    <string name="breathing_technique_sub">4-4-4-4 technique to slow heart rate</string>
+    <string name="breathe_in">Breathe in slowly</string>
+    <string name="breathe_in_sub">Fill your lungs without rushing • 4s</string>
+    <string name="breathe_hold">Hold your breath</string>
+    <string name="breathe_hold_sub">Stay still for a moment • 4s</string>
+    <string name="breathe_out">Exhale gently</string>
+    <string name="breathe_out_sub">Drop your shoulders • 4s</string>
+    <string name="breathe_rest">Rest before continuing</string>
+    <string name="breathe_rest_sub">Feel the cabin\'s calm • 4s</string>
+    <string name="emotional_state_title">Emotional State</string>
+    <string name="today_mood">Today: %1$s</string>
+    <string name="write_for_yourself">Write something for yourself today</string>
+    <string name="voice_first_sub">The easiest, most natural way: speak and Eir will transcribe it</string>
+    <string name="voice_first_badge">Voice First</string>
+    <string name="tap_to_record_voice">Tap to record with voice</string>
+    <string name="dictate_how_you_feel">Dictate how you feel. It will instantly transcribe to text.</string>
+    <string name="insert_sample_speech">Or insert sample dictation</string>
+    <string name="recording_reflection">Recording reflection: %1$s</string>
+    <string name="stop_recording">Stop recording</string>
+    <string name="listening_carefully">Eir is listening closely... Speak at your own pace.</string>
+    <string name="finish_and_transcribe">Finish and transcribe to text</string>
+    <string name="retry_system_dialog">Retry with system dialog</string>
+    <string name="transcribed_text_label">Transcribed text of your reflection:</string>
+    <string name="transcribed_placeholder">How was your day in the cabin? Record with voice above or edit freely here...</string>
+    <string name="stop_audio">Stop audio</string>
+    <string name="listen_tts">Listen (TTS)</string>
+    <string name="clear_text">Clear text</string>
+    <string name="save_note">Save Note</string>
+    <string name="previous_days_header">YOUR PREVIOUS DAYS</string>
+    <string name="listen_tts_cd">Listen with Text-to-Speech</string>
+
+    <!-- AI Agent Screen (Agente IA) -->
+    <string name="ai_assistant_header">EIR • Medical Assistant</string>
+    <string name="ai_analyzing">EIR is analyzing the data...</string>
+    <string name="type_message_placeholder">Type a message...</string>
+    <string name="download_assistant_to_chat">Download assistant above to chat</string>
+    <string name="send">Send</string>
+    <string name="smart_assistant_title">Smart Assistant</string>
+    <string name="download_for_offline">Download for offline use (%1$s)</string>
+    <string name="starting">Starting...</string>
+    <string name="download">Download</string>
+    <string name="downloading_local_model">Downloading local model...</string>
+    <string name="cancel_download">Cancel download</string>
+    <string name="downloaded">Downloaded:</string>
+    <string name="preparing_assistant">Preparing assistant...</string>
+    <string name="error_downloading_model">Error downloading model</string>
+    <string name="explain_simpler">Explain simpler</string>
+    <string name="steps_to_follow">Steps to follow</string>
+    <string name="prompt_heavy_head">Why does my head feel heavy?</string>
+    <string name="prompt_anxiety">I feel a bit of anxiety today</string>
+    <string name="prompt_vitals">How are my vital signs?</string>
+    <string name="prompt_sleep_tip">Give me a tip to sleep better</string>
+    <string name="explain_simpler_query">Explain this even simpler: \"%1$s\"</string>
+    <string name="give_steps_query">Give me steps to follow for this: \"%1$s\"</string>
+
+    <!-- Checkup Modal Screen -->
+    <string name="step_1_title">1. Quick Facial Scan</string>
+    <string name="step_2_title">2. Guided Voice Test</string>
+    <string name="step_3_title">3. Basic Kit Signs</string>
+    <string name="step_4_title">4. Today\'s Mood &amp; Energy</string>
+    <string name="step_1_desc">Take a real photo of your face. We use device camera to check microgravitational puffiness or eye fatigue.</string>
+    <string name="captured_photo">Captured photo</string>
+    <string name="camera_permission_required">Camera access is required</string>
+    <string name="retake_photo">Retake Photo</string>
+    <string name="step_2_desc">Read aloud the assigned random phrase. We record audio from real microphone to analyze pitch, breathing rhythm and modulation.</string>
+    <string name="random_phrase_catalog">RANDOM CATALOG PHRASE:</string>
+    <string name="another_phrase">🎲 Another phrase</string>
+    <string name="mic_permission_required">Microphone permission is required to perform the voice test.</string>
+    <string name="real_mic">Real Microphone</string>
+    <string name="tap_mic_to_record">Tap the microphone to record the phrase</string>
+    <string name="recording_real_mic">Recording real microphone... Tap to finish</string>
+    <string name="voice_test_recorded">Voice test recorded</string>
+    <string name="step_3_desc">Manually enter or adjust the 4 basic values from your pocket kit and confirm.</string>
+    <string name="vital_heart_rate">Beats per minute</string>
+    <string name="vital_heart_rate_hint">Normal: 60-85</string>
+    <string name="vital_sys">High blood pressure</string>
+    <string name="vital_sys_hint">Normal: 115-125</string>
+    <string name="vital_temp">Body warmth (°C)</string>
+    <string name="vital_temp_hint">Normal: 36.2°-37.2°</string>
+    <string name="vital_sleep">Hours slept</string>
+    <string name="vital_sleep_hint">Ideal: 7-8 hours</string>
+    <string name="confirm_vitals_text">I confirm these are my values for today</string>
+    <string name="step_4_desc">Lastly, tap on the quadrant to indicate your mood and how much energy you feel today.</string>
+    <string name="allow_camera">Allow Camera access</string>
+    <string name="next_voice_test">Next: Voice Test →</string>
+    <string name="take_face_photo">Take Face Photo</string>
+    <string name="scanning_face">Scanning face...</string>
+    <string name="allow_mic">Allow Microphone access</string>
+    <string name="stop_recording_btn">Stop Recording</string>
+    <string name="next_basic_signs">Next: Basic Signs →</string>
+    <string name="next_mood_energy">Next: Mood &amp; Energy →</string>
+    <string name="finish_daily_checkup">Finish Daily Checkup ✓</string>
+    <string name="checkup_completed_toast">Checkup saved and synced via Outbox</string>
+
+    <!-- SOS Emergency Overlay -->
+    <string name="sos_faint_tag">DIZZINESS / FAINTING</string>
+    <string name="sos_chest_tag">HEART / CHEST</string>
+    <string name="sos_cut_tag">WOUND / IMPACT</string>
+    <string name="sos_breath_tag">BREATHING</string>
+    <string name="sos_step_indicator">STEP %1$d OF %2$d</string>
+    <string name="equipment_label">Equipment: </string>
+    <string name="next_step">Next step</string>
+    <string name="finish_assistance">Finish assistance ✓</string>
+    <string name="select_emergency_title">Select Emergency</string>
+    <string name="sos_audio_reading">Reading...</string>
+    <string name="sos_audio_btn">Audio</string>
+    <string name="sos_completed_toast">Emergency protocol completed</string>
+    <string name="sos_breathing_pattern">4s Inhale • 6s Exhale</string>
+    <string name="sos_breathing_keep_slow">Keep breathing slow and steady</string>
+    <string name="change_emergency">Change emergency</string>
+    <string name="selected">Selected</string>
+
+    <!-- SOS Scenarios & Steps -->
+    <string name="sos_faint_title">Someone feels dizzy or fainted</string>
+    <string name="sos_faint_kit">Blue Case (White Cross) • Finger clip + Electrolyte bottle</string>
+    <string name="sos_faint_step1_instruction">Secure them to the seat with the belt</string>
+    <string name="sos_faint_step1_why">Prevents floating and hitting panels in zero gravity.</string>
+    <string name="sos_faint_step1_kit">Chest and waist harness</string>
+    <string name="sos_faint_step2_instruction">Place the white clip on their finger</string>
+    <string name="sos_faint_step2_why">Tells us in 5 seconds if enough oxygen is being delivered.</string>
+    <string name="sos_faint_step2_kit">Oximetry clip (Blue Case)</string>
+    <string name="sos_faint_step3_instruction">Give small sips of water with electrolytes</string>
+    <string name="sos_faint_step3_why">In microgravity fluids restore blood pressure.</string>
+    <string name="sos_faint_step3_kit">Electrolyte pouch with orange nozzle</string>
+    <string name="sos_faint_step4_instruction">Let them rest still for 10 minutes</string>
+    <string name="sos_faint_step4_why">The circulatory system needs time to restabilize.</string>
+    <string name="sos_faint_step4_kit">Soft lighting and monitoring</string>
+
+    <string name="sos_chest_title">Severe chest pain</string>
+    <string name="sos_chest_kit">Main Red Kit • Cardiac pads and sublingual tablet</string>
+    <string name="sos_chest_step1_instruction">Stop any effort and fasten them to the seat</string>
+    <string name="sos_chest_step1_why">The heart needs to consume as little energy as possible right now.</string>
+    <string name="sos_chest_step1_kit">Cabin seat with loose harness</string>
+    <string name="sos_chest_step2_instruction">Ask them to breathe slow and deep</string>
+    <string name="sos_chest_step2_why">Inhale 4 seconds, exhale 6 seconds to calm heartbeat.</string>
+    <string name="sos_chest_step2_kit">Guided counting and slow breathing</string>
+    <string name="sos_chest_step3_instruction">Open Red Kit and prepare the patches</string>
+    <string name="sos_chest_step3_why">Monitors heart rhythm if pain does not subside within 5 minutes.</string>
+    <string name="sos_chest_step3_kit">Cardiac patches (Red Kit)</string>
+
+    <string name="sos_cut_title">Cut or impact with bleeding</string>
+    <string name="sos_cut_kit">Green Bag • Sealed absorbent gauze and elastic bandage</string>
+    <string name="sos_cut_step1_instruction">Press wound firmly with thick gauze without releasing</string>
+    <string name="sos_cut_step1_why">In zero gravity blood does not drip: it forms bubbles and clots slowly.</string>
+    <string name="sos_cut_step1_kit">Absorbent gauze (Green Bag)</string>
+    <string name="sos_cut_step2_instruction">Maintain firm pressure for 3 continuous minutes</string>
+    <string name="sos_cut_step2_why">Lifting gauze early breaks the forming clot.</string>
+    <string name="sos_cut_step2_kit">Continuous compression without lifting dressing</string>
+    <string name="sos_cut_step3_instruction">Wrap with self-adhesive elastic bandage</string>
+    <string name="sos_cut_step3_why">Secures dressing ensuring fingers remain warm with circulation.</string>
+    <string name="sos_cut_step3_kit">Blue elastic roll (Green Bag)</string>
+
+    <string name="sos_breath_title">Shortness of breath or choking</string>
+    <string name="sos_breath_kit">Side Panel • Transparent oxygen mask</string>
+    <string name="sos_breath_step1_instruction">Place mask and turn the green valve</string>
+    <string name="sos_breath_step1_why">Delivers direct pure oxygen flow to nose and mouth.</string>
+    <string name="sos_breath_step1_kit">Oxygen mask (Side Panel)</string>
+    <string name="sos_breath_step2_instruction">Aim portable fan towards their face</string>
+    <string name="sos_breath_step2_why">In microgravity exhaled CO₂ stays floating in front of the face.</string>
+    <string name="sos_breath_step2_kit">Blue cabin airflow switch</string>
+    <string name="sos_breath_step3_instruction">Loosen the collar of their spacesuit</string>
+    <string name="sos_breath_step3_why">Clears airway and relieves choking sensation.</string>
+    <string name="sos_breath_step3_kit">Collar seals and closure</string>
 </resources>

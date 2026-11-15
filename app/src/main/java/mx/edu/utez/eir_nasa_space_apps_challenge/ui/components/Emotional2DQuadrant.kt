@@ -18,10 +18,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.JournalEntry
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.SolisIndigo
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.SolisSky
@@ -71,7 +73,7 @@ fun Emotional2DQuadrant(
     ) {
         // Labels
         Text(
-            text = "Mucha Energía",
+            text = stringResource(R.string.quadrant_high_energy),
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             color = labelColor,
@@ -80,7 +82,7 @@ fun Emotional2DQuadrant(
                 .padding(top = 6.dp)
         )
         Text(
-            text = "Poca Energía",
+            text = stringResource(R.string.quadrant_low_energy),
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             color = labelColor,
@@ -89,7 +91,7 @@ fun Emotional2DQuadrant(
                 .padding(bottom = 6.dp)
         )
         Text(
-            text = "Ánimo Bajo",
+            text = stringResource(R.string.quadrant_low_mood),
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             color = labelColor,
@@ -98,7 +100,7 @@ fun Emotional2DQuadrant(
                 .padding(start = 8.dp)
         )
         Text(
-            text = "Ánimo Alto",
+            text = stringResource(R.string.quadrant_high_mood),
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             color = labelColor,
