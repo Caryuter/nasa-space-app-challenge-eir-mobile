@@ -206,7 +206,7 @@ fun HabitosScreenContent(
             ) {
                 listOf(
                     "all" to "Todo",
-                    "food" to "Nutrición y Agua",
+                    "food" to "Nutrición",
                     "exercise" to "Entrenamiento"
                 ).forEach { (id, label) ->
                     val selected = state.habitFilter == id
