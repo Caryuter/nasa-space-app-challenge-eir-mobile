@@ -14,6 +14,7 @@ import androidx.compose.material.icons.automirrored.filled.HelpOutline
 import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.Spa
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -67,48 +68,6 @@ fun AgenteIaScreenContent(
             .fillMaxSize()
             .background(if (isDark) EirDarkBg else EirLightBg)
     ) {
-        // Synchronized Context Pill
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            color = if (isDark) Color(0xFF0F172A) else Color(0xFFEEF2FF),
-            tonalElevation = 1.dp
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(
-                    modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.AutoAwesome,
-                        contentDescription = "Contexto Sincronizado",
-                        tint = EirIndigo,
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Text(
-                        text = "Al tanto de tu último chequeo: 68 lat/min • 7.5h sueño",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = if (isDark) EirDarkTextSecondary else Color(0xFF4338CA),
-                        maxLines = 1
-                    )
-                }
-
-                Text(
-                    text = "Modo Simple",
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    color = EirEmerald,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
-            }
-        }
 
         // Full Screen Messages List
         val messages = if (state.chatMessages.isNotEmpty()) state.chatMessages else sampleChatMessages
@@ -147,7 +106,7 @@ fun AgenteIaScreenContent(
             if (state.isAgentLoading) {
                 item {
                     Text(
-                        text = "EIR está preparando una explicación clara para ti...",
+                        text = "EIR (Modo Mindfulness) está procesando una respuesta serena para ti...",
                         fontSize = 11.sp,
                         fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
                         color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
@@ -178,9 +137,9 @@ fun AgenteIaScreenContent(
                 ) {
                     listOf(
                         "¿Por qué siento la cabeza pesada?",
-                        "¿Para qué sirve la caminadora?",
-                        "Me siento cansado hoy",
-                        "¿Qué pasa con mis huesos?"
+                        "Siento un poco de ansiedad hoy",
+                        "¿Cómo van mis signos vitales?",
+                        "Dame un consejo para descansar mejor"
                     ).forEach { chip ->
                         SuggestionChip(
                             onClick = { onSendChatMessage(chip, false, false) },
@@ -207,7 +166,7 @@ fun AgenteIaScreenContent(
                         onValueChange = onSetChatInput,
                         placeholder = {
                             Text(
-                                text = "Pregunta cualquier duda con tus palabras...",
+                                text = "Escribe lo que sientes o preguntas con tus palabras...",
                                 fontSize = 12.sp
                             )
                         },

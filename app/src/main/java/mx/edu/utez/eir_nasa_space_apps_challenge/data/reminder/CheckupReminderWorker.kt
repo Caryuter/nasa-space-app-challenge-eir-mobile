@@ -1,0 +1,101 @@
+package mx.edu.utez.eir_nasa_space_apps_challenge.data.reminder
+
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
+import androidx.work.*
+import mx.edu.utez.eir_nasa_space_apps_challenge.MainActivity
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
+import java.util.concurrent.TimeUnit
+
+class CheckupReminderWorker(
+    private val context: Context,
+    workerParams: WorkerParameters
+) : CoroutineWorker(context, workerParams) {
+
+    override suspend fun doWork(): Result {
+        showNotification(context)
+        return Result.success()
+    }
+
+    companion object {
+        const val CHANNEL_ID = "eir_checkup_reminders"
+        const val NOTIFICATION_ID = 2026
+
+        fun showNotification(context: Context) {
+            val notificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+            val channel = NotificationChannel(
+                CHANNEL_ID,
+                "Recordatorios de Chequeo EIR",
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notificaciones diarias para el seguimiento de salud del astronauta"
+                enableVibration(true)
+            }
+            notificationManager.createNotificationChannel(channel)
+
+            val intent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                putExtra("OPEN_CHECKUP", true)
+            }
+
+            val pendingIntent = PendingIntent.getActivity(
+                context,
+                0,
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+
+            val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setContentTitle("🚀 EIR: Recordatorio de Chequeo Diario")
+                .setContentText("Misión Ares IV • Sol 142. Es hora de tu escaneo facial, prueba de voz y signos vitales.")
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText("Misión Ares IV • Sol 142. Es hora de realizar tu seguimiento diario de salud. Abre EIR para hacer tu escaneo facial y prueba de voz de hoy.")
+                )
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .build()
+
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
+                notificationManager.notify(NOTIFICATION_ID, notification)
+            }
+        }
+
+        fun scheduleDailyReminder(context: Context) {
+            val workManager = WorkManager.getInstance(context)
+
+            val periodicRequest = PeriodicWorkRequestBuilder<CheckupReminderWorker>(24, TimeUnit.HOURS)
+                .setInitialDelay(8, TimeUnit.HOURS)
+                .build()
+
+            workManager.enqueueUniquePeriodicWork(
+                "EirDailyCheckupReminder",
+                ExistingPeriodicWorkPolicy.KEEP,
+                periodicRequest
+            )
+        }
+
+        fun scheduleTestReminderIn15Min(context: Context) {
+            val workManager = WorkManager.getInstance(context)
+
+            val testRequest = OneTimeWorkRequestBuilder<CheckupReminderWorker>()
+                .setInitialDelay(15, TimeUnit.MINUTES)
+                .build()
+
+            workManager.enqueue(testRequest)
+        }
+    }
+}

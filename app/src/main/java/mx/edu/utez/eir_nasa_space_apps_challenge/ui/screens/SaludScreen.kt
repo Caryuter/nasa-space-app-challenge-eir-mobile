@@ -86,73 +86,6 @@ fun SaludScreenContent(
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Daily Alert Banner
-        AnimatedVisibility(visible = state.bannerVisible) {
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isDark) Color(0xFF451A03).copy(alpha = 0.6f) else Color(0xFFFEF3C7)
-                ),
-                shape = RoundedCornerShape(16.dp),
-                border = androidx.compose.foundation.BorderStroke(
-                    1.dp,
-                    if (isDark) EirAmber.copy(alpha = 0.4f) else Color(0xFFFDE68A)
-                ),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Top
-                ) {
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Warning,
-                            contentDescription = "Alerta",
-                            tint = EirAmber,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Column {
-                            Text(
-                                text = if (state.discomforts.isNotEmpty())
-                                    "Ojo hoy: ${state.discomforts.first().label}"
-                                else
-                                    "Recordatorio de cuidado diario",
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 12.sp,
-                                color = if (isDark) Color(0xFFFDE68A) else Color(0xFF78350F)
-                            )
-                            Text(
-                                text = if (state.discomforts.isNotEmpty())
-                                    "Es normal al empezar el día en el espacio. Haz tus ejercicios suaves de pierna."
-                                else
-                                    "Toma 2 vasos más de agua para evitar dolor de cabeza por falta de gravedad.",
-                                fontSize = 11.sp,
-                                color = if (isDark) Color(0xFFFDE68A).copy(alpha = 0.8f) else Color(0xFF92400E),
-                                modifier = Modifier.padding(top = 2.dp)
-                            )
-                        }
-                    }
-
-                    IconButton(
-                        onClick = onDismissBanner,
-                        modifier = Modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Cerrar",
-                            tint = if (isDark) Color(0xFFFDE68A) else Color(0xFF78350F),
-                            modifier = Modifier.size(14.dp)
-                        )
-                    }
-                }
-            }
-        }
 
         // BODY SCAN SECTION (Elevated Card)
         ElevatedCard(
@@ -184,22 +117,6 @@ fun SaludScreenContent(
                             color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
                         )
                     }
-
-                    AssistChip(
-                        onClick = onOpenCheckup,
-                        label = {
-                            Text(
-                                text = "+ Chequeo",
-                                color = EirSky,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 11.sp
-                            )
-                        },
-                        colors = AssistChipDefaults.assistChipColors(
-                            containerColor = EirSky.copy(alpha = 0.15f)
-                        ),
-                        border = null
-                    )
                 }
 
                 // Anatomical Map Row

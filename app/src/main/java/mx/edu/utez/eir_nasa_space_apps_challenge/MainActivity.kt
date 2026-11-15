@@ -28,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.CheckupReminderPopup
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.EirBottomBar
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.EirTopBar
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.screens.*
@@ -166,6 +167,21 @@ fun EirApp(
                     }
                 }
 
+                // Top Floating Pop-up Banner ("Mensaje Emergente de Recordatorio")
+                CheckupReminderPopup(
+                    visible = mainState.showCheckupReminderPopup,
+                    isDarkMode = mainState.isDarkMode,
+                    onStartCheckupNow = {
+                        mainViewModel.dismissReminderPopup()
+                        checkupViewModel.openCheckup()
+                    },
+                    onSnooze15Min = { mainViewModel.snoozeReminder15Min() },
+                    onDismiss = { mainViewModel.dismissReminderPopup() },
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 8.dp)
+                )
+
                 // Toast Notification Overlay
                 AnimatedVisibility(
                     visible = mainState.toastMessage != null,
@@ -230,7 +246,7 @@ fun EirApp(
 fun EirAppLightPreview() {
     EirNASASpaceAppsChallengeTheme(darkTheme = false) {
         Surface(color = EirLightBg) {
-            Text("Eir App Preview - Modular Architecture", modifier = Modifier.padding(20.dp), fontWeight = FontWeight.Bold)
+            Text("Eir App Preview - Floating Checkup Reminders", modifier = Modifier.padding(20.dp), fontWeight = FontWeight.Bold)
         }
     }
 }

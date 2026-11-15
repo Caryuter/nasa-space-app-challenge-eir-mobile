@@ -9,13 +9,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mx.edu.utez.eir_nasa_space_apps_challenge.data.reminder.CheckupReminderWorker
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.repository.EirHealthRepository
 
 data class EirMainUiState(
     val activeTab: String = "salud", // "salud", "habitos", "bitacora", "agente"
     val isDarkMode: Boolean = false,
     val toastMessage: String? = null,
-    val pendingOutboxCount: Int = 0
+    val pendingOutboxCount: Int = 0,
+    val showCheckupReminderPopup: Boolean = false
 )
 
 class EirMainViewModel(application: Application) : AndroidViewModel(application) {
@@ -26,10 +28,19 @@ class EirMainViewModel(application: Application) : AndroidViewModel(application)
     val uiState: StateFlow<EirMainUiState> = _uiState.asStateFlow()
 
     init {
+        // Schedule default daily WorkManager background reminder at 08:00 AM
+        CheckupReminderWorker.scheduleDailyReminder(application)
+
         viewModelScope.launch {
             repository.pendingOutboxCountFlow.collect { count ->
                 _uiState.update { it.copy(pendingOutboxCount = count) }
             }
+        }
+
+        // Auto-emerge floating checkup reminder popup after 1.5s if not yet completed today
+        viewModelScope.launch {
+            delay(1500)
+            _uiState.update { it.copy(showCheckupReminderPopup = true) }
         }
     }
 
@@ -47,5 +58,19 @@ class EirMainViewModel(application: Application) : AndroidViewModel(application)
             delay(3200)
             _uiState.update { it.copy(toastMessage = null) }
         }
+    }
+
+    fun snoozeReminder15Min() {
+        CheckupReminderWorker.scheduleTestReminderIn15Min(getApplication())
+        _uiState.update {
+            it.copy(
+                showCheckupReminderPopup = false,
+                toastMessage = "Recordatorio pospuesto 15 minutos"
+            )
+        }
+    }
+
+    fun dismissReminderPopup() {
+        _uiState.update { it.copy(showCheckupReminderPopup = false) }
     }
 }

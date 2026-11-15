@@ -5,14 +5,12 @@ plugins {
 
 android {
     namespace = "mx.edu.utez.eir_nasa_space_apps_challenge"
-    compileSdk {
-        version = release(37)
-    }
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "mx.edu.utez.eir_nasa_space_apps_challenge"
         minSdk = 26
-        targetSdk = 37
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
 
@@ -36,6 +34,12 @@ android {
     }
 }
 
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xskip-metadata-version-check")
+    }
+}
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
@@ -47,6 +51,9 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+
+    // Google AI Edge / LiteRT-LM On-Device LLM SDK
+    implementation("com.google.ai.edge.litertlm:litertlm-android:0.18.0")
 
     // CameraX Dependencies for Real Camera Live Preview & Photo Capture
     val cameraVersion = "1.3.4"

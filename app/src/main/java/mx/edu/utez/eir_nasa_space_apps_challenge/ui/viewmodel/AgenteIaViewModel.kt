@@ -3,37 +3,62 @@ package mx.edu.utez.eir_nasa_space_apps_challenge.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.ChatMessage
+import mx.edu.utez.eir_nasa_space_apps_challenge.data.repository.EirHealthRepository
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.EirAiEngine
-import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LocalDeterministicEirEngine
+import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LiteRtLmEirEngine
 
 data class AgenteIaUiState(
     val chatMessages: List<ChatMessage> = emptyList(),
     val chatInput: String = "",
-    val isAgentLoading: Boolean = false
+    val isAgentLoading: Boolean = false,
+    val engineStatusLabel: String = "Google AI Edge LiteRT-LM • Modo Mindfulness",
+    val personalizedContextPill: String = "Sincronizado: Latidos 68 • Sueño 7.5h • Batería 84%"
 )
 
 class AgenteIaViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val aiEngine: EirAiEngine = LocalDeterministicEirEngine()
+    private val repository = EirHealthRepository.getInstance(application)
+    private val aiEngine: EirAiEngine = LiteRtLmEirEngine(application)
+
+    private var currentBiometricContext: String = "Latidos: 68/min, Batería: 84%, Sueño: 7.5h, Agua: 4/6, Ánimo: Tranquilo"
 
     private val initialChat = listOf(
         ChatMessage(
             id = 1L,
             sender = "eir",
-            text = "Hola. Vi tus datos de hoy: dormiste 7.5 horas, tus latidos están tranquilos (68) y tu batería física está al 84%. ¿Cómo sientes tu cuerpo ahorita?",
+            text = "Hola, comandante. Soy EIR, tu compañía de calma en el espacio. Observo tus datos de hoy: dormiste 7.5 horas, tus latidos están en 68 y tu energía está al 84%. ¿Cómo está tu mente y tu cuerpo en este momento?",
             canSimplify = true
         )
     )
 
     private val _uiState = MutableStateFlow(AgenteIaUiState(chatMessages = initialChat))
     val uiState: StateFlow<AgenteIaUiState> = _uiState.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            repository.ensureInitializedAndBootstrapped()
+            repository.latestHealthRecordFlow.collect { record ->
+                if (record != null) {
+                    val heartRate = record.heartRateBpm ?: 68
+                    val sleep = record.sleepHours ?: 7.5
+                    val temp = record.temperatureC ?: 36.7
+                    currentBiometricContext = "Latidos: $heartRate/min, Sueño: ${sleep}h, Temp: ${temp}°C, Batería: 84%, Ánimo: Tranquilo"
+
+                    _uiState.update {
+                        it.copy(
+                            personalizedContextPill = "Sincronizado con tus datos: $heartRate lat/min • ${sleep}h descanso"
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     fun setChatInput(text: String) {
         _uiState.update { it.copy(chatInput = text) }
@@ -55,13 +80,16 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
         }
 
         viewModelScope.launch {
-            val context = "Latidos: 68/min, Batería: 84%, Sueño: 7.5h, Agua: 4/6, Ánimo: Tranquilo"
-            delay(500)
-            val reply = aiEngine.query(query, context, forceSimpler, giveSteps)
+            val reply = aiEngine.query(query, currentBiometricContext, forceSimpler, giveSteps)
             val botMsg = ChatMessage(System.currentTimeMillis() + 1, "eir", reply, canSimplify = !forceSimpler)
             _uiState.update {
                 it.copy(chatMessages = it.chatMessages + botMsg, isAgentLoading = false)
             }
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        (aiEngine as? LiteRtLmEirEngine)?.close()
     }
 }
