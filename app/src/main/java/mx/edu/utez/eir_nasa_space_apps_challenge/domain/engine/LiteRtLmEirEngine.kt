@@ -1,6 +1,7 @@
 package mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine
 
 import android.content.Context
+import android.util.Log
 import com.google.ai.edge.litertlm.Backend
 import com.google.ai.edge.litertlm.Contents
 import com.google.ai.edge.litertlm.Conversation
@@ -17,6 +18,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -67,8 +69,6 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
     private val downloader = ModelDownloader(context)
     private var downloadJob: Job? = null
 
-    private val fallbackEngine = LocalDeterministicEirEngine()
-
     private val _modelStatus = MutableStateFlow<LiteRtModelStatus>(LiteRtModelStatus.NotDownloaded())
     val modelStatus: StateFlow<LiteRtModelStatus> = _modelStatus.asStateFlow()
 
@@ -77,6 +77,13 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
 
     private val DEFAULT_MODEL_URL = "https://huggingface.co/litert-community/Qwen3-0.6B/resolve/main/Qwen3-0.6B.litertlm"
     private val DEFAULT_MODEL_NAME = "Qwen3-0.6B.litertlm"
+
+    private val systemPrompt = """
+        Eres EIR, asistente médica y de salud de la tripulación en la misión Ares IV en Marte.
+        Responde en español de forma empática, profesional, directa y breve (máximo 2 a 3 oraciones).
+        Analiza los síntomas considerando las particularidades de microgravedad y vida en el espacio.
+        Si reportan dolor de pecho opresivo, falta grave de aire o pérdida de conocimiento: ordena reposo inmediato y activar el botón rojo SOS.
+    """.trimIndent()
 
     init {
         scope.launch {
@@ -95,6 +102,7 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
             val existingModel = possibleModelFiles.firstOrNull { it.exists() && it.length() > 500_000_000L }
 
             if (existingModel != null) {
+                _modelStatus.value = LiteRtModelStatus.Initializing
                 initLiteRtLmModel(existingModel)
             } else {
                 _modelStatus.value = LiteRtModelStatus.NotDownloaded(
@@ -183,26 +191,72 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
         _modelStatus.value = LiteRtModelStatus.NotDownloaded()
     }
 
-    private fun initLiteRtLmModel(modelFile: File) {
-        val backends = listOf(Backend.GPU(), Backend.CPU())
-        var initializedEngine: Engine? = null
+    private suspend fun initLiteRtLmModel(modelFile: File) {
+        val cpuThreads = Runtime.getRuntime().availableProcessors().coerceIn(2, 4)
+        val backendsToTry = listOf<Pair<String, () -> Backend>>(
+            "GPU" to { Backend.GPU() },
+            "CPU" to { Backend.CPU(cpuThreads, cpuThreads) }
+        )
+
+        var validatedEngine: Engine? = null
+        var validatedConversation: Conversation? = null
+        var selectedBackendName = ""
         var lastErr: Throwable? = null
 
-        for (b in backends) {
+        for ((name, backendFactory) in backendsToTry) {
+            var candidateEngine: Engine? = null
+            var testConv: Conversation? = null
             try {
+                Log.i("LiteRtLm", "Inicializando LiteRT-LM con backend $name...")
                 val config = EngineConfig(
                     modelPath = modelFile.absolutePath,
-                    backend = b,
+                    backend = backendFactory(),
                     cacheDir = context.cacheDir.path
                 )
-                initializedEngine = Engine(config).also { it.initialize() }
+                val eng = Engine(config)
+                eng.initialize()
+                candidateEngine = eng
+
+                // Warm-up de inferencia para comprobar compatibilidad real de drivers
+                Log.i("LiteRtLm", "Ejecutando warm-up de verificación en $name...")
+                testConv = eng.createConversation(
+                    ConversationConfig(
+                        systemInstruction = Contents.of(systemPrompt),
+                        maxOutputToken = 8
+                    )
+                )
+
+                withTimeout(12_000L) {
+                    val warmupStream = testConv.sendMessageAsync("Diagnóstico de prueba")
+                    warmupStream.firstOrNull()
+                }
+
+                testConv.close()
+                testConv = null
+
+                // Si superó el warm-up, creamos la conversación principal
+                val activeConv = eng.createConversation(
+                    ConversationConfig(
+                        systemInstruction = Contents.of(systemPrompt),
+                        samplerConfig = SamplerConfig(10, 0.95, 0.7, 42),
+                        maxOutputToken = 300
+                    )
+                )
+
+                validatedEngine = eng
+                validatedConversation = activeConv
+                selectedBackendName = name
+                Log.i("LiteRtLm", "¡Backend $name validado exitosamente!")
                 break
             } catch (t: Throwable) {
+                Log.w("LiteRtLm", "Fallo al validar backend $name: ${t.message}. Probando siguiente backend...", t)
                 lastErr = t
+                try { testConv?.close() } catch (_: Exception) {}
+                try { candidateEngine?.close() } catch (_: Exception) {}
             }
         }
 
-        if (initializedEngine == null) {
+        if (validatedEngine == null || validatedConversation == null) {
             _state.value = LiteRtLmState(
                 isInitialized = false,
                 activeModelName = "Error de Inicialización",
@@ -212,39 +266,15 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
             return
         }
 
-        try {
-            engine = initializedEngine
-
-            val systemPromptText = """
-                Eres EIR, médica y asistente de salud de la tripulación en misiones espaciales.
-                Responde en español de forma empática, directa y breve (máximo 2 a 3 oraciones).
-                Si reportan dolor de pecho, falta de aire o emergencia grave: ordena reposo inmediato y activar botón SOS.
-                Para preguntas o saludos: sé cordial y ten en cuenta sus signos vitales.
-            """.trimIndent()
-
-            conversation = initializedEngine.createConversation(
-                ConversationConfig(
-                    systemInstruction = Contents.of(systemPromptText),
-                    samplerConfig = SamplerConfig(10, 0.95, 0.7, 42),
-                    maxOutputToken = 200
-                )
-            )
-            _state.value = LiteRtLmState(
-                isInitialized = true,
-                activeModelName = "LiteRT-LM ${modelFile.nameWithoutExtension} On-Device"
-            )
-            _modelStatus.value = LiteRtModelStatus.Ready(
-                modelName = "LiteRT-LM ${modelFile.nameWithoutExtension} On-Device"
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            _state.value = LiteRtLmState(
-                isInitialized = false,
-                activeModelName = "Error de Inicialización",
-                lastError = e.message
-            )
-            _modelStatus.value = LiteRtModelStatus.Error("Error al iniciar el motor de IA: ${e.message}")
-        }
+        engine = validatedEngine
+        conversation = validatedConversation
+        _state.value = LiteRtLmState(
+            isInitialized = true,
+            activeModelName = "LiteRT-LM ${modelFile.nameWithoutExtension} ($selectedBackendName) On-Device"
+        )
+        _modelStatus.value = LiteRtModelStatus.Ready(
+            modelName = "LiteRT-LM ${modelFile.nameWithoutExtension} ($selectedBackendName) On-Device"
+        )
     }
 
     override fun queryStream(
@@ -253,24 +283,39 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
         forceSimpler: Boolean,
         giveSteps: Boolean
     ): Flow<String> = channelFlow {
-        if (!_state.value.isInitialized || conversation == null) {
-            send(fallbackEngine.query(userMessage, biometricContext, forceSimpler, giveSteps))
+        if (!_state.value.isInitialized || engine == null) {
+            send("⚠️ El motor de IA local no está inicializado o el modelo no está listo.")
             return@channelFlow
         }
 
-        val promptWithContext = buildString {
-            append("Signos vitales actuales: ").append(biometricContext)
-            append("\nMensaje del astronauta: ").append(userMessage)
-            if (forceSimpler) append(" (Explícamelo aún más simple)")
-            if (giveSteps) append(" (Dame los pasos exactos a seguir)")
+        val prompt = buildString {
+            if (biometricContext.isNotBlank()) {
+                append("Signos vitales de cabina Sol 142: ").append(biometricContext).append("\n")
+            }
+            append("Consulta del astronauta: ").append(userMessage)
+            if (forceSimpler) append(" (Por favor responde de manera más sencilla y comprensible)")
+            if (giveSteps) append(" (Proporciona los pasos claros y ordenados a seguir)")
         }
 
         var emittedAny = false
         try {
-            withTimeout(20_000L) {
-                withContext(dispatcher) {
-                    _state.value = _state.value.copy(isBusy = true)
-                    val replies = checkNotNull(conversation).sendMessageAsync(promptWithContext)
+            withContext(dispatcher) {
+                _state.value = _state.value.copy(isBusy = true)
+                val currentEngine = checkNotNull(engine)
+
+                if (conversation == null) {
+                    conversation = currentEngine.createConversation(
+                        ConversationConfig(
+                            systemInstruction = Contents.of(systemPrompt),
+                            samplerConfig = SamplerConfig(10, 0.95, 0.7, 42),
+                            maxOutputToken = 300
+                        )
+                    )
+                }
+
+                val currentConv = checkNotNull(conversation)
+                withTimeout(45_000L) {
+                    val replies = currentConv.sendMessageAsync(prompt)
                     replies.collect { message ->
                         val text = message.toString()
                         if (text.isNotEmpty()) {
@@ -278,17 +323,20 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
                             send(text)
                         }
                     }
-                    _state.value = _state.value.copy(isBusy = false)
                 }
+                _state.value = _state.value.copy(isBusy = false)
             }
         } catch (t: Throwable) {
-            t.printStackTrace()
+            Log.e("LiteRtLm", "Error durante inferencia con LiteRT-LM: ${t.message}", t)
             _state.value = _state.value.copy(isBusy = false, lastError = t.message)
-        }
 
-        if (!emittedAny) {
-            val fallback = fallbackEngine.query(userMessage, biometricContext, forceSimpler, giveSteps)
-            send(fallback)
+            // Si la conversación sufrió una interrupción o desbordamiento, reiniciarla limpiamente
+            try { conversation?.close() } catch (_: Exception) {}
+            conversation = null
+
+            if (!emittedAny) {
+                send("⚠️ Error en el motor de IA local (${t.localizedMessage ?: t.message}). He restablecido la sesión de conversación; por favor intenta enviar tu mensaje nuevamente.")
+            }
         }
     }
 
@@ -303,7 +351,7 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
             builder.append(chunk)
         }
         val result = builder.toString()
-        return if (result.isNotBlank()) result else fallbackEngine.query(userMessage, biometricContext, forceSimpler, giveSteps)
+        return if (result.isNotBlank()) result else "⚠️ Sin respuesta del motor de IA."
     }
 
     fun close() {
@@ -321,3 +369,4 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
         }
     }
 }
+

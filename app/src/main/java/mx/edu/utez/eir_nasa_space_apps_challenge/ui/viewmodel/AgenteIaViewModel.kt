@@ -14,7 +14,6 @@ import mx.edu.utez.eir_nasa_space_apps_challenge.data.repository.EirHealthReposi
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.EirAiEngine
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LiteRtLmEirEngine
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LiteRtModelStatus
-import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LocalDeterministicEirEngine
 
 data class AgenteIaUiState(
     val chatMessages: List<ChatMessage> = emptyList(),
@@ -153,8 +152,8 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
                     }
 
                 if (isFirstChunk) {
-                    val fallback = LocalDeterministicEirEngine().query(query, currentBiometricContext, forceSimpler, giveSteps)
-                    val botMsg = ChatMessage(botMsgId, "eir", fallback, canSimplify = !forceSimpler)
+                    val errorMsg = "⚠️ No se recibió respuesta del modelo local. Intenta reformular tu consulta."
+                    val botMsg = ChatMessage(botMsgId, "eir", errorMsg, canSimplify = false)
                     _uiState.update { state ->
                         state.copy(
                             chatMessages = state.chatMessages + botMsg,
@@ -164,8 +163,8 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                val fallback = LocalDeterministicEirEngine().query(query, currentBiometricContext, forceSimpler, giveSteps)
-                val botMsg = ChatMessage(botMsgId, "eir", fallback, canSimplify = !forceSimpler)
+                val errorMsg = "⚠️ Error en el asistente de IA local: ${e.localizedMessage ?: e.message}"
+                val botMsg = ChatMessage(botMsgId, "eir", errorMsg, canSimplify = false)
                 _uiState.update { state ->
                     val exists = state.chatMessages.any { it.id == botMsgId }
                     val updatedList = if (exists) {
