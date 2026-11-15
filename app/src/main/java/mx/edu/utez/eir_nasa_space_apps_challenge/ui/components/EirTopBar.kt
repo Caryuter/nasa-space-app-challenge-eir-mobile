@@ -26,10 +26,11 @@ fun EirTopBar(
     onOpenSos: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val bg = if (isDarkMode) EirDarkHeader else EirLightHeader
-    val textPrimary = if (isDarkMode) EirDarkTextPrimary else EirLightTextPrimary
-    val textSecondary = if (isDarkMode) EirDarkTextSecondary else EirLightTextSecondary
-    val border = if (isDarkMode) EirDarkBorder else EirLightBorder
+    val isDark = isDarkMode || MaterialTheme.colorScheme.isDark
+    val bg = MaterialTheme.colorScheme.surface
+    val textPrimary = MaterialTheme.colorScheme.onSurface
+    val textSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+    val border = MaterialTheme.colorScheme.outline
 
     Surface(
         modifier = modifier.fillMaxWidth(),
@@ -51,7 +52,7 @@ fun EirTopBar(
                     fontWeight = FontWeight.Black,
                     fontSize = 22.sp,
                     letterSpacing = (-0.5).sp,
-                    color = EirEmerald
+                    color = MaterialTheme.colorScheme.primary
                 )
 
                 Text(
@@ -73,12 +74,12 @@ fun EirTopBar(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(if (isDarkMode) Color(0xFF1E293B) else Color(0xFFF1F5F9))
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
                 ) {
                     Icon(
-                        imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
+                        imageVector = if (isDark) Icons.Default.LightMode else Icons.Default.DarkMode,
                         contentDescription = "Cambiar Tema",
-                        tint = if (isDarkMode) EirAmber else textPrimary,
+                        tint = if (isDark) EirAmber else textPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }

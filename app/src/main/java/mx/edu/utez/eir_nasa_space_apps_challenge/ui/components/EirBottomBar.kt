@@ -1,5 +1,6 @@
 package mx.edu.utez.eir_nasa_space_apps_challenge.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -16,7 +17,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,164 +32,180 @@ fun EirBottomBar(
     onOpenCheckup: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val containerBg = if (isDarkMode) EirDarkHeader else EirLightHeader
-    val unselectedColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8)
-    val activeColor = EirEmerald
+    val isDark = isDarkMode || MaterialTheme.colorScheme.isDark
+    val containerBg = MaterialTheme.colorScheme.surface
+    val unselectedColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val activeColor = MaterialTheme.colorScheme.primary
 
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        color = containerBg,
-        tonalElevation = 1.dp,
-        shadowElevation = 2.dp
+    // Alturas de diseño para que el botón central sobresalga limpiamente sin cortarse:
+    // La barra inferior rectangular mide 64.dp (+ navigationBarsPadding).
+    // El botón FAB (56.dp) tiene un margen superior de seguridad (8.dp) para que su sombra
+    // y contorno circular nunca se recorten, y sobresale 22.dp por encima de la barra.
+    val fabSize = 56.dp
+    val barHeight = 64.dp
+    val topSafetyMargin = 8.dp
+    val fabProminence = 22.dp
+    val barTopOffset = topSafetyMargin + fabProminence
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        contentAlignment = Alignment.BottomCenter
     ) {
-        Box(
+        // 1. Barra inferior con fondo, elevación y borde
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .navigationBarsPadding()
-                .height(82.dp)
+                .padding(top = barTopOffset),
+            color = containerBg,
+            tonalElevation = 2.dp,
+            shadowElevation = 8.dp,
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.6f)
+            )
         ) {
-            Surface(
+            Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .height(68.dp),
-                color = containerBg,
-                tonalElevation = 0.dp
+                    .navigationBarsPadding()
+                    .height(barHeight)
             ) {
                 NavigationBar(
-                    containerColor = containerBg,
+                    containerColor = Color.Transparent,
                     tonalElevation = 0.dp,
                     windowInsets = WindowInsets(0, 0, 0, 0),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                // 1. Salud
-                NavigationBarItem(
-                    selected = activeTab == "salud",
-                    onClick = { onTabSelected("salud") },
-                    icon = {
-                        Icon(
-                            imageVector = if (activeTab == "salud") Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Salud"
+                    // 1. Salud
+                    NavigationBarItem(
+                        selected = activeTab == "salud",
+                        onClick = { onTabSelected("salud") },
+                        icon = {
+                            Icon(
+                                imageVector = if (activeTab == "salud") Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = "Salud"
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = "Salud",
+                                fontWeight = if (activeTab == "salud") FontWeight.Black else FontWeight.Medium,
+                                fontSize = 10.sp
+                            )
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = activeColor,
+                            selectedTextColor = activeColor,
+                            indicatorColor = activeColor.copy(alpha = 0.15f),
+                            unselectedIconColor = unselectedColor,
+                            unselectedTextColor = unselectedColor
                         )
-                    },
-                    label = {
-                        Text(
-                            text = "Salud",
-                            fontWeight = if (activeTab == "salud") FontWeight.Black else FontWeight.Medium,
-                            fontSize = 10.sp
-                        )
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = activeColor,
-                        selectedTextColor = activeColor,
-                        indicatorColor = activeColor.copy(alpha = 0.15f),
-                        unselectedIconColor = unselectedColor,
-                        unselectedTextColor = unselectedColor
                     )
-                )
 
-                // 2. Hábitos
-                NavigationBarItem(
-                    selected = activeTab == "habitos",
-                    onClick = { onTabSelected("habitos") },
-                    icon = {
-                        Icon(
-                            imageVector = if (activeTab == "habitos") Icons.Filled.FitnessCenter else Icons.Outlined.FitnessCenter,
-                            contentDescription = "Hábitos"
+                    // 2. Hábitos
+                    NavigationBarItem(
+                        selected = activeTab == "habitos",
+                        onClick = { onTabSelected("habitos") },
+                        icon = {
+                            Icon(
+                                imageVector = if (activeTab == "habitos") Icons.Filled.FitnessCenter else Icons.Outlined.FitnessCenter,
+                                contentDescription = "Hábitos"
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = "Hábitos",
+                                fontWeight = if (activeTab == "habitos") FontWeight.Black else FontWeight.Medium,
+                                fontSize = 10.sp
+                            )
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = activeColor,
+                            selectedTextColor = activeColor,
+                            indicatorColor = activeColor.copy(alpha = 0.15f),
+                            unselectedIconColor = unselectedColor,
+                            unselectedTextColor = unselectedColor
                         )
-                    },
-                    label = {
-                        Text(
-                            text = "Hábitos",
-                            fontWeight = if (activeTab == "habitos") FontWeight.Black else FontWeight.Medium,
-                            fontSize = 10.sp
-                        )
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = activeColor,
-                        selectedTextColor = activeColor,
-                        indicatorColor = activeColor.copy(alpha = 0.15f),
-                        unselectedIconColor = unselectedColor,
-                        unselectedTextColor = unselectedColor
                     )
-                )
 
-                // Spacer placeholder for central elevated Checkup button
-                Spacer(modifier = Modifier.weight(1f))
+                    // Espacio central reservado para el botón flotante de Chequeo
+                    Spacer(modifier = Modifier.weight(1.1f))
 
-                // 3. Bitácora
-                NavigationBarItem(
-                    selected = activeTab == "bitacora",
-                    onClick = { onTabSelected("bitacora") },
-                    icon = {
-                        Icon(
-                            imageVector = if (activeTab == "bitacora") Icons.Filled.AutoStories else Icons.Outlined.AutoStories,
-                            contentDescription = "Bitácora"
+                    // 3. Bitácora
+                    NavigationBarItem(
+                        selected = activeTab == "bitacora",
+                        onClick = { onTabSelected("bitacora") },
+                        icon = {
+                            Icon(
+                                imageVector = if (activeTab == "bitacora") Icons.Filled.AutoStories else Icons.Outlined.AutoStories,
+                                contentDescription = "Bitácora"
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = "Bitácora",
+                                fontWeight = if (activeTab == "bitacora") FontWeight.Black else FontWeight.Medium,
+                                fontSize = 10.sp
+                            )
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = activeColor,
+                            selectedTextColor = activeColor,
+                            indicatorColor = activeColor.copy(alpha = 0.15f),
+                            unselectedIconColor = unselectedColor,
+                            unselectedTextColor = unselectedColor
                         )
-                    },
-                    label = {
-                        Text(
-                            text = "Bitácora",
-                            fontWeight = if (activeTab == "bitacora") FontWeight.Black else FontWeight.Medium,
-                            fontSize = 10.sp
-                        )
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = activeColor,
-                        selectedTextColor = activeColor,
-                        indicatorColor = activeColor.copy(alpha = 0.15f),
-                        unselectedIconColor = unselectedColor,
-                        unselectedTextColor = unselectedColor
                     )
-                )
 
-                // 4. Agente IA
-                NavigationBarItem(
-                    selected = activeTab == "agente",
-                    onClick = { onTabSelected("agente") },
-                    icon = {
-                        Icon(
-                            imageVector = if (activeTab == "agente") Icons.Filled.ChatBubble else Icons.Outlined.ChatBubbleOutline,
-                            contentDescription = "Agente IA"
+                    // 4. Agente IA
+                    NavigationBarItem(
+                        selected = activeTab == "agente",
+                        onClick = { onTabSelected("agente") },
+                        icon = {
+                            Icon(
+                                imageVector = if (activeTab == "agente") Icons.Filled.ChatBubble else Icons.Outlined.ChatBubbleOutline,
+                                contentDescription = "Agente IA"
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = "Agente IA",
+                                fontWeight = if (activeTab == "agente") FontWeight.Black else FontWeight.Medium,
+                                fontSize = 10.sp
+                            )
+                        },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = activeColor,
+                            selectedTextColor = activeColor,
+                            indicatorColor = activeColor.copy(alpha = 0.15f),
+                            unselectedIconColor = unselectedColor,
+                            unselectedTextColor = unselectedColor
                         )
-                    },
-                    label = {
-                        Text(
-                            text = "Agente IA",
-                            fontWeight = if (activeTab == "agente") FontWeight.Black else FontWeight.Medium,
-                            fontSize = 10.sp
-                        )
-                    },
-                    colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = activeColor,
-                        selectedTextColor = activeColor,
-                        indicatorColor = activeColor.copy(alpha = 0.15f),
-                        unselectedIconColor = unselectedColor,
-                        unselectedTextColor = unselectedColor
                     )
-                )
+                }
             }
         }
 
-        // Elevated Center Button: + Chequeo
+        // 2. Botón flotante central de Chequeo (+), sobresaliendo con sombra completa
         Column(
             modifier = Modifier
                 .align(Alignment.TopCenter)
-                .offset(y = (-6).dp),
+                .padding(top = topSafetyMargin),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             FloatingActionButton(
                 onClick = onOpenCheckup,
                 shape = CircleShape,
-                containerColor = EirCharcoal,
+                containerColor = if (isDark) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
                 contentColor = Color.White,
                 elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 4.dp,
-                    pressedElevation = 2.dp
+                    defaultElevation = 6.dp,
+                    pressedElevation = 2.dp,
+                    hoveredElevation = 8.dp
                 ),
-                modifier = Modifier
-                    .size(56.dp)
-                    .clip(CircleShape)
+                modifier = Modifier.size(fabSize)
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -208,7 +224,6 @@ fun EirBottomBar(
             )
         }
     }
-}
 }
 
 @Preview(showBackground = true, name = "EirBottomBar Light Mode")

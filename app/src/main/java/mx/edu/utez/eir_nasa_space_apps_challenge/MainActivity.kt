@@ -105,7 +105,7 @@ fun EirApp(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(if (mainState.isDarkMode) EirDarkBg else EirLightBg)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -126,7 +126,7 @@ fun EirApp(
                     )
                 }
             },
-            containerColor = if (mainState.isDarkMode) EirDarkBg else EirLightBg
+            containerColor = MaterialTheme.colorScheme.background
         ) { innerPadding ->
             Box(
                 modifier = Modifier
@@ -197,8 +197,8 @@ fun EirApp(
                         Surface(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(20.dp))
-                                .border(1.dp, Color(0xFF334155), RoundedCornerShape(20.dp)),
-                            color = Color(0xFF0F172A).copy(alpha = 0.95f),
+                                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(20.dp)),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.95f),
                             shape = RoundedCornerShape(20.dp)
                         ) {
                             Row(
@@ -216,7 +216,7 @@ fun EirApp(
                                     text = msg,
                                     fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = Color.White
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }

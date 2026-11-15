@@ -1,0 +1,93 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="300dp"
+    android:viewportWidth="400"
+    android:viewportHeight="300">
+    <!-- Background Card Gradient / Aesthetic Base -->
+    <path
+        android:fillColor="#0B132B"
+        android:pathData="M0,0h400v300h-400z" />
+    <!-- Soft Orbital Glow -->
+    <path
+        android:fillColor="#102A43"
+        android:pathData="M0,0h400v180h-400z" />
+    <path
+        android:strokeColor="#1E3A5F"
+        android:strokeWidth="1.5"
+        android:pathData="M20,40 Q200,80 380,40 M40,260 Q200,220 360,260" />
+    <!-- Food Station Mat / Tray -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M50,190 Q200,160 350,190 L340,270 Q200,290 60,270 Z" />
+    <path
+        android:strokeColor="#334155"
+        android:strokeWidth="2"
+        android:pathData="M50,190 Q200,160 350,190" />
+    <!-- Ceramic / Space Polymer Breakfast Bowl -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M110,140 Q200,130 290,140 Q300,210 200,220 Q100,210 110,140 Z" />
+    <path
+        android:strokeColor="#10B981"
+        android:strokeWidth="2.5"
+        android:pathData="M110,140 Q200,130 290,140" />
+    <!-- Creamy Oatmeal Base with Warm Hue -->
+    <path
+        android:fillColor="#FDE68A"
+        android:pathData="M120,146 Q200,138 280,146 Q270,185 200,190 Q130,185 120,146 Z" />
+    <!-- Sliced Strawberries -->
+    <path
+        android:fillColor="#EF4444"
+        android:pathData="M150,150 Q162,142 174,152 Q168,165 150,150 Z" />
+    <path
+        android:fillColor="#DC2626"
+        android:pathData="M176,155 Q188,148 200,158 Q192,170 176,155 Z" />
+    <!-- Blueberries -->
+    <path
+        android:fillColor="#3B82F6"
+        android:pathData="M210,155 A7,7 0 1,1 210,169 A7,7 0 1,1 210,155 Z" />
+    <path
+        android:fillColor="#1D4ED8"
+        android:pathData="M226,160 A6,6 0 1,1 226,172 A6,6 0 1,1 226,160 Z" />
+    <path
+        android:fillColor="#3B82F6"
+        android:pathData="M238,152 A6,6 0 1,1 238,164 A6,6 0 1,1 238,152 Z" />
+    <!-- Chia Seeds & Almond Flakes -->
+    <path
+        android:fillColor="#78350F"
+        android:pathData="M140,165 A2.5,1.5 30 1,1 140,168 Z M148,172 A2.5,1.5 45 1,1 148,175 Z M195,178 A3,2 0 1,1 195,182 Z" />
+    <!-- Space Vitamin D Pouch (Sealed Metallic Space Packet) -->
+    <path
+        android:fillColor="#334155"
+        android:pathData="M300,120 L360,110 L370,180 L310,190 Z" />
+    <path
+        android:strokeColor="#CBD5E1"
+        android:strokeWidth="1.5"
+        android:pathData="M300,120 L360,110 L370,180 L310,190 Z" />
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M320,135 L350,130 L355,160 L325,165 Z" />
+    <!-- Capsule Glow / Pill symbol -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M332,143 A4,4 0 1,1 332,151 A4,4 0 1,1 332,143 Z" />
+    <!-- Nutrition Badge Banner -->
+    <path
+        android:fillColor="#064E3B"
+        android:pathData="M25,25 H145 V55 H25 Z" />
+    <path
+        android:strokeColor="#10B981"
+        android:strokeWidth="1.5"
+        android:pathData="M25,25 H145 V55 H25 Z" />
+    <path
+        android:strokeColor="#34D399"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M35,40 L45,47 L58,33" />
+    <!-- Steam / Warmth Wisps -->
+    <path
+        android:strokeColor="#6EE7B7"
+        android:strokeWidth="1.5"
+        android:strokeAlpha="0.6"
+        android:pathData="M180,120 Q170,105 185,90 M210,122 Q220,105 205,90" />
+</vector>

@@ -1,0 +1,71 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="300dp"
+    android:viewportWidth="400"
+    android:viewportHeight="300">
+    <!-- Cosmic Midnight Base -->
+    <path
+        android:fillColor="#090E1A"
+        android:pathData="M0,0h400v300h-400z" />
+    <path
+        android:fillColor="#131B2E"
+        android:pathData="M0,0h400v180h-400z" />
+    <path
+        android:strokeColor="#1E293B"
+        android:strokeWidth="1.5"
+        android:pathData="M30,30 L370,30 M50,270 L350,270" />
+    <!-- Magnetic Food Station Pad -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M50,190 Q200,165 350,190 L340,270 Q200,290 60,270 Z" />
+    <!-- Thermal Insulated Soup Bowl -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M110,135 Q200,120 290,135 Q300,225 200,230 Q100,225 110,135 Z" />
+    <path
+        android:strokeColor="#8B5CF6"
+        android:strokeWidth="2.5"
+        android:pathData="M110,135 Q200,120 290,135" />
+    <!-- Golden Restorative Broth -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M120,143 Q200,132 280,143 Q270,195 200,200 Q130,195 120,143 Z" />
+    <!-- Light Steaming Spirals -->
+    <path
+        android:strokeColor="#C4B5FD"
+        android:strokeWidth="1.5"
+        android:strokeAlpha="0.6"
+        android:pathData="M175,120 Q165,100 180,85 M225,122 Q235,102 220,85" />
+    <!-- Vegetable Chunks & Herbs in Broth -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M150,155 A5,5 0 1,1 150,165 A5,5 0 1,1 150,155 Z M230,160 A6,6 0 1,1 230,172 A6,6 0 1,1 230,160 Z M190,175 A5,5 0 1,1 190,185 A5,5 0 1,1 190,175 Z" />
+    <path
+        android:fillColor="#F97316"
+        android:pathData="M170,165 H180 V175 H170 Z M215,150 H224 V159 H215 Z" />
+    <!-- Mineral Sachet / Electrolyte Packet (Low Sodium Balance) -->
+    <path
+        android:fillColor="#334155"
+        android:pathData="M300,120 L365,115 L355,185 L290,185 Z" />
+    <path
+        android:strokeColor="#A78BFA"
+        android:strokeWidth="1.5"
+        android:pathData="M300,120 L365,115 L355,185 L290,185 Z" />
+    <!-- Electrolyte drop icon on sachet -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M325,140 Q330,155 325,160 Q320,155 325,140 Z" />
+    <!-- Dinner Badge -->
+    <path
+        android:fillColor="#4C1D95"
+        android:pathData="M25,25 H155 V55 H25 Z" />
+    <path
+        android:strokeColor="#8B5CF6"
+        android:strokeWidth="1.5"
+        android:pathData="M25,25 H155 V55 H25 Z" />
+    <path
+        android:strokeColor="#DDD6FE"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M40,40 Q55,30 55,45 Q55,50 40,40" />
+</vector>

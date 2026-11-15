@@ -7,17 +7,21 @@ import com.google.ai.edge.litertlm.Conversation
 import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
+import com.google.ai.edge.litertlm.SamplerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.io.File
 import java.util.concurrent.Executors
 import kotlin.time.Duration.Companion.milliseconds
@@ -180,40 +184,49 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
     }
 
     private fun initLiteRtLmModel(modelFile: File) {
-        try {
-            val config = EngineConfig(
-                modelPath = modelFile.absolutePath,
-                backend = Backend.CPU(),
-                cacheDir = context.cacheDir.path
+        val backends = listOf(Backend.GPU(), Backend.CPU())
+        var initializedEngine: Engine? = null
+        var lastErr: Throwable? = null
+
+        for (b in backends) {
+            try {
+                val config = EngineConfig(
+                    modelPath = modelFile.absolutePath,
+                    backend = b,
+                    cacheDir = context.cacheDir.path
+                )
+                initializedEngine = Engine(config).also { it.initialize() }
+                break
+            } catch (t: Throwable) {
+                lastErr = t
+            }
+        }
+
+        if (initializedEngine == null) {
+            _state.value = LiteRtLmState(
+                isInitialized = false,
+                activeModelName = "Error de Inicialización",
+                lastError = lastErr?.message
             )
-            engine = Engine(config).also { it.initialize() }
+            _modelStatus.value = LiteRtModelStatus.Error("Error al iniciar motor IA: ${lastErr?.message}")
+            return
+        }
+
+        try {
+            engine = initializedEngine
 
             val systemPromptText = """
-                Eres EIR, el asistente de bienestar y monitoreo de salud de la tripulación en misiones espaciales de larga duración, basándote en los estándares de investigación de la NASA (Human Research Program - Standard Measures) y la Agencia Espacial Canadiense (CSA).
-
-                1. PROTOCOLO CRÍTICO DE EMERGENCIAS (PRIORIDAD MÁXIMA)
-                Si el usuario reporta dolor de pecho, sospecha de infarto, dificultad para respirar, desmayos, mareos severos, pérdida de visión, confusión repentina o cualquier lesión aguda:
-                - IGNORA los datos rutinarios o históricos (como "batería física" o registros pasados de telemetría). Nunca uses datos normales previos para minimizar un síntoma actual.
-                - PROHIBIDO recomendar ejercicio físico (como caminadora o entrenamiento de fuerza) o dar consejos de rutina diaria.
-                - DETÉN cualquier actividad física de inmediato: indícale que se detenga, se siente o recueste en una posición segura y mantenga la calma.
-                - ACTIVA EL PROTOCOLO DE EMERGENCIA: Indícale de forma clara y directa que contacte de inmediato al oficial médico de la tripulación, active la alerta de emergencia de la nave/estación (botón rojo SOS de EIR) o se comunique con el control de misión.
-                - LENGUAJE CLARO Y SIN TECNICISMOS: Explica con palabras sencillas qué podría estar pasando y qué hacer paso a paso, asumiendo que el usuario no tiene conocimientos médicos.
-
-                2. ALCANCE Y LIMITACIONES DEL SISTEMA (TRANSPARENCIA)
-                - Eres una herramienta de apoyo al bienestar y monitoreo preventivo, NO un dispositivo médico ni de diagnóstico clínico.
-                - No mides niveles de oxígeno ni detectas hipoxia directamente. Si el usuario menciona dolor de cabeza, confusión, problemas de visión o fatiga extrema, advierte que en entornos espaciales estos síntomas pueden estar asociados a falta de oxígeno (hipoxia) o fatiga severa, y pídele que revise los sensores ambientales de la cabina y reporte el estado al equipo médico.
-                - Los indicadores de bienestar son autorreportes demostrativos; ante cualquier duda médica real, la evaluación humana y los sensores médicos certificados siempre tienen la última palabra.
-
-                3. MODO RUTINARIO Y BIENESTAR (SOLO CUANDO NO HAY EMERGENCIA)
-                Cuando el usuario no presente síntomas de alarma, utiliza los datos del día (Sol) y los principios de NASA Isolation & Confinement y Standard Measures para:
-                - Explicar en lenguaje sencillo cómo el aislamiento, la carga de trabajo y la alteración del sueño afectan el ánimo, la concentración y el cuerpo.
-                - Sugerir hábitos preventivos: hidratación adecuada, exposición a iluminación apropiada para regular el sueño, ejercicio físico programado (para contrarrestar la pérdida muscular y ósea en microgravedad) y actividades de reflexión o escritura (journaling).
-                - Mantener un tono empático, claro, directo y fácil de entender en situaciones de estrés o fatiga.
+                Eres EIR, médica y asistente de salud de la tripulación en misiones espaciales.
+                Responde en español de forma empática, directa y breve (máximo 2 a 3 oraciones).
+                Si reportan dolor de pecho, falta de aire o emergencia grave: ordena reposo inmediato y activar botón SOS.
+                Para preguntas o saludos: sé cordial y ten en cuenta sus signos vitales.
             """.trimIndent()
 
-            conversation = checkNotNull(engine).createConversation(
+            conversation = initializedEngine.createConversation(
                 ConversationConfig(
-                    systemInstruction = Contents.of(systemPromptText)
+                    systemInstruction = Contents.of(systemPromptText),
+                    samplerConfig = SamplerConfig(10, 0.95, 0.7, 42),
+                    maxOutputToken = 200
                 )
             )
             _state.value = LiteRtLmState(
@@ -234,42 +247,63 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
         }
     }
 
+    override fun queryStream(
+        userMessage: String,
+        biometricContext: String,
+        forceSimpler: Boolean,
+        giveSteps: Boolean
+    ): Flow<String> = channelFlow {
+        if (!_state.value.isInitialized || conversation == null) {
+            send(fallbackEngine.query(userMessage, biometricContext, forceSimpler, giveSteps))
+            return@channelFlow
+        }
+
+        val promptWithContext = buildString {
+            append("Signos vitales actuales: ").append(biometricContext)
+            append("\nMensaje del astronauta: ").append(userMessage)
+            if (forceSimpler) append(" (Explícamelo aún más simple)")
+            if (giveSteps) append(" (Dame los pasos exactos a seguir)")
+        }
+
+        var emittedAny = false
+        try {
+            withTimeout(20_000L) {
+                withContext(dispatcher) {
+                    _state.value = _state.value.copy(isBusy = true)
+                    val replies = checkNotNull(conversation).sendMessageAsync(promptWithContext)
+                    replies.collect { message ->
+                        val text = message.toString()
+                        if (text.isNotEmpty()) {
+                            emittedAny = true
+                            send(text)
+                        }
+                    }
+                    _state.value = _state.value.copy(isBusy = false)
+                }
+            }
+        } catch (t: Throwable) {
+            t.printStackTrace()
+            _state.value = _state.value.copy(isBusy = false, lastError = t.message)
+        }
+
+        if (!emittedAny) {
+            val fallback = fallbackEngine.query(userMessage, biometricContext, forceSimpler, giveSteps)
+            send(fallback)
+        }
+    }
+
     override suspend fun query(
         userMessage: String,
         biometricContext: String,
         forceSimpler: Boolean,
         giveSteps: Boolean
     ): String {
-        return withContext(dispatcher) {
-            if (_state.value.isInitialized && conversation != null) {
-                try {
-                    _state.value = _state.value.copy(isBusy = true)
-                    val promptWithContext = buildString {
-                        append("Tus datos actuales de salud son: ")
-                        append(biometricContext)
-                        append("\nMensaje del astronauta: ")
-                        append(userMessage)
-                        if (forceSimpler) append(" (Explícamelo aún más simple)")
-                        if (giveSteps) append(" (Dame los pasos exactos a seguir)")
-                    }
-
-                    val replies = checkNotNull(conversation).sendMessageAsync(promptWithContext)
-                    val builder = StringBuilder()
-                    replies.collect { message ->
-                        builder.append(message)
-                    }
-                    _state.value = _state.value.copy(isBusy = false)
-                    val result = builder.toString()
-                    if (result.isNotBlank()) result else fallbackEngine.query(userMessage, biometricContext, forceSimpler, giveSteps)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    _state.value = _state.value.copy(isBusy = false, lastError = e.message)
-                    fallbackEngine.query(userMessage, biometricContext, forceSimpler, giveSteps)
-                }
-            } else {
-                fallbackEngine.query(userMessage, biometricContext, forceSimpler, giveSteps)
-            }
+        val builder = StringBuilder()
+        queryStream(userMessage, biometricContext, forceSimpler, giveSteps).collect { chunk ->
+            builder.append(chunk)
         }
+        val result = builder.toString()
+        return if (result.isNotBlank()) result else fallbackEngine.query(userMessage, biometricContext, forceSimpler, giveSteps)
     }
 
     fun close() {

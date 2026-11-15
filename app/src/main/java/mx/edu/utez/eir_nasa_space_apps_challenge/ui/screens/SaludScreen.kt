@@ -4,9 +4,12 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -71,8 +74,8 @@ fun SaludScreenContent(
     bodyZonesInfo: Map<String, BodyZoneInfo>,
     modifier: Modifier = Modifier
 ) {
-    val isDark = false
-    val cardBg = if (isDark) EirDarkSurface else EirLightSurface
+    val isDark = MaterialTheme.colorScheme.isDark
+    val cardBg = MaterialTheme.colorScheme.surface
     val currentZone = bodyZonesInfo[state.selectedZoneId] ?: bodyZonesInfo["head"] ?: BodyZoneInfo(
         id = "head",
         title = "Cabeza, Ojos y Descanso",
@@ -103,7 +106,7 @@ fun SaludScreenContent(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(20.dp),
             colors = CardDefaults.elevatedCardColors(
-                containerColor = if (isDark) Color(0xFF0F172A) else Color(0xFFF0F9FF)
+                containerColor = if (isDark) MaterialTheme.colorScheme.surfaceVariant else Color(0xFFF0F9FF)
             ),
             elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
         ) {
@@ -141,7 +144,7 @@ fun SaludScreenContent(
                         },
                         fontSize = 12.sp,
                         lineHeight = 16.sp,
-                        color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(top = 2.dp)
                     )
                 }
@@ -175,7 +178,7 @@ fun SaludScreenContent(
                         Text(
                             text = "Toca una parte para entender qué pasa en el espacio",
                             fontSize = 11.sp,
-                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -254,7 +257,7 @@ fun SaludScreenContent(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(18.dp),
                     colors = CardDefaults.outlinedCardColors(
-                        containerColor = if (isDark) Color(0xFF0F172A) else Color(0xFFF8FAFC)
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 ) {
                     Column(
@@ -282,7 +285,7 @@ fun SaludScreenContent(
                                 Text(
                                     text = currentZone.vsWeek,
                                     fontSize = 10.sp,
-                                    color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(top = 2.dp)
                                 )
                             }
@@ -297,7 +300,7 @@ fun SaludScreenContent(
                                 Text(
                                     text = "Últimos 7 días",
                                     fontSize = 9.sp,
-                                    color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.padding(top = 2.dp)
                                 )
                             }
@@ -307,13 +310,13 @@ fun SaludScreenContent(
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(12.dp),
-                            color = if (isDark) Color(0xFF0B1120) else Color.White
+                            color = MaterialTheme.colorScheme.surface
                         ) {
                             Text(
                                 text = currentZone.whySpaceFeelsWeird,
                                 fontSize = 11.sp,
                                 lineHeight = 16.sp,
-                                color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 modifier = Modifier.padding(10.dp)
                             )
                         }
@@ -429,31 +432,43 @@ fun SaludScreenContent(
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 1.sp,
-                    color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = "Desliza para ver más • Toca “?”",
                     fontSize = 10.sp,
-                    color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             // Horizontal Carousel for Health Metrics (1 card per row/view)
             val metrics = if (state.healthMetrics.isNotEmpty()) state.healthMetrics else sampleHealthMetrics
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(horizontal = 2.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                items(metrics, key = { it.id }) { metric ->
-                    MetricCard(
-                        metric = metric,
-                        isExpanded = state.expandedMetricId == metric.id,
-                        isDark = isDark,
-                        cardBg = cardBg,
-                        onToggleExpand = { onToggleMetricExpand(metric.id) },
-                        modifier = Modifier.fillParentMaxWidth(0.85f)
-                    )
+            val lazyListState = rememberLazyListState()
+            val snapFlingBehavior = rememberSnapFlingBehavior(
+                lazyListState = lazyListState,
+                snapPosition = SnapPosition.Center
+            )
+            val cardFraction = 0.88f
+
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val horizontalPadding = maxWidth * ((1f - cardFraction) / 2f)
+                LazyRow(
+                    state = lazyListState,
+                    flingBehavior = snapFlingBehavior,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(horizontal = horizontalPadding),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    items(metrics, key = { it.id }) { metric ->
+                        MetricCard(
+                            metric = metric,
+                            isExpanded = state.expandedMetricId == metric.id,
+                            isDark = isDark,
+                            cardBg = cardBg,
+                            onToggleExpand = { onToggleMetricExpand(metric.id) },
+                            modifier = Modifier.fillParentMaxWidth(cardFraction)
+                        )
+                    }
                 }
             }
         }
@@ -475,11 +490,11 @@ private fun ZoneQuickButton(
         colors = CardDefaults.outlinedCardColors(
             containerColor = if (isSelected) {
                 EirSky.copy(alpha = 0.15f)
-            } else if (isDark) Color(0xFF0F172A) else Color(0xFFF8FAFC)
+            } else MaterialTheme.colorScheme.surface
         ),
         border = androidx.compose.foundation.BorderStroke(
             width = if (isSelected) 1.5.dp else 1.dp,
-            color = if (isSelected) EirSky else if (hasNote) EirAmber else if (isDark) EirDarkBorder else EirLightBorder
+            color = if (isSelected) EirSky else if (hasNote) EirAmber else MaterialTheme.colorScheme.outline
         ),
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -563,7 +578,7 @@ private fun MetricCard(
                             text = metric.title,
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
 
@@ -571,9 +586,8 @@ private fun MetricCard(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .background(
-                                if (isExpanded) EirSky
-                                else if (isDark) Color(0xFF1E293B)
-                                else Color(0xFFE0F2FE)
+                                if (isExpanded) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.surfaceVariant
                             )
                             .clickable { onToggleExpand() }
                             .padding(horizontal = 6.dp, vertical = 2.dp)
@@ -582,7 +596,7 @@ private fun MetricCard(
                             text = if (isExpanded) "Cerrar" else "?",
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Black,
-                            color = if (isExpanded) Color.White else EirSky
+                            color = if (isExpanded) Color.White else MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -604,7 +618,7 @@ private fun MetricCard(
                             text = metric.unit,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(bottom = 2.dp)
                         )
                     }
@@ -626,7 +640,7 @@ private fun MetricCard(
                     Text(
                         text = metric.updatedAt,
                         fontSize = 9.sp,
-                        color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .align(Alignment.End)
                             .padding(top = 4.dp)
@@ -642,7 +656,7 @@ private fun MetricCard(
                         .padding(top = 10.dp)
                         .border(
                             width = 0.5.dp,
-                            color = if (isDark) Color(0xFF1E293B) else Color(0xFFE2E8F0),
+                            color = MaterialTheme.colorScheme.outlineVariant,
                             shape = RoundedCornerShape(0.dp)
                         )
                         .padding(top = 8.dp),
@@ -658,7 +672,7 @@ private fun MetricCard(
                         text = metric.meaning,
                         fontSize = 11.sp,
                         lineHeight = 15.sp,
-                        color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
@@ -672,13 +686,13 @@ private fun MetricCard(
                         text = metric.action,
                         fontSize = 11.sp,
                         lineHeight = 15.sp,
-                        color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Text(
                         text = "Actualizado: ${metric.updatedAt}",
                         fontSize = 10.sp,
-                        color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }

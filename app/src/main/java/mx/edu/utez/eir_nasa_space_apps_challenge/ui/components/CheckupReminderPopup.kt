@@ -1,25 +1,18 @@
 package mx.edu.utez.eir_nasa_space_apps_challenge.ui.components
 
 import androidx.compose.animation.*
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTimeFilled
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
 
 @Composable
@@ -40,130 +33,87 @@ fun CheckupReminderPopup(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            shape = RoundedCornerShape(24.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = if (isDarkMode) Color(0xFF0F172A) else Color(0xFFF0F9FF)
+                containerColor = MaterialTheme.colorScheme.surface
             ),
-            border = androidx.compose.foundation.BorderStroke(
-                width = 1.5.dp,
-                color = if (isDarkMode) EirSky.copy(alpha = 0.6f) else Color(0xFF38BDF8)
+            border = BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outlineVariant
             ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Top Header Row
+                // Encabezado: Título y botón cerrar
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        MascotAvatar(
-                            emotion = MascotEmotion.CONCERNED,
-                            size = 36.dp,
-                            showGlow = true
-                        )
-
-                        Column {
-                            Text(
-                                text = "RECORDATORIO PROGRAMADO",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 1.sp,
-                                color = EirSky
-                            )
-                            Text(
-                                text = "Misión Ares IV • Sol 142",
-                                fontSize = 11.sp,
-                                color = if (isDarkMode) EirDarkTextSecondary else EirLightTextSecondary
-                            )
-                        }
-                    }
+                    Text(
+                        text = "Chequeo diario pendiente",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
 
                     IconButton(
                         onClick = onDismiss,
-                        modifier = Modifier
-                            .size(28.dp)
-                            .clip(CircleShape)
-                            .background(if (isDarkMode) Color(0xFF1E293B) else Color(0xFFE2E8F0))
+                        modifier = Modifier.size(28.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Close,
-                            contentDescription = "Posponer",
-                            tint = if (isDarkMode) Color.White else Color.Black,
-                            modifier = Modifier.size(16.dp)
+                            contentDescription = "Cerrar",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
                 }
 
-                // Message Text
-                Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    Text(
-                        text = "⏰ Hora de tu seguimiento de salud de hoy",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Black,
-                        color = if (isDarkMode) EirDarkTextPrimary else EirLightTextPrimary
-                    )
-                    Text(
-                        text = "Es hora de tu escaneo facial, prueba de voz y registro de signos vitales para sincronizar con la cabina.",
-                        fontSize = 12.sp,
-                        lineHeight = 16.sp,
-                        color = if (isDarkMode) EirDarkTextSecondary else EirLightTextSecondary
-                    )
-                }
+                // Mensaje conciso sin sobrecarga de texto
+                Text(
+                    text = "Completa tu registro de hoy para mantener tu seguimiento al día.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
 
-                // Action Buttons
+                // Botones de acción Material 3 sin iconos
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.End),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
-                        onClick = onStartCheckupNow,
-                        modifier = Modifier.weight(1.3f),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = EirEmerald)
+                    TextButton(
+                        onClick = onSnooze15Min,
+                        shape = RoundedCornerShape(10.dp)
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.PlayArrow,
-                            contentDescription = "Iniciar",
-                            tint = Color.Black,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Iniciar Chequeo Ahora",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Black,
-                            color = Color.Black
+                            text = "Posponer",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
-                    OutlinedButton(
-                        onClick = onSnooze15Min,
-                        modifier = Modifier.weight(1f),
-                        shape = RoundedCornerShape(14.dp),
-                        border = androidx.compose.foundation.BorderStroke(
-                            1.dp,
-                            if (isDarkMode) EirDarkBorder else EirLightBorder
+                    Button(
+                        onClick = onStartCheckupNow,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
                         )
                     ) {
                         Text(
-                            text = "+15 min",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = if (isDarkMode) Color.White else Color.Black
+                            text = "Iniciar chequeo",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
                         )
                     }
                 }

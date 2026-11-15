@@ -1,0 +1,120 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+    <!-- Space Station Module Background -->
+    <path
+        android:fillColor="#0B132B"
+        android:pathData="M0,0h400v400h-400z" />
+    <!-- ISS Node Hull & Overhead Utility Lines -->
+    <path
+        android:strokeColor="#1E293B"
+        android:strokeWidth="5"
+        android:pathData="M0,70 h400 M0,90 h400" />
+    <path
+        android:strokeColor="#334155"
+        android:strokeWidth="2"
+        android:pathData="M80,0 v70 M200,0 v70 M320,0 v70" />
+    <!-- T2 Treadmill Platform (COLBERT Isolation Vibration System) -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M70,310 h260 v40 h-260 z" />
+    <!-- Moving Treadmill Track -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M90,312 h220 v12 h-220 z" />
+    <path
+        android:strokeColor="#64748B"
+        android:strokeWidth="2"
+        android:pathData="M110,318 h20 M150,318 h20 M190,318 h20 M230,318 h20 M270,318 h20" />
+    <!-- Vibration Dampening Springs / Gyro Mounts -->
+    <path
+        android:fillColor="#475569"
+        android:pathData="M95,350 h30 v15 h-30 z M275,350 h30 v15 h-30 z" />
+    <!-- Treadmill Control Mast & Telemetry Console -->
+    <path
+        android:strokeColor="#475569"
+        android:strokeWidth="8"
+        android:strokeLineCap="round"
+        android:pathData="M100,310 L100,200 L125,170" />
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M115,155 h35 v25 h-35 z" />
+    <!-- Telemetry Screen Glow -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M118,158 h29 v19 h-29 z" />
+    <!-- Bungee Cord Harness Support Mast Overhead -->
+    <path
+        android:strokeColor="#334155"
+        android:strokeWidth="10"
+        android:pathData="M200,70 v40" />
+    <path
+        android:fillColor="#475569"
+        android:pathData="M170,110 h60 v14 h-60 z" />
+    <!-- Elastic Harness Straps (Holding astronaut down onto belt) -->
+    <path
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="4"
+        android:pathData="M185,124 L195,195 M215,124 L205,195" />
+    <!-- Running Astronaut: Dynamic Pose -->
+    <!-- Rear Leg (Extended Kickback) -->
+    <path
+        android:strokeColor="#94A3B8"
+        android:strokeWidth="14"
+        android:strokeLineCap="round"
+        android:pathData="M195,225 L160,255 L140,290" />
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M130,285 h20 v10 h-20 z" />
+    <!-- Front Leg (Forward Knee Drive) -->
+    <path
+        android:strokeColor="#CBD5E1"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M205,225 L235,260 L220,310" />
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M210,305 h25 v12 h-25 z" />
+    <!-- Astronaut Hip Harness -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M185,215 h30 v18 h-30 z" />
+    <!-- Torso (Slightly Forward Leaning Runner) -->
+    <path
+        android:strokeColor="#E2E8F0"
+        android:strokeWidth="28"
+        android:strokeLineCap="round"
+        android:pathData="M195,220 L210,165" />
+    <!-- Runner Vest / NASA Blue Stripes -->
+    <path
+        android:strokeColor="#0284C7"
+        android:strokeWidth="4"
+        android:pathData="M195,175 L215,185" />
+    <!-- Rear Arm (Bent Driving Back) -->
+    <path
+        android:strokeColor="#94A3B8"
+        android:strokeWidth="11"
+        android:strokeLineCap="round"
+        android:pathData="M205,165 L175,185 L165,170" />
+    <!-- Front Arm (Bent Driving Forward) -->
+    <path
+        android:strokeColor="#CBD5E1"
+        android:strokeWidth="11"
+        android:strokeLineCap="round"
+        android:pathData="M215,165 L245,180 L235,160" />
+    <!-- Head / Astronaut Helmet & Visor -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M205,128 a18,20 0 1,0 36,0 a18,20 0 1,0 -36,0" />
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M214,120 a12,14 0 1,0 24,0 a12,14 0 1,0 -24,0" />
+    <!-- Visor Highlight -->
+    <path
+        android:strokeColor="#E0F2FE"
+        android:strokeWidth="2"
+        android:pathData="M220,116 Q225,112 230,114" />
+</vector>

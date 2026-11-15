@@ -33,19 +33,43 @@ data class Discomfort(
     val time: String
 )
 
+data class MealFoodItem(
+    val name: String,
+    val portion: String,
+    val kcal: Int,
+    val icon: String = "🥣"
+)
+
 data class Meal(
     val id: Long,
     val name: String,
     val kcal: Int,
-    val done: Boolean
+    val done: Boolean,
+    val mealType: String = "Comida",
+    val time: String = "12:00",
+    val proteinGrams: Int = 30,
+    val carbsGrams: Int = 50,
+    val fatGrams: Int = 15,
+    val fiberGrams: Int = 6,
+    val imageRes: Int? = null,
+    val whySpace: String = "Protege la densidad ósea y previene la pérdida de masa muscular en microgravedad.",
+    val prepInfo: String = "Rehidratar con 180 ml de agua a 70°C durante 5 minutos en el dispensador de la estación.",
+    val items: List<MealFoodItem> = emptyList()
 )
 
 data class Exercise(
     val id: Long,
     val name: String,
-    val why: String,
-    val duration: String,
-    val done: Boolean
+    val why: String = "",
+    val duration: String = "15 min",
+    val done: Boolean = false,
+    val setsReps: String = "3x 15 a 20",
+    val loadKg: String = "0",
+    val restSec: Int = 45,
+    val imageRes: Int? = null,
+    val thumbRes: Int? = null,
+    val category: String = "Piernas",
+    val instructions: String = "Mantén la postura alineada, ejecuta el rango completo de movimiento y mantén la tensión en el arnés axial para contrarrestar la microgravedad."
 )
 
 data class JournalEntry(

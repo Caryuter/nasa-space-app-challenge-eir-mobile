@@ -1,0 +1,101 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+    <!-- Space Station Module Background -->
+    <path
+        android:fillColor="#0B132B"
+        android:pathData="M0,0h400v400h-400z" />
+    <!-- Curved Hull & Laboratory Lockers -->
+    <path
+        android:strokeColor="#1E293B"
+        android:strokeWidth="4"
+        android:pathData="M30,0 v400 M370,0 v400" />
+    <path
+        android:fillColor="#152238"
+        android:pathData="M30,60 h45 v60 h-45 z M30,140 h45 v60 h-45 z M325,60 h45 v60 h-45 z M325,140 h45 v60 h-45 z" />
+    <!-- Resistance Rower Beam / Rail Assembly -->
+    <path
+        android:strokeColor="#334155"
+        android:strokeWidth="14"
+        android:strokeLineCap="round"
+        android:pathData="M80,300 L320,300" />
+    <path
+        android:strokeColor="#64748B"
+        android:strokeWidth="4"
+        android:pathData="M90,300 L310,300" />
+    <!-- Front Flywheel Housing / Resistance Cylinder (Vacuum-loaded) -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M60,240 a35,35 0 1,0 70,0 a35,35 0 1,0 -70,0" />
+    <path
+        android:strokeColor="#0EA5E9"
+        android:strokeWidth="3"
+        android:pathData="M65,240 a30,30 0 1,0 60,0 a30,30 0 1,0 -60,0" />
+    <!-- Footplate & Heel Locks -->
+    <path
+        android:fillColor="#475569"
+        android:pathData="M140,250 h20 v50 h-20 z" />
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M145,260 h10 v30 h-10 z" />
+    <!-- Sliding Seat on Track -->
+    <path
+        android:fillColor="#475569"
+        android:pathData="M230,285 h45 v12 h-45 z" />
+    <!-- Seated Astronaut: Cable Row Drive Phase -->
+    <!-- Lower Legs / Shins (Slanted Back) -->
+    <path
+        android:strokeColor="#94A3B8"
+        android:strokeWidth="14"
+        android:strokeLineCap="round"
+        android:pathData="M150,270 L210,270" />
+    <!-- Thighs / Quads -->
+    <path
+        android:strokeColor="#CBD5E1"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:pathData="M210,270 L250,285" />
+    <!-- Torso (Engaged in Powerful Back Extension / Row) -->
+    <path
+        android:strokeColor="#E2E8F0"
+        android:strokeWidth="28"
+        android:strokeLineCap="round"
+        android:pathData="M255,280 L285,190" />
+    <!-- Astronaut Suit Straps & NASA Blue Stripes -->
+    <path
+        android:strokeColor="#0284C7"
+        android:strokeWidth="4"
+        android:pathData="M260,250 L275,255 M270,220 L285,225" />
+    <!-- Resistance Cable (Extending from Flywheel to Row Handle) -->
+    <path
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="4"
+        android:pathData="M95,240 L245,200" />
+    <!-- Hands & Arms Pulling Cable Handle into Abdomen -->
+    <path
+        android:strokeColor="#94A3B8"
+        android:strokeWidth="11"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M280,195 L260,205 L245,200" />
+    <!-- Row Handle Bar -->
+    <path
+        android:strokeColor="#CBD5E1"
+        android:strokeWidth="6"
+        android:strokeLineCap="round"
+        android:pathData="M245,190 v20" />
+    <!-- Astronaut Head / Visor -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M280,145 a18,20 0 1,0 36,0 a18,20 0 1,0 -36,0" />
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M285,138 a12,14 0 1,0 24,0 a12,14 0 1,0 -24,0" />
+    <!-- Visor Highlight -->
+    <path
+        android:strokeColor="#E0F2FE"
+        android:strokeWidth="2"
+        android:pathData="M289,134 Q293,130 298,132" />
+</vector>

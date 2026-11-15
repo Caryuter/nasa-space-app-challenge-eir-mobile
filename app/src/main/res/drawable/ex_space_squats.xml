@@ -1,0 +1,97 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="400dp"
+    android:viewportWidth="400"
+    android:viewportHeight="400">
+    <!-- Space Station Module Background -->
+    <path
+        android:fillColor="#0B132B"
+        android:pathData="M0,0h400v400h-400z" />
+    <!-- Curved ISS Module Bulkhead Rings -->
+    <path
+        android:strokeColor="#1C2D4A"
+        android:strokeWidth="6"
+        android:pathData="M20,0 Q200,40 380,0 M20,400 Q200,360 380,400" />
+    <path
+        android:strokeColor="#17253D"
+        android:strokeWidth="3"
+        android:pathData="M60,0 L60,400 M340,0 L340,400" />
+    <!-- Ambient Space Grid / Star Porthole -->
+    <path
+        android:fillColor="#152238"
+        android:pathData="M160,20 h80 v50 h-80 z" />
+    <path
+        android:strokeColor="#0EA5E9"
+        android:strokeWidth="2"
+        android:pathData="M165,45 h70" />
+    <!-- Exercise Platform / ARED Base with Footplates -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M110,330 h180 v30 h-180 z" />
+    <path
+        android:strokeColor="#475569"
+        android:strokeWidth="3"
+        android:pathData="M110,330 h180" />
+    <!-- Footplate Grips -->
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M135,325 h35 v10 h-35 z M230,325 h35 v10 h-35 z" />
+    <!-- Resistance Cables (Bungee Bands from Floor to Harness) -->
+    <path
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="5"
+        android:pathData="M140,325 L175,200 M260,325 L225,200" />
+    <!-- Astronaut Body: Squatting Position -->
+    <!-- Lower Legs / Shins -->
+    <path
+        android:strokeColor="#94A3B8"
+        android:strokeWidth="16"
+        android:strokeLineCap="round"
+        android:pathData="M150,320 L135,260 M250,320 L265,260" />
+    <!-- Thighs / Quads (Horizontal Squat Angle) -->
+    <path
+        android:strokeColor="#CBD5E1"
+        android:strokeWidth="18"
+        android:strokeLineCap="round"
+        android:pathData="M135,260 L185,225 M265,260 L215,225" />
+    <!-- Pelvis / Hip Harness with ARED Connector -->
+    <path
+        android:fillColor="#38BDF8"
+        android:pathData="M170,210 h60 v25 h-60 z" />
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M190,215 h20 v15 h-20 z" />
+    <!-- Torso / Athletic Flight Suit -->
+    <path
+        android:strokeColor="#E2E8F0"
+        android:strokeWidth="32"
+        android:strokeLineCap="round"
+        android:pathData="M200,215 L200,145" />
+    <!-- Mission Patch / Accent Stripes on Suit -->
+    <path
+        android:strokeColor="#0EA5E9"
+        android:strokeWidth="4"
+        android:pathData="M190,155 h20 M188,175 h24" />
+    <!-- Arms / Hands Holding Balance Bar -->
+    <path
+        android:strokeColor="#94A3B8"
+        android:strokeWidth="12"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M185,150 L150,175 L160,205 M215,150 L250,175 L240,205" />
+    <!-- Astronaut Helmet / Visor with Reflection -->
+    <path
+        android:fillColor="#F8FAFC"
+        android:pathData="M180,105 a20,22 0 1,0 40,0 a20,22 0 1,0 -40,0" />
+    <path
+        android:fillColor="#0284C7"
+        android:pathData="M187,95 a13,15 0 1,0 26,0 a13,15 0 1,0 -26,0" />
+    <path
+        android:strokeColor="#E0F2FE"
+        android:strokeWidth="2"
+        android:pathData="M194,92 Q198,87 204,90" />
+    <!-- Indicator HUD Text Badge -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M270,30 h100 v24 h-100 z" />
+</vector>

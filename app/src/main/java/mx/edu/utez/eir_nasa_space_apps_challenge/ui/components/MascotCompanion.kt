@@ -141,11 +141,11 @@ fun MascotCompanionOverlay(
             (screenHeightPx * 0.52f).coerceIn(minY, maxY)
         }
 
-        var offsetX by remember { mutableFloatStateOf(-1f) }
-        var offsetY by remember { mutableFloatStateOf(-1f) }
+        var offsetX by remember { mutableFloatStateOf(Float.NaN) }
+        var offsetY by remember { mutableFloatStateOf(Float.NaN) }
 
-        val currentX = if (offsetX < 0f) initialX else offsetX.coerceIn(minX, maxX)
-        val currentY = if (offsetY < 0f) initialY else offsetY.coerceIn(minY, maxY)
+        val currentX = if (offsetX.isNaN()) initialX else offsetX.coerceIn(minX, maxX)
+        val currentY = if (offsetY.isNaN()) initialY else offsetY.coerceIn(minY, maxY)
 
         val isOnRight = (currentX + mascotSizePx / 2f) >= (screenWidthPx / 2f)
         val isAbove = (currentY + mascotSizePx / 2f) >= (screenHeightPx / 2f)
@@ -218,7 +218,7 @@ fun MascotCompanionOverlay(
                         ),
                         shape = bubbleShape
                     ),
-                color = if (isDarkMode) Color(0xFF0F172A).copy(alpha = 0.95f) else Color(0xFFFFFFFF).copy(alpha = 0.95f),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
                 shadowElevation = 8.dp
             ) {
                 Column(
@@ -255,7 +255,7 @@ fun MascotCompanionOverlay(
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Cerrar",
-                                tint = if (isDarkMode) EirDarkTextSecondary else EirLightTextSecondary,
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(14.dp)
                             )
                         }
@@ -266,7 +266,7 @@ fun MascotCompanionOverlay(
                         fontSize = 12.sp,
                         lineHeight = 16.sp,
                         fontWeight = FontWeight.Medium,
-                        color = if (isDarkMode) EirDarkTextPrimary else EirLightTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
 
                     Row(
@@ -304,40 +304,46 @@ fun MascotCompanionOverlay(
                 .scale(dragScale)
                 .shadow(elevation, CircleShape)
                 .clip(CircleShape)
-                .pointerInput(minX, maxX, minY, maxY) {
+                .pointerInput(minX, maxX, minY, maxY, initialX, initialY) {
                     awaitEachGesture {
                         val down = awaitFirstDown(requireUnconsumed = false)
                         var totalDragDistance = 0f
                         val touchSlop = viewConfiguration.touchSlop
-                        var dragging = false
+                        var isDrag = false
 
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
+                        try {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                val change = event.changes.firstOrNull { it.id == down.id } ?: break
 
-                            if (change.changedToUp()) {
-                                if (!dragging) {
-                                    isExpanded = !isExpanded
+                                val dragDelta = change.position - change.previousPosition
+                                totalDragDistance += dragDelta.getDistance()
+
+                                if (!isDrag && totalDragDistance > touchSlop) {
+                                    isDrag = true
+                                    isDragging = true
+                                    isExpanded = false
                                 }
-                                isDragging = false
-                                change.consume()
-                                break
-                            }
 
-                            val dragDelta = change.position - change.previousPosition
-                            totalDragDistance += dragDelta.getDistance()
+                                if (isDrag && dragDelta.getDistance() > 0f) {
+                                    val startX = if (offsetX.isNaN()) initialX else offsetX
+                                    val startY = if (offsetY.isNaN()) initialY else offsetY
+                                    offsetX = (startX + dragDelta.x).coerceIn(minX, maxX)
+                                    offsetY = (startY + dragDelta.y).coerceIn(minY, maxY)
+                                }
 
-                            if (!dragging && totalDragDistance > touchSlop) {
-                                dragging = true
-                                isDragging = true
-                                isExpanded = false
+                                if (change.changedToUp()) {
+                                    if (!isDrag) {
+                                        isExpanded = !isExpanded
+                                    }
+                                    change.consume()
+                                    break
+                                } else if (isDrag) {
+                                    change.consume()
+                                }
                             }
-
-                            if (dragging) {
-                                change.consume()
-                                offsetX = (currentX + dragDelta.x).coerceIn(minX, maxX)
-                                offsetY = (currentY + dragDelta.y).coerceIn(minY, maxY)
-                            }
+                        } finally {
+                            isDragging = false
                         }
                     }
                 },

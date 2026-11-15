@@ -1,5 +1,8 @@
 package mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine
 
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+
 interface EirAiEngine {
     suspend fun query(
         userMessage: String,
@@ -7,6 +10,15 @@ interface EirAiEngine {
         forceSimpler: Boolean = false,
         giveSteps: Boolean = false
     ): String
+
+    fun queryStream(
+        userMessage: String,
+        biometricContext: String,
+        forceSimpler: Boolean = false,
+        giveSteps: Boolean = false
+    ): Flow<String> = flow {
+        emit(query(userMessage, biometricContext, forceSimpler, giveSteps))
+    }
 }
 
 class LocalDeterministicEirEngine : EirAiEngine {

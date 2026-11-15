@@ -101,9 +101,9 @@ fun CheckupModalContent(
     if (!state.checkupOpen) return
 
     val context = LocalContext.current
-    val isDark = false
-    val modalBg = if (isDark) Color(0xFF111827) else Color.White
-    val modalBorder = if (isDark) Color(0xFF334155) else Color(0xFFCBD5E1)
+    val isDark = MaterialTheme.colorScheme.isDark
+    val modalBg = MaterialTheme.colorScheme.surface
+    val modalBorder = MaterialTheme.colorScheme.outline
 
     // CameraX ImageCapture Instance
     val imageCapture = remember { ImageCapture.Builder().build() }
@@ -196,7 +196,7 @@ fun CheckupModalContent(
                         modifier = Modifier
                             .size(36.dp)
                             .clip(CircleShape)
-                            .background(if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9))
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                     ) {
                         Icon(Icons.Default.Close, contentDescription = "Cerrar", modifier = Modifier.size(18.dp))
                     }
@@ -214,8 +214,7 @@ fun CheckupModalContent(
                                 .clip(CircleShape)
                                 .background(
                                     if (step <= state.checkupStep) EirSky
-                                    else if (isDark) Color(0xFF1E293B)
-                                    else Color(0xFFE2E8F0)
+                                    else MaterialTheme.colorScheme.outlineVariant
                                 )
                         )
                     }
@@ -237,14 +236,14 @@ fun CheckupModalContent(
                         Text(
                             text = "Toma una foto real de tu rostro. Usamos la cámara del dispositivo para verificar hinchazón microgravitacional o cansancio en los ojos.",
                             fontSize = 12.sp,
-                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 16.sp
                         )
 
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(20.dp),
-                            color = Color(0xFF0F172A)
+                            color = MaterialTheme.colorScheme.surfaceVariant
                         ) {
                             Column(
                                 modifier = Modifier.padding(20.dp),
@@ -255,7 +254,7 @@ fun CheckupModalContent(
                                     modifier = Modifier
                                         .size(width = 160.dp, height = 200.dp)
                                         .clip(RoundedCornerShape(70.dp))
-                                        .background(Color(0xFF1E293B)),
+                                        .background(MaterialTheme.colorScheme.surface),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     if (hasCameraPermission) {
@@ -322,7 +321,7 @@ fun CheckupModalContent(
                         Text(
                             text = "Lee en voz alta la frase aleatoria asignada. Grabamos el audio del micrófono real para analizar tono, ritmo de respiración y modulación.",
                             fontSize = 12.sp,
-                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             lineHeight = 16.sp
                         )
 
@@ -351,7 +350,7 @@ fun CheckupModalContent(
                                 Text(
                                     text = "Se requiere permiso de micrófono para realizar la prueba de voz.",
                                     fontSize = 12.sp,
-                                    color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             } else {
                                 IconButton(
@@ -750,10 +749,10 @@ private fun VitalRow(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = if (isDark) Color(0xFF0F172A) else Color(0xFFF8FAFC),
+        color = MaterialTheme.colorScheme.surfaceVariant,
         border = androidx.compose.foundation.BorderStroke(
             1.dp,
-            if (isDark) Color(0xFF1E293B) else Color(0xFFE2E8F0)
+            MaterialTheme.colorScheme.outlineVariant
         )
     ) {
         Row(
@@ -763,7 +762,7 @@ private fun VitalRow(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(text = label, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold)
-                Text(text = hint, fontSize = 10.sp, color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary)
+                Text(text = hint, fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
 
             Row(
@@ -775,7 +774,7 @@ private fun VitalRow(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(RoundedCornerShape(10.dp))
-                        .background(if (isDark) Color(0xFF1E293B) else Color(0xFFE2E8F0))
+                        .background(MaterialTheme.colorScheme.surface)
                 ) {
                     Text(text = "-", fontWeight = FontWeight.Black, fontSize = 16.sp)
                 }
@@ -807,9 +806,9 @@ private fun VitalRow(
                     ),
                     colors = OutlinedTextFieldDefaults.colors(
                         focusedBorderColor = EirSky,
-                        unfocusedBorderColor = if (isDark) Color(0xFF334155) else Color(0xFFCBD5E1),
-                        focusedContainerColor = if (isDark) Color(0xFF1E293B) else Color.White,
-                        unfocusedContainerColor = if (isDark) Color(0xFF1E293B) else Color.White
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface
                     )
                 )
 

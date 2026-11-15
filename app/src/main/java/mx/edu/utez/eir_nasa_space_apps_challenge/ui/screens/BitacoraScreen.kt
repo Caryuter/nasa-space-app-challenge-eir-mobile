@@ -1,26 +1,38 @@
 package mx.edu.utez.eir_nasa_space_apps_challenge.ui.screens
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.speech.RecognizerIntent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Air
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.JournalEntry
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.Emotional2DQuadrant
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
@@ -40,8 +52,57 @@ fun BitacoraScreen(
         onToggleBreathing = { viewModel.toggleBreathing() },
         onSetJournalInput = { viewModel.setJournalInput(it) },
         onSaveJournalEntry = { viewModel.saveJournalEntry() },
+        onStartVoiceRecording = { viewModel.startVoiceRecording() },
+        onStopVoiceRecording = { viewModel.stopVoiceRecording() },
+        onSpeakJournalText = { text, entryId -> viewModel.speakJournalText(text, entryId) },
+        onStopTts = { viewModel.stopTts() },
+        onAppendVoiceText = { viewModel.appendVoiceText(it) },
+        onUseSampleSpeech = { viewModel.useSampleSpeechTranscription() },
+        onClearSpeechFeedback = { viewModel.clearSpeechFeedback() },
         modifier = modifier
     )
+}
+
+@Composable
+fun VoiceWaveformIndicator(
+    isRecording: Boolean,
+    rms: Float,
+    modifier: Modifier = Modifier
+) {
+    val infiniteTransition = rememberInfiniteTransition(label = "waveform")
+    val phase by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 6.28f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "phase"
+    )
+
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        listOf(0.25f, 0.55f, 0.85f, 1.0f, 0.75f, 0.45f, 0.65f).forEachIndexed { index, baseFactor ->
+            val dynamicHeight = if (isRecording) {
+                val wave = kotlin.math.sin(phase + index * 0.8f)
+                val rmsFactor = (rms / 6f).coerceIn(0.2f, 1.6f)
+                (12.dp + (22.dp * ((wave + 1f) / 2f) * baseFactor * rmsFactor)).coerceIn(8.dp, 36.dp)
+            } else {
+                8.dp
+            }
+
+            Box(
+                modifier = Modifier
+                    .width(4.dp)
+                    .height(dynamicHeight)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(if (isRecording) EirRoseEmergency else EirEmerald)
+            )
+        }
+    }
 }
 
 @Composable
@@ -50,13 +111,47 @@ fun BitacoraScreenContent(
     onToggleBreathing: () -> Unit,
     onSetJournalInput: (String) -> Unit,
     onSaveJournalEntry: () -> Unit,
+    onStartVoiceRecording: () -> Unit = {},
+    onStopVoiceRecording: () -> Unit = {},
+    onSpeakJournalText: (String?, Long?) -> Unit = { _, _ -> },
+    onStopTts: () -> Unit = {},
+    onAppendVoiceText: (String) -> Unit = {},
+    onUseSampleSpeech: () -> Unit = {},
+    onClearSpeechFeedback: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    val isDark = false
-    val cardBg = if (isDark) EirDarkSurface else EirLightSurface
-    val cardBorder = if (isDark) EirDarkBorder else EirLightBorder
-    val textPrimary = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
-    val textSecondary = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+    val context = LocalContext.current
+    val isDark = MaterialTheme.colorScheme.isDark
+    val cardBg = MaterialTheme.colorScheme.surface
+    val cardBorder = MaterialTheme.colorScheme.outline
+    val textPrimary = MaterialTheme.colorScheme.onSurface
+    val textSecondary = MaterialTheme.colorScheme.onSurfaceVariant
+
+    var hasAudioPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val audioPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        hasAudioPermission = isGranted
+        if (isGranted) {
+            onStartVoiceRecording()
+        }
+    }
+
+    val speechIntentLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val spoken = result.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull()
+            if (!spoken.isNullOrBlank()) {
+                onAppendVoiceText(spoken)
+            }
+        }
+    }
 
     val breathGuides = listOf(
         BreathGuide("Toma aire despacio", "Llena tus pulmones sin prisa • 4 seg", 1.25f),
@@ -90,7 +185,7 @@ fun BitacoraScreenContent(
                 color = textPrimary
             )
             Text(
-                text = "Tu rincón de calma, reflexión y seguimiento de racha",
+                text = "Tu rincón de calma, reflexión por voz y seguimiento de racha",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = textSecondary,
@@ -98,12 +193,12 @@ fun BitacoraScreenContent(
             )
         }
 
-        // STREAK & COMMITMENT CARD (Screenshot 2 Replica)
+        // STREAK & COMMITMENT CARD
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             color = cardBg,
-            border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+            border = BorderStroke(1.dp, cardBorder),
             shadowElevation = 1.dp
         ) {
             Column(
@@ -131,18 +226,17 @@ fun BitacoraScreenContent(
                     )
                 }
 
-                // Weekly Days Tracker Bar (L M X J V S D - Screenshot 2)
+                // Weekly Days Tracker Bar (L M X J V S D)
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
-                    color = if (isDark) Color(0xFF0F172A) else Color(0xFFFAFAFA),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    border = BorderStroke(1.dp, cardBorder)
                 ) {
                     Column(
                         modifier = Modifier.padding(14.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        // Day Labels
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -163,7 +257,7 @@ fun BitacoraScreenContent(
                                 .fillMaxWidth()
                                 .height(12.dp)
                                 .clip(CircleShape)
-                                .background(if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0))
+                                .background(MaterialTheme.colorScheme.outlineVariant)
                         ) {
                             Box(
                                 modifier = Modifier
@@ -184,20 +278,12 @@ fun BitacoraScreenContent(
                     color = textSecondary
                 )
 
-                // Secondary Link "Compartir hito"
-                Text(
-                    text = "Compartir hito",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = EirEmerald
-                )
-
-                // Dark CTA Button "Me comprometo" (Screenshot 2)
+                // Dark CTA Button "Me comprometo"
                 Button(
                     onClick = { },
                     shape = RoundedCornerShape(16.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = EirCharcoal,
+                        containerColor = if (isDark) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
                         contentColor = Color.White
                     ),
                     modifier = Modifier
@@ -218,7 +304,7 @@ fun BitacoraScreenContent(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             color = cardBg,
-            border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+            border = BorderStroke(1.dp, cardBorder),
             shadowElevation = 1.dp
         ) {
             Column(
@@ -230,7 +316,11 @@ fun BitacoraScreenContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 12.dp)
+                    ) {
                         Text(
                             text = "Pausa de Respiración",
                             fontSize = 18.sp,
@@ -248,10 +338,10 @@ fun BitacoraScreenContent(
                         onClick = onToggleBreathing,
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (state.breathingActive) EirCharcoal else EirEmerald,
+                            containerColor = if (state.breathingActive) (if (isDark) MaterialTheme.colorScheme.surfaceVariant else EirCharcoal) else MaterialTheme.colorScheme.primary,
                             contentColor = Color.White
                         ),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Air,
@@ -261,7 +351,7 @@ fun BitacoraScreenContent(
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
                             text = if (state.breathingActive) "Detener" else "Iniciar",
-                            fontSize = 12.sp,
+                            fontSize = 13.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
@@ -320,7 +410,7 @@ fun BitacoraScreenContent(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             color = cardBg,
-            border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+            border = BorderStroke(1.dp, cardBorder),
             shadowElevation = 1.dp
         ) {
             Column(
@@ -356,66 +446,479 @@ fun BitacoraScreenContent(
             }
         }
 
-        // PERSONAL JOURNAL ENTRY CARD ("Escribe algo para ti hoy")
+        // PERSONAL JOURNAL ENTRY CARD ("Escribe algo para ti hoy" - Voice First & Text-to-Speech)
         Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
             color = cardBg,
-            border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+            border = BorderStroke(1.dp, cardBorder),
             shadowElevation = 1.dp
         ) {
             Column(
                 modifier = Modifier.padding(20.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    text = "Escribe algo para ti hoy",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Black,
-                    color = textPrimary
-                )
-
-                OutlinedTextField(
-                    value = state.journalInput,
-                    onValueChange = onSetJournalInput,
-                    placeholder = {
-                        Text(
-                            text = "¿Cómo estuvo tu día en la cabina? Escribe libremente...",
-                            fontSize = 13.sp,
-                            color = textSecondary
-                        )
-                    },
-                    minLines = 3,
-                    maxLines = 5,
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = EirEmerald,
-                        unfocusedBorderColor = cardBorder
-                    )
-                )
-
+                // Header & Recommendation Badge
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Button(
-                        onClick = onSaveJournalEntry,
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = EirCharcoal)
-                    ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Guardar Nota",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            text = "Escribe algo para ti hoy",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Black,
+                            color = textPrimary
                         )
+                        Text(
+                            text = "La forma más fácil y natural: habla y Eir lo transcribirá",
+                            fontSize = 12.sp,
+                            color = textSecondary
+                        )
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(12.dp),
+                        color = EirEmerald.copy(alpha = 0.12f),
+                        border = BorderStroke(1.dp, EirEmerald.copy(alpha = 0.3f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Mic,
+                                contentDescription = null,
+                                tint = EirEmerald,
+                                modifier = Modifier.size(12.dp)
+                            )
+                            Text(
+                                text = "Voz Primero",
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = EirEmerald
+                            )
+                        }
+                    }
+                }
+
+                // HERO VOICE ACTION BOX
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(20.dp),
+                    color = if (state.isRecordingVoice) EirRoseEmergency.copy(alpha = 0.08f) else (if (isDark) MaterialTheme.colorScheme.surfaceVariant else EirLightCardSubtle),
+                    border = BorderStroke(
+                        width = if (state.isRecordingVoice) 1.5.dp else 1.dp,
+                        color = if (state.isRecordingVoice) EirRoseEmergency else cardBorder
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(18.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        if (!state.isRecordingVoice) {
+                            // Pulsing / Friendly Mic Button
+                            Box(
+                                modifier = Modifier
+                                    .size(76.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                EirEmerald,
+                                                EirEmeraldLight
+                                            )
+                                        )
+                                    )
+                                    .clickable {
+                                        if (!hasAudioPermission) {
+                                            audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                                        } else {
+                                            onStartVoiceRecording()
+                                        }
+                                    },
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Mic,
+                                    contentDescription = "Grabar con voz",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(
+                                    text = "Toca para grabar con voz",
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.ExtraBold,
+                                    color = textPrimary
+                                )
+                                Text(
+                                    text = "Dicta cómo te sientes. Se transcribirá al instante a texto.",
+                                    fontSize = 11.sp,
+                                    color = textSecondary,
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+
+                            // Quick helper chip for demo/testing or simulator
+                            TextButton(
+                                onClick = onUseSampleSpeech,
+                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 2.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AutoAwesome,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(13.dp),
+                                    tint = EirSky
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text(
+                                    text = "O insertar dictado de prueba",
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = EirSky
+                                )
+                            }
+                        } else {
+                            // ACTIVE RECORDING STATE
+                            val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+                            val pulseScale by infiniteTransition.animateFloat(
+                                initialValue = 1f,
+                                targetValue = 1.18f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(700, easing = FastOutSlowInEasing),
+                                    repeatMode = RepeatMode.Reverse
+                                ),
+                                label = "pulseScale"
+                            )
+
+                            Box(
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(76.dp)
+                                        .scale(pulseScale)
+                                        .clip(CircleShape)
+                                        .background(EirRoseEmergency.copy(alpha = 0.25f))
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(66.dp)
+                                        .clip(CircleShape)
+                                        .background(EirRoseEmergency)
+                                        .clickable { onStopVoiceRecording() },
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Stop,
+                                        contentDescription = "Detener grabación",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(32.dp)
+                                    )
+                                }
+                            }
+
+                            // Timer & Status
+                            val minutes = state.recordingDurationSec / 60
+                            val seconds = state.recordingDurationSec % 60
+                            val timerString = String.format("%02d:%02d", minutes, seconds)
+
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .clip(CircleShape)
+                                        .background(EirRoseEmergency)
+                                )
+                                Text(
+                                    text = "Grabando reflexión: $timerString",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = EirRoseEmergency
+                                )
+                            }
+
+                            VoiceWaveformIndicator(
+                                isRecording = true,
+                                rms = state.voiceRms,
+                                modifier = Modifier.height(36.dp)
+                            )
+
+                            Text(
+                                text = "Eir te está escuchando con atención... Habla sin prisa.",
+                                fontSize = 11.sp,
+                                color = textSecondary,
+                                textAlign = TextAlign.Center
+                            )
+
+                            Button(
+                                onClick = onStopVoiceRecording,
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = EirRoseEmergency),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(44.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Terminar y transcribir a texto",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = Color.White
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Status Banner: Feedback
+                if (state.speechSuccessNotice != null) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        color = EirEmerald.copy(alpha = 0.12f),
+                        border = BorderStroke(1.dp, EirEmerald.copy(alpha = 0.3f))
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircle,
+                                contentDescription = null,
+                                tint = EirEmerald,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Text(
+                                text = state.speechSuccessNotice,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = EirEmerald,
+                                modifier = Modifier.weight(1f)
+                            )
+                            IconButton(
+                                onClick = onClearSpeechFeedback,
+                                modifier = Modifier.size(20.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Cerrar",
+                                    tint = EirEmerald,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+
+                if (state.speechError != null) {
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        color = EirAmber.copy(alpha = 0.12f),
+                        border = BorderStroke(1.dp, EirAmber.copy(alpha = 0.3f))
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = null,
+                                    tint = EirAmber,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Text(
+                                    text = state.speechError,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = textPrimary,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                IconButton(
+                                    onClick = onClearSpeechFeedback,
+                                    modifier = Modifier.size(20.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Cerrar",
+                                        tint = textSecondary,
+                                        modifier = Modifier.size(14.dp)
+                                    )
+                                }
+                            }
+
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                TextButton(
+                                    onClick = {
+                                        try {
+                                            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                                                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                                                putExtra(RecognizerIntent.EXTRA_LANGUAGE, "es-MX")
+                                                putExtra(RecognizerIntent.EXTRA_PROMPT, "Habla tu reflexión para Eir")
+                                            }
+                                            speechIntentLauncher.launch(intent)
+                                        } catch (_: Exception) {
+                                            onUseSampleSpeech()
+                                        }
+                                    }
+                                ) {
+                                    Text(
+                                        text = "Reintentar con diálogo del sistema",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = EirSky
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // EDITABLE TEXT AREA & TEXT-TO-SPEECH CONTROLS
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Texto transcrito de tu reflexión:",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = textSecondary
+                    )
+
+                    OutlinedTextField(
+                        value = state.journalInput,
+                        onValueChange = onSetJournalInput,
+                        placeholder = {
+                            Text(
+                                text = "¿Cómo estuvo tu día en la cabina? Graba con voz arriba o edita aquí libremente...",
+                                fontSize = 13.sp,
+                                color = textSecondary
+                            )
+                        },
+                        minLines = 3,
+                        maxLines = 5,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = EirEmerald,
+                            unfocusedBorderColor = cardBorder
+                        )
+                    )
+
+                    // Action Controls: Text-to-Speech + Clear + Save
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // TEXT-TO-SPEECH ACTION BUTTON
+                        if (state.journalInput.isNotBlank()) {
+                            Button(
+                                onClick = { onSpeakJournalText(state.journalInput, null) },
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (state.isTtsSpeaking && state.activeTtsEntryId == null) EirRoseEmergency else (if (isDark) MaterialTheme.colorScheme.surfaceVariant else EirSkySoft),
+                                    contentColor = if (state.isTtsSpeaking && state.activeTtsEntryId == null) Color.White else (if (isDark) Color.White else EirSky)
+                                ),
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (state.isTtsSpeaking && state.activeTtsEntryId == null) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                                    contentDescription = "Text-to-Speech",
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = if (state.isTtsSpeaking && state.activeTtsEntryId == null) "Detener audio" else "Escuchar (TTS)",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        } else {
+                            Spacer(modifier = Modifier.width(1.dp))
+                        }
+
+                        // Right-aligned Buttons: Clear & Save
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            if (state.journalInput.isNotBlank()) {
+                                IconButton(
+                                    onClick = {
+                                        onSetJournalInput("")
+                                        onClearSpeechFeedback()
+                                        onStopTts()
+                                    },
+                                    modifier = Modifier.size(36.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.DeleteOutline,
+                                        contentDescription = "Limpiar texto",
+                                        tint = textSecondary,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
+                            }
+
+                            Button(
+                                onClick = onSaveJournalEntry,
+                                enabled = state.journalInput.isNotBlank(),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (isDark) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                                    disabledContainerColor = cardBorder.copy(alpha = 0.5f)
+                                ),
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Guardar Nota",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                            }
+                        }
                     }
                 }
             }
         }
 
-        // HISTORICAL JOURNAL ENTRIES
+        // HISTORICAL JOURNAL ENTRIES ("TUS DÍAS ANTERIORES")
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -434,7 +937,7 @@ fun BitacoraScreenContent(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
                     color = cardBg,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
+                    border = BorderStroke(1.dp, cardBorder)
                 ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
@@ -445,23 +948,41 @@ fun BitacoraScreenContent(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = entry.sol,
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = EirEmerald
-                            )
-
-                            Surface(
-                                shape = CircleShape,
-                                color = EirEmerald.copy(alpha = 0.15f)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
-                                    text = entry.mood,
-                                    fontSize = 11.sp,
+                                    text = entry.sol,
+                                    fontSize = 12.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = EirEmerald,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                                    color = EirEmerald
+                                )
+
+                                Surface(
+                                    shape = CircleShape,
+                                    color = EirEmerald.copy(alpha = 0.15f)
+                                ) {
+                                    Text(
+                                        text = entry.mood,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = EirEmerald,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
+                                    )
+                                }
+                            }
+
+                            // TTS listen button for past entries
+                            IconButton(
+                                onClick = { onSpeakJournalText(entry.text, entry.id) },
+                                modifier = Modifier.size(32.dp)
+                            ) {
+                                Icon(
+                                    imageVector = if (state.isTtsSpeaking && state.activeTtsEntryId == entry.id) Icons.Default.VolumeOff else Icons.Default.VolumeUp,
+                                    contentDescription = "Escuchar con Text-to-Speech",
+                                    tint = if (state.isTtsSpeaking && state.activeTtsEntryId == entry.id) EirRoseEmergency else textSecondary,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
@@ -509,6 +1030,25 @@ fun BitacoraScreenDarkPreview() {
         Surface(color = EirDarkBg) {
             BitacoraScreenContent(
                 state = BitacoraUiState(journalEntries = sampleJournalEntries),
+                onToggleBreathing = {},
+                onSetJournalInput = {},
+                onSaveJournalEntry = {}
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true, name = "Bitacora Breathing Pause Active Preview", heightDp = 950)
+@Composable
+fun BitacoraBreathingActivePreview() {
+    EirNASASpaceAppsChallengeTheme(darkTheme = false) {
+        Surface(color = EirLightBg) {
+            BitacoraScreenContent(
+                state = BitacoraUiState(
+                    journalEntries = sampleJournalEntries,
+                    breathingActive = true,
+                    breathingPhase = 0
+                ),
                 onToggleBreathing = {},
                 onSetJournalInput = {},
                 onSaveJournalEntry = {}

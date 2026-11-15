@@ -67,9 +67,9 @@ fun AgenteIaScreenContent(
     onSendChatMessage: (String?, Boolean, Boolean) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isDark = false
-    val cardBg = if (isDark) EirDarkSurface else EirLightSurface
-    val cardBorder = if (isDark) EirDarkBorder else EirLightBorder
+    val isDark = MaterialTheme.colorScheme.isDark
+    val cardBg = MaterialTheme.colorScheme.surface
+    val cardBorder = MaterialTheme.colorScheme.outline
     val listState = rememberLazyListState()
 
     LaunchedEffect(state.chatMessages.size, state.isAgentLoading) {
@@ -87,12 +87,12 @@ fun AgenteIaScreenContent(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(if (isDark) EirDarkBg else EirLightBg)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         // Chat Mascot Header
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = if (isDark) EirDarkHeader else EirLightHeader,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 2.dp
         ) {
             Row(
@@ -112,7 +112,7 @@ fun AgenteIaScreenContent(
                             text = "EIR • Asistente Médico",
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -196,7 +196,7 @@ fun AgenteIaScreenContent(
         // Barra inferior: chips sugeridos + input
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            color = if (isDark) EirDarkHeader else EirLightHeader,
+            color = MaterialTheme.colorScheme.surface,
             tonalElevation = 3.dp
         ) {
             Column(
@@ -257,7 +257,7 @@ fun AgenteIaScreenContent(
                                 Icon(
                                     imageVector = Icons.Default.Lock,
                                     contentDescription = "Bloqueado",
-                                    tint = (if (isDark) EirDarkTextSecondary else EirLightTextSecondary).copy(alpha = 0.6f),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -267,8 +267,8 @@ fun AgenteIaScreenContent(
                         shape = RoundedCornerShape(20.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = EirSky,
-                            unfocusedBorderColor = if (isDark) EirDarkBorder else EirLightBorder,
-                            disabledBorderColor = if (isDark) EirDarkBorder.copy(alpha = 0.5f) else EirLightBorder.copy(alpha = 0.5f)
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            disabledBorderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
                         )
                     )
 
@@ -328,12 +328,12 @@ private fun SimpleDownloadBanner(
                             text = "Asistente inteligente",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
                             text = "Descárgalo para usarlo sin conexión (${status.sizeLabel})",
                             fontSize = 11.sp,
-                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
@@ -393,7 +393,7 @@ private fun SimpleDownloadBanner(
                                 text = "Descargando modelo local...",
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                         IconButton(
@@ -431,7 +431,7 @@ private fun SimpleDownloadBanner(
                             Text(
                                 text = "Descargado:",
                                 fontSize = 11.sp,
-                                color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
                                 text = "${status.downloadedMb} / ${status.totalMb}",
@@ -444,7 +444,7 @@ private fun SimpleDownloadBanner(
                             text = "${status.progressPercent}%",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
-                            color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                     }
                 }
@@ -466,7 +466,7 @@ private fun SimpleDownloadBanner(
                     Text(
                         text = "Preparando asistente...",
                         fontSize = 12.sp,
-                        color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -484,14 +484,14 @@ private fun SimpleDownloadBanner(
                             text = "Error al descargar el modelo",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFFEF4444)
+                            color = MaterialTheme.colorScheme.error
                         )
                         Text(
                             text = status.message,
                             fontSize = 10.sp,
                             maxLines = 2,
                             overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
-                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     IconButton(
@@ -560,9 +560,7 @@ private fun ChatMessageItem(
                     text = message.text,
                     fontSize = 13.sp,
                     lineHeight = 18.sp,
-                    color = if (isUser) Color.White else {
-                        if (isDark) EirDarkTextPrimary else EirLightTextPrimary
-                    },
+                    color = if (isUser) Color.White else MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp)
                 )
             }

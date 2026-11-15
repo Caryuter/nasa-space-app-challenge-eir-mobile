@@ -3,6 +3,7 @@ package mx.edu.utez.eir_nasa_space_apps_challenge.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,6 +14,7 @@ import mx.edu.utez.eir_nasa_space_apps_challenge.data.repository.EirHealthReposi
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.EirAiEngine
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LiteRtLmEirEngine
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LiteRtModelStatus
+import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LocalDeterministicEirEngine
 
 data class AgenteIaUiState(
     val chatMessages: List<ChatMessage> = emptyList(),
@@ -95,6 +97,8 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
         _uiState.update { it.copy(chatInput = text) }
     }
 
+    private var sendJob: Job? = null
+
     fun sendChatMessage(
         textOverride: String? = null,
         forceSimpler: Boolean = false,
@@ -105,18 +109,77 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
         val query = (textOverride ?: _uiState.value.chatInput).trim()
         if (query.isBlank()) return
 
+        val botMsgId = System.currentTimeMillis() + 1
         if (!forceSimpler && !giveSteps) {
             val userMsg = ChatMessage(System.currentTimeMillis(), "user", query)
-            _uiState.update { it.copy(chatMessages = it.chatMessages + userMsg, chatInput = "", isAgentLoading = true) }
+            _uiState.update {
+                it.copy(
+                    chatMessages = it.chatMessages + userMsg,
+                    chatInput = "",
+                    isAgentLoading = true
+                )
+            }
         } else {
             _uiState.update { it.copy(isAgentLoading = true) }
         }
 
-        viewModelScope.launch {
-            val reply = aiEngine.query(query, currentBiometricContext, forceSimpler, giveSteps)
-            val botMsg = ChatMessage(System.currentTimeMillis() + 1, "eir", reply, canSimplify = !forceSimpler)
-            _uiState.update {
-                it.copy(chatMessages = it.chatMessages + botMsg, isAgentLoading = false)
+        sendJob?.cancel()
+        sendJob = viewModelScope.launch {
+            try {
+                var isFirstChunk = true
+                aiEngine.queryStream(query, currentBiometricContext, forceSimpler, giveSteps)
+                    .collect { chunk ->
+                        if (isFirstChunk) {
+                            isFirstChunk = false
+                            val botMsg = ChatMessage(botMsgId, "eir", chunk, canSimplify = !forceSimpler)
+                            _uiState.update { state ->
+                                state.copy(
+                                    chatMessages = state.chatMessages + botMsg,
+                                    isAgentLoading = false
+                                )
+                            }
+                        } else {
+                            _uiState.update { state ->
+                                val updated = state.chatMessages.map { msg ->
+                                    if (msg.id == botMsgId) {
+                                        msg.copy(text = msg.text + chunk)
+                                    } else {
+                                        msg
+                                    }
+                                }
+                                state.copy(chatMessages = updated)
+                            }
+                        }
+                    }
+
+                if (isFirstChunk) {
+                    val fallback = LocalDeterministicEirEngine().query(query, currentBiometricContext, forceSimpler, giveSteps)
+                    val botMsg = ChatMessage(botMsgId, "eir", fallback, canSimplify = !forceSimpler)
+                    _uiState.update { state ->
+                        state.copy(
+                            chatMessages = state.chatMessages + botMsg,
+                            isAgentLoading = false
+                        )
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                val fallback = LocalDeterministicEirEngine().query(query, currentBiometricContext, forceSimpler, giveSteps)
+                val botMsg = ChatMessage(botMsgId, "eir", fallback, canSimplify = !forceSimpler)
+                _uiState.update { state ->
+                    val exists = state.chatMessages.any { it.id == botMsgId }
+                    val updatedList = if (exists) {
+                        state.chatMessages.map { if (it.id == botMsgId) botMsg else it }
+                    } else {
+                        state.chatMessages + botMsg
+                    }
+                    state.copy(
+                        chatMessages = updatedList,
+                        isAgentLoading = false
+                    )
+                }
+            } finally {
+                _uiState.update { it.copy(isAgentLoading = false) }
             }
         }
     }

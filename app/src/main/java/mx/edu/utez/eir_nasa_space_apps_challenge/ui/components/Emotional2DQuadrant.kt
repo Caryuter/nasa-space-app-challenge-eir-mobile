@@ -26,6 +26,9 @@ import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.JournalEntry
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.SolisIndigo
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.SolisSky
 
+import androidx.compose.material3.MaterialTheme
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.isDark
+
 @Composable
 fun Emotional2DQuadrant(
     selectedPoint: Pair<Float, Float>, // X: 0..100 (Mood), Y: 0..100 (Energy)
@@ -36,7 +39,8 @@ fun Emotional2DQuadrant(
     onPointChanged: ((Float, Float) -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    val bgBrush = if (isDarkMode) {
+    val isDark = isDarkMode || MaterialTheme.colorScheme.isDark
+    val bgBrush = if (isDark) {
         Brush.linearGradient(
             listOf(
                 Color(0xFF0F172A),
@@ -54,7 +58,8 @@ fun Emotional2DQuadrant(
         )
     }
 
-    val borderColor = if (isDarkMode) Color(0xFF334155) else Color(0xFFCBD5E1)
+    val borderColor = MaterialTheme.colorScheme.outline
+    val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     Box(
         modifier = modifier
@@ -69,7 +74,7 @@ fun Emotional2DQuadrant(
             text = "Mucha Energía",
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
-            color = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B),
+            color = labelColor,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 6.dp)
@@ -78,7 +83,7 @@ fun Emotional2DQuadrant(
             text = "Poca Energía",
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
-            color = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B),
+            color = labelColor,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 6.dp)
@@ -87,7 +92,7 @@ fun Emotional2DQuadrant(
             text = "Ánimo Bajo",
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
-            color = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B),
+            color = labelColor,
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .padding(start = 8.dp)
@@ -96,7 +101,7 @@ fun Emotional2DQuadrant(
             text = "Ánimo Alto",
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
-            color = if (isDarkMode) Color(0xFF94A3B8) else Color(0xFF64748B),
+            color = labelColor,
             modifier = Modifier
                 .align(Alignment.CenterEnd)
                 .padding(end = 8.dp)
@@ -131,7 +136,7 @@ fun Emotional2DQuadrant(
             val h = size.height
 
             val dashEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-            val axisColor = if (isDarkMode) Color(0xFF475569) else Color(0xFF94A3B8)
+            val axisColor = if (isDark) Color(0xFF475569) else Color(0xFF94A3B8)
 
             // Horizontal Midline
             drawLine(

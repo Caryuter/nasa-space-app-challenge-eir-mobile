@@ -71,11 +71,12 @@ fun SosEmergencyOverlayContent(
     val currentStep = currentScenario.steps.getOrNull(state.sosStepIndex) ?: return
     var showScenarioPicker by remember { mutableStateOf(false) }
 
-    val redBannerColor = Color(0xFFB91C1C) // Franja roja de emergencia
-    val surfaceBgColor = Color(0xFFFAFAFA) // Fondo claro de alto contraste
-    val textPrimaryColor = Color(0xFF0F172A)
-    val textSecondaryColor = Color(0xFF475569)
-    val textBodyColor = Color(0xFF1E293B)
+    val isDark = MaterialTheme.colorScheme.isDark
+    val redBannerColor = EirRoseEmergency // Franja roja de emergencia
+    val surfaceBgColor = MaterialTheme.colorScheme.background
+    val textPrimaryColor = MaterialTheme.colorScheme.onBackground
+    val textSecondaryColor = MaterialTheme.colorScheme.onSurfaceVariant
+    val textBodyColor = MaterialTheme.colorScheme.onBackground
 
     Box(
         modifier = modifier
@@ -149,7 +150,7 @@ fun SosEmergencyOverlayContent(
                             Icon(
                                 imageVector = Icons.Default.ArrowDropDown,
                                 contentDescription = "Cambiar emergencia",
-                                tint = Color(0xFF64748B),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -157,10 +158,10 @@ fun SosEmergencyOverlayContent(
                         // Botón de audio tipo píldora
                         Surface(
                             shape = RoundedCornerShape(20.dp),
-                            color = if (state.isVoiceGuidePlaying) Color(0xFFFEE2E2) else Color(0xFFF1F5F9),
+                            color = if (state.isVoiceGuidePlaying) (if (isDark) redBannerColor.copy(alpha = 0.25f) else Color(0xFFFEE2E2)) else MaterialTheme.colorScheme.surfaceVariant,
                             border = BorderStroke(
                                 1.dp,
-                                if (state.isVoiceGuidePlaying) redBannerColor else Color(0xFFE2E8F0)
+                                if (state.isVoiceGuidePlaying) redBannerColor else MaterialTheme.colorScheme.outline
                             ),
                             modifier = Modifier.clickable { onPlayVoiceGuide() }
                         ) {
@@ -228,8 +229,8 @@ fun SosEmergencyOverlayContent(
                             .fillMaxWidth()
                             .height(280.dp)
                             .clip(RoundedCornerShape(16.dp))
-                            .background(Color.White)
-                            .border(1.dp, Color(0xFFE2E8F0), RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.surface)
+                            .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
                             .padding(12.dp),
                         contentAlignment = Alignment.Center
                     ) {
@@ -288,9 +289,9 @@ fun SosEmergencyOverlayContent(
                             OutlinedButton(
                                 onClick = onPrevStep,
                                 shape = RoundedCornerShape(14.dp),
-                                border = BorderStroke(1.dp, Color(0xFFCBD5E1)),
+                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                                 colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = Color.White,
+                                    containerColor = MaterialTheme.colorScheme.surface,
                                     contentColor = textPrimaryColor
                                 ),
                                 modifier = Modifier
@@ -323,7 +324,7 @@ fun SosEmergencyOverlayContent(
                             },
                             shape = RoundedCornerShape(14.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = textPrimaryColor
+                                containerColor = if (isDark) redBannerColor else textPrimaryColor
                             ),
                             modifier = Modifier
                                 .weight(if (state.sosStepIndex > 0) 0.62f else 1f)
@@ -351,7 +352,7 @@ fun SosEmergencyOverlayContent(
         if (showScenarioPicker) {
             ModalBottomSheet(
                 onDismissRequest = { showScenarioPicker = false },
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.surface,
                 tonalElevation = 6.dp,
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
             ) {
@@ -376,7 +377,7 @@ fun SosEmergencyOverlayContent(
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
                                 .background(
-                                    if (isSelected) Color(0xFFF1F5F9) else Color.Transparent
+                                    if (isSelected) MaterialTheme.colorScheme.surfaceVariant else Color.Transparent
                                 )
                                 .clickable {
                                     onSelectScenario(sc.id)
@@ -434,14 +435,14 @@ private fun SosBreathingIllustration() {
             modifier = Modifier
                 .size(100.dp)
                 .clip(CircleShape)
-                .background(Color(0xFFF1F5F9))
-                .border(2.dp, Color(0xFF0F172A), CircleShape),
+                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .border(2.dp, MaterialTheme.colorScheme.onSurface, CircleShape),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Air,
                 contentDescription = "Respiración",
-                tint = Color(0xFF0F172A),
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(54.dp)
             )
         }
@@ -450,17 +451,18 @@ private fun SosBreathingIllustration() {
             text = "4 seg. Inhala  •  6 seg. Exhala",
             fontSize = 15.sp,
             fontWeight = FontWeight.Bold,
-            color = Color(0xFF0F172A)
+            color = MaterialTheme.colorScheme.onSurface
         )
         Text(
             text = "Mantén la respiración lenta y constante",
             fontSize = 13.sp,
-            color = Color(0xFF64748B)
+            color = MaterialTheme.colorScheme.onSurfaceVariant
         )
     }
 }
 
-val sampleSosScenario = SosScenario(
+val sampleSosScenario: SosScenario
+    get() = SosScenario(
     id = "faint",
     title = "Alguien se mareó o desmayó",
     tag = "MAREO / DESMAYO",

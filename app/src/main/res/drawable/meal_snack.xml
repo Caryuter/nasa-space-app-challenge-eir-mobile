@@ -1,0 +1,89 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="300dp"
+    android:viewportWidth="400"
+    android:viewportHeight="300">
+    <!-- Cosmic Dark Background -->
+    <path
+        android:fillColor="#0B132B"
+        android:pathData="M0,0h400v300h-400z" />
+    <path
+        android:fillColor="#2A1B0E"
+        android:pathData="M0,0h400v180h-400z" />
+    <path
+        android:strokeColor="#573618"
+        android:strokeWidth="1.5"
+        android:pathData="M30,30 L370,30 M50,270 L350,270" />
+    <!-- Magnetic Tray Base -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M50,190 Q200,165 350,190 L340,270 Q200,290 60,270 Z" />
+    <!-- Vacuum Sealed Snack Pouch (Foil pack with clear viewing window) -->
+    <path
+        android:fillColor="#334155"
+        android:pathData="M110,70 L290,70 L275,250 L125,250 Z" />
+    <path
+        android:strokeColor="#94A3B8"
+        android:strokeWidth="3"
+        android:pathData="M110,70 L290,70 L275,250 L125,250 Z" />
+    <!-- Seal Ribs at Top -->
+    <path
+        android:strokeColor="#64748B"
+        android:strokeWidth="2"
+        android:pathData="M115,85 H285 M115,95 H285" />
+    <!-- Transparent Window in Pouch -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M135,115 H265 V225 H135 Z" />
+    <path
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="1.5"
+        android:pathData="M135,115 H265 V225 H135 Z" />
+    <!-- Almonds inside pouch -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M150,140 Q165,130 175,145 Q160,160 150,140 Z" />
+    <path
+        android:fillColor="#B45309"
+        android:pathData="M210,135 Q225,125 235,140 Q220,155 210,135 Z" />
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M180,180 Q195,170 205,185 Q190,200 180,180 Z" />
+    <!-- Walnuts (Brain health & Omega-3) -->
+    <path
+        android:fillColor="#92400E"
+        android:pathData="M180,135 A10,10 0 1,1 195,145 A10,10 0 1,1 180,135 Z" />
+    <path
+        android:fillColor="#78350F"
+        android:pathData="M182,138 Q188,142 192,138" />
+    <path
+        android:fillColor="#92400E"
+        android:pathData="M225,175 A11,11 0 1,1 240,185 A11,11 0 1,1 225,175 Z" />
+    <!-- Dried Cranberries & Berries -->
+    <path
+        android:fillColor="#BE123C"
+        android:pathData="M150,185 A7,7 0 1,1 150,199 A7,7 0 1,1 150,185 Z" />
+    <path
+        android:fillColor="#9F1239"
+        android:pathData="M165,165 A6,6 0 1,1 165,177 A6,6 0 1,1 165,165 Z" />
+    <path
+        android:fillColor="#E11D48"
+        android:pathData="M245,145 A5,5 0 1,1 245,155 A5,5 0 1,1 245,145 Z" />
+    <!-- Dark Cocoa / Chocolate Chunks -->
+    <path
+        android:fillColor="#451A03"
+        android:pathData="M145,130 H160 V142 H145 Z M195,155 H210 V167 H195 Z M160,200 H175 V212 H160 Z" />
+    <!-- Snack Badge -->
+    <path
+        android:fillColor="#78350F"
+        android:pathData="M25,25 H155 V55 H25 Z" />
+    <path
+        android:strokeColor="#F59E0B"
+        android:strokeWidth="1.5"
+        android:pathData="M25,25 H155 V55 H25 Z" />
+    <path
+        android:strokeColor="#FBBF24"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M35,40 Q45,30 55,40 Q65,50 75,40" />
+</vector>

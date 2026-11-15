@@ -34,10 +34,10 @@ class CheckupReminderWorker(
 
             val channel = NotificationChannel(
                 CHANNEL_ID,
-                "Recordatorios de Chequeo EIR",
+                "Recordatorios de chequeo",
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
-                description = "Notificaciones diarias para el seguimiento de salud del astronauta"
+                description = "Notificaciones para el seguimiento de salud"
                 enableVibration(true)
             }
             notificationManager.createNotificationChannel(channel)
@@ -56,11 +56,11 @@ class CheckupReminderWorker(
 
             val notification = NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentTitle("🚀 EIR: Recordatorio de Chequeo Diario")
-                .setContentText("Misión Ares IV • Sol 142. Es hora de tu escaneo facial, prueba de voz y signos vitales.")
+                .setContentTitle("Recordatorio de chequeo")
+                .setContentText("Completa tu seguimiento de salud de hoy.")
                 .setStyle(
                     NotificationCompat.BigTextStyle()
-                        .bigText("Misión Ares IV • Sol 142. Es hora de realizar tu seguimiento diario de salud. Abre EIR para hacer tu escaneo facial y prueba de voz de hoy.")
+                        .bigText("Completa tu seguimiento de salud de hoy para registrar tus signos vitales y mantener tu historial al día.")
                 )
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)

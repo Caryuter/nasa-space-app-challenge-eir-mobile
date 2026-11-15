@@ -1,0 +1,87 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="300dp"
+    android:viewportWidth="400"
+    android:viewportHeight="300">
+    <!-- Cosmic Module Background -->
+    <path
+        android:fillColor="#0B132B"
+        android:pathData="M0,0h400v300h-400z" />
+    <path
+        android:fillColor="#172554"
+        android:pathData="M0,0h400v180h-400z" />
+    <path
+        android:strokeColor="#1E3A8A"
+        android:strokeWidth="1.5"
+        android:pathData="M30,30 L370,30 M50,270 L350,270" />
+    <!-- Magnetic Food Tray Grid -->
+    <path
+        android:fillColor="#1E293B"
+        android:pathData="M40,180 Q200,150 360,180 L350,275 Q200,295 50,275 Z" />
+    <path
+        android:strokeColor="#334155"
+        android:strokeWidth="2"
+        android:pathData="M40,180 Q200,150 360,180" />
+    <!-- Main Food Plate / Station Dish -->
+    <path
+        android:fillColor="#0F172A"
+        android:pathData="M90,140 Q200,120 310,140 Q320,225 200,235 Q80,225 90,140 Z" />
+    <path
+        android:strokeColor="#3B82F6"
+        android:strokeWidth="2.5"
+        android:pathData="M90,140 Q200,120 310,140" />
+    <!-- Quinoa & Ancient Grains Bed -->
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M110,150 Q200,135 290,150 Q280,210 200,215 Q120,210 110,150 Z" />
+    <!-- High-Protein Salmon / Chicken Fillet -->
+    <path
+        android:fillColor="#FB923C"
+        android:pathData="M130,160 Q180,140 240,155 Q245,195 190,200 Q135,195 130,160 Z" />
+    <!-- Grill Marks on Fillet -->
+    <path
+        android:strokeColor="#9A3412"
+        android:strokeWidth="3"
+        android:strokeLineCap="round"
+        android:pathData="M150,160 L140,185 M175,155 L165,190 M200,155 L190,192 M220,160 L212,188" />
+    <!-- Steamed Broccoli Florets (Rich in Calcium) -->
+    <path
+        android:fillColor="#15803D"
+        android:pathData="M245,145 A14,14 0 1,1 270,155 A12,12 0 1,1 260,175 A14,14 0 1,1 240,165 Z" />
+    <path
+        android:fillColor="#22C55E"
+        android:pathData="M248,148 A6,6 0 1,1 258,154 A7,7 0 1,1 250,165 Z" />
+    <!-- Avocado Slices -->
+    <path
+        android:fillColor="#84CC16"
+        android:pathData="M115,160 Q125,185 140,180 Q130,155 115,160 Z" />
+    <path
+        android:fillColor="#65A30D"
+        android:pathData="M110,170 Q120,195 135,190 Q125,165 110,170 Z" />
+    <!-- Rehydration Pouch & Straw -->
+    <path
+        android:fillColor="#475569"
+        android:pathData="M315,100 L370,115 L360,175 L305,160 Z" />
+    <path
+        android:strokeColor="#94A3B8"
+        android:strokeWidth="1.5"
+        android:pathData="M315,100 L370,115 L360,175 L305,160 Z" />
+    <path
+        android:strokeColor="#38BDF8"
+        android:strokeWidth="4"
+        android:strokeLineCap="round"
+        android:pathData="M340,105 L350,85 L365,80" />
+    <!-- Protein Badge -->
+    <path
+        android:fillColor="#1E3A8A"
+        android:pathData="M25,25 H155 V55 H25 Z" />
+    <path
+        android:strokeColor="#3B82F6"
+        android:strokeWidth="1.5"
+        android:pathData="M25,25 H155 V55 H25 Z" />
+    <path
+        android:strokeColor="#60A5FA"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M38,40 L60,40 M49,30 L49,50" />
+</vector>
