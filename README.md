@@ -7,75 +7,75 @@
 [![Offline First](https://img.shields.io/badge/Architecture-Offline--First%20%7C%20Room-009688?style=flat)](https://developer.android.com/training/data-storage/room)
 [![Release](https://img.shields.io/github/v/release/Caryuter/nasa-space-app-challenge-eir-mobile?label=APK%20Release&color=success)](https://github.com/Caryuter/nasa-space-app-challenge-eir-mobile/releases/latest)
 
-> **EIR** es un copiloto médico y de bienestar autónomo diseñado para misiones de exploración en el espacio profundo (Luna y Marte), donde los retrasos en las telecomunicaciones (hasta 22 minutos por sentido) hacen imposible la telemedicina en tiempo real. 
+> **EIR** is an autonomous medical and emotional health companion designed for deep space exploration missions (Moon & Mars), where severe communication latencies (up to 22 minutes each way) make real-time telemedicine from Earth impossible.
 
-EIR proporciona a los astronautas monitoreo biométrico multimodal, triaje de salud preventivo, seguimiento de hábitos y soporte conversacional con Inteligencia Artificial local **100% offline**, sin depender de la nube ni de servidores terrestres.
-
----
-
-## 📱 Descargar APK
-
-Puedes descargar la última versión compilada y lista para instalar directamente desde los **Releases de GitHub**:
-
-📥 **[Descargar Eir-v1.0.0.apk](https://github.com/Caryuter/nasa-space-app-challenge-eir-mobile/releases/latest)**
-
-*Requisitos: Android 8.0 (API 26) o superior.*
+EIR provides astronauts with multimodal biometric monitoring, preventive health triage, habit tracking, and conversational AI support **100% offline on-device**, with zero dependency on external cloud infrastructure.
 
 ---
 
-## ✨ Características Principales
+## 📱 Download APK
 
-### 1. 🧬 Captura Multimodal y Chequeo Diario Obligatorio (4 Pasos)
-Flujo guiado para recolectar biomarcadores de forma no invasiva usando únicamente el hardware del smartphone:
-- **Paso 1 — Escaneo Facial en Tiempo Real (CameraX):** Vista previa con guía anatómica para analizar signos visuales de microgravedad (redistribución cefálica de fluidos, edema periorbital y fatiga ocular).
-- **Paso 2 — Prueba de Voz Guiada (AudioRecord):** Lectura de frase de calibración operacional para evaluar pausas respiratorias, fatiga vocal y estabilidad neuromuscular sin conexión.
-- **Paso 3 — Signos Vitales Táctiles:** Controles steppers ergonómicos para pulso, presión arterial, temperatura y horas de descanso, acompañados de explicaciones cotidianas.
-- **Paso 4 — Cuadrícula Emocional 2D:** Selector interactivo basado en el modelo Circumplejo de Russell (Ánimo vs. Energía) y chips de sensaciones operativas.
+You can download the pre-compiled, signed APK directly from the **GitHub Releases**:
 
-### 2. 🤖 Copiloto Conversacional con IA On-Device (Google AI Edge / LiteRT-LM)
-- Inferencia de Lenguaje Natural (LLM) ejecutada localmente en la GPU/CPU del dispositivo móvil con **LiteRT-LM**.
-- **Inyección de Contexto Local:** El copiloto conoce automáticamente los signos vitales recientes, sueño, hidratación y estado emocional del astronauta.
-- **Motor de Respaldo Determinista:** Basado en el conocimiento y guías del *NASA Human Research Program (HRP)*, garantizando respuestas seguras y sub-segundo incluso si el modelo neuronal no está descargado.
-- Acciones rápidas: *"Explícamelo aún más simple"* y *"Dame los pasos a seguir"*.
+📥 **[Download Eir-v1.0.0.apk](https://github.com/Caryuter/nasa-space-app-challenge-eir-mobile/releases/latest)**
 
-### 3. 🧍 Escaneo Anatómico Interactivo (Body Scan)
-- Visualización interactiva del cuerpo humano (vista frontal y dorsal).
-- Mapeo de síntomas por zonas (*Cabeza, Tórax, Abdomen, Extremidades*).
-- Integración con cámara fotográfica para documentar lesiones tópicas o inflamación física localizada.
-
-### 4. 🍎 Hábitos, Nutrición y Ejercicio Resistivo
-- Seguimiento diario de hidratación por vasos de agua calibrados.
-- Contador de calorías y desglose de comidas de misión.
-- Cronometraje y registro de protocolos de ejercicio resistivo esenciales para contrarrestar la pérdida de densidad ósea y masa muscular en microgravedad.
-
-### 5. 📖 Bitácora Emocional & Mascota Empática
-- Registro personal de notas y reflexiones de misión.
-- **Mascota Acompañante:** Reacciona dinámicamente al estado de salud y ánimo de la tripulación con animaciones y microcopy empático.
-- Gráficos Sparkline para visualizar la evolución del estado anímico a lo largo de los Soles de misión.
-
-### 6. 🚨 Modo de Emergencia SOS
-- Interfaz aislada en rojo de alto contraste diseñada para situaciones de pánico o estrés crítico.
-- **Instrucción única por pantalla:** Guía paso a paso en tamaño gigante.
-- **Referencias visuales del botiquín médico:** Traduce insumos técnicos a descripciones prácticas (ej. *"Saca el estuche azul y coloca el oxímetro en el dedo índice"*).
-- **Lectura por voz (Text-To-Speech nativo):** Lectura en voz alta para operar con las manos libres.
+*System Requirements: Android 8.0 (API level 26) or higher.*
 
 ---
 
-## 🎨 Filosofía de Diseño: "Cero Tecnicismos"
+## ✨ Key Features
 
-Siguiendo las directrices de factores humanos y habitabilidad de la NASA, EIR evita el estrés inducido por jerga médica compleja:
-- **Ritmo del corazón** en lugar de *Frecuencia Cardíaca (BPM)*
-- **Batería de tu cuerpo** en lugar de *Variabilidad de Frecuencia Cardíaca (HRV)*
-- **Aire en tu sangre** en lugar de *Saturación de Oxígeno (SpO2)*
-- **Fuerza de circulación** en lugar de *Presión Arterial (mmHg)*
+### 1. 🧬 Multimodal Biometric Capture & Mandatory Daily Checkup (4 Steps)
+A sequential, guided flow designed to collect non-invasive biomarkers utilizing standard smartphone hardware:
+- **Step 1 — Real-time Facial Scan (CameraX):** Front camera preview with an anatomical canvas guide to analyze visual signs of microgravity fluid shifts (cephalic fluid redistribution, periorbital edema, and ocular fatigue).
+- **Step 2 — Guided Voice Acoustic Test (AudioRecord):** Astronauts read an operational calibration sentence to assess respiratory pauses, vocal stability, and fatigue locally.
+- **Step 3 — Tactile Vitals Logging:** Intuitive stepper controls (`- / +`) pre-filled with the latest logs for heart rate, blood pressure, body temperature, and sleep duration.
+- **Step 4 — 2D Emotional & Energy Circumplex:** Interactive 2D tactile grid based on Russell's Circumplex Model (*Energy* on the Y-axis vs. *Valence/Mood* on the X-axis) accompanied by operational feeling chips.
 
-Soporte completo bilingüe (**Español** e **Inglés**) con cambio dinámico del sistema.
+### 2. 🤖 On-Device Conversational AI Copilot (Google AI Edge / LiteRT-LM)
+- Local Large Language Model (LLM) inference running on-device GPU/CPU using **Google AI Edge LiteRT-LM**.
+- **Local Context Injection:** The copilot dynamically ingests the crew member's latest vitals, sleep, hydration, and emotional state into prompt context.
+- **Deterministic NASA HRP Fallback:** Built-in rules and clinical guidance based on the *NASA Human Research Program (HRP)* ensure sub-500ms deterministic answers even without network connectivity or if neural weights are not yet loaded.
+- Quick actions: *"Explain this simpler"* and *"Give me step-by-step action items"*.
+
+### 3. 🧍 Interactive Anatomical Body Scan
+- Interactive human body visualization (anterior and posterior views).
+- Zone-based symptom logging (*Head, Chest, Abdomen, Limbs*).
+- Integrated camera capture to document localized physical symptoms or skin irritations over time.
+
+### 4. 🍎 Habits, Nutrition & Resistive Exercise
+- Calibrated daily water hydration tracker.
+- Meal logging and calorie monitoring for space mission diets.
+- Timed tracking for resistive exercise routines, vital for mitigating bone mineral density loss and muscle atrophy in microgravity.
+
+### 5. 📖 Emotional Journal & Responsive Companion Mascot
+- Mission log for personal reflections, notes, and psychological monitoring.
+- **Companion Mascot:** Emotionally reactive visual mascot adapting animations and microcopy based on the astronaut's real-time physical and mental status.
+- Sparkline visual trendlines showcasing historical well-being across mission Sol days.
+
+### 6. 🚨 Emergency SOS Protocol Mode
+- High-contrast red interface engineered for high-stress and panic scenarios.
+- **Single Giant Instruction per Screen:** Zero distractions, minimal cognitive load.
+- **Medical Kit Visual Referencing:** Translates complex medical gear to intuitive visual cues (e.g., *"Take the blue pouch with the white cross and attach the clamp to your index finger"*).
+- **Hands-Free Text-To-Speech (TTS):** Automatically reads each emergency step aloud.
 
 ---
 
-## 🏗️ Arquitectura Técnica
+## 🎨 Design Philosophy: "Zero Medical Jargon"
 
-EIR está construido siguiendo el paradigma **Offline-First**, donde la base de datos local SQLite (Room) es la **Única Fuente de Verdad (SSOT)**:
+Following NASA human factors and habitability recommendations, EIR reduces stress by replacing intimidating clinical acronyms with clear, everyday analogies:
+- **Heart Rhythm** *(instead of Heart Rate / BPM)*
+- **Body Battery** *(instead of Heart Rate Variability / HRV)*
+- **Blood Oxygen** *(instead of SpO2)*
+- **Circulation Pressure** *(instead of Blood Pressure / mmHg)*
+
+Fully supports dynamic bilingual switching between **English** and **Spanish**.
+
+---
+
+## 🏗️ Technical Architecture
+
+EIR is built following an **Offline-First** reactive architecture, where the local SQLite database via Room serves as the **Single Source of Truth (SSOT)**:
 
 ```mermaid
 flowchart TD
@@ -90,56 +90,60 @@ flowchart TD
     AI -->|Deterministic Fallback| HRP[NASA HRP Rules Engine]
 ```
 
-### Tecnologías & Librerías
-| Componente | Tecnología |
+### Technology Stack
+| Layer / Feature | Library / Technology |
 | :--- | :--- |
-| **Lenguaje** | Kotlin 2.0+ (Corrutinas, Flow, StateFlow) |
-| **Interfaz de Usuario** | Jetpack Compose + Material Design 3 (Edge-to-Edge) |
-| **IA en el Dispositivo** | Google AI Edge LiteRT-LM (`com.google.ai.edge.litertlm`) |
-| **Base de Datos Local** | Room Database 2.6.1 + SQLite |
-| **Cámara** | CameraX (Core, Camera2, Lifecycle, View) |
-| **Sincronización en Fondo** | AndroidX WorkManager |
-| **Red (Outbox Sync)** | Retrofit 2 + OkHttp 4 + Gson |
-| **Voz / Audio** | Android AudioRecord + TextToSpeech (TTS) |
+| **Language** | Kotlin 2.0+ (Coroutines, Flow, StateFlow) |
+| **User Interface** | Jetpack Compose + Material Design 3 (Edge-to-Edge) |
+| **On-Device LLM** | Google AI Edge LiteRT-LM (`com.google.ai.edge.litertlm`) |
+| **Local Persistence** | Room Database 2.6.1 + SQLite |
+| **Camera & Vision** | CameraX (Core, Camera2, Lifecycle, View) |
+| **Background Sync** | AndroidX WorkManager |
+| **Networking (Outbox)** | Retrofit 2 + OkHttp 4 + Gson |
+| **Voice & Speech** | Android AudioRecord + TextToSpeech (TTS) |
 
 ---
 
-## 🛠️ Compilación y Desarrollo Local
+## 🛠️ Local Build & Setup
 
-### Prerrequisitos
-- Android Studio Ladybug (2024.2+) o superior.
+### Prerequisites
+- Android Studio Ladybug (2024.2+) or higher.
 - Android SDK 35 / 37 (`compileSdk = 37`, `minSdk = 26`).
-- JDK 11 o superior.
+- JDK 11 or higher.
 
-### Pasos
-1. **Clonar el repositorio:**
+### Steps
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/Caryuter/nasa-space-app-challenge-eir-mobile.git
    cd nasa-space-app-challenge-eir-mobile
    ```
 
-2. **Abrir en Android Studio:**
-   Abre la carpeta del proyecto y espera a que Gradle sincronice las dependencias.
+2. **Open in Android Studio:**
+   Open the root directory and allow Gradle to sync the dependencies.
 
-3. **Compilar el APK de Depuración (Debug):**
+3. **Build Debug APK:**
    ```bash
    ./gradlew assembleDebug
    ```
 
-4. **Compilar el APK de Lanzamiento (Release firmado):**
+4. **Build Signed Release APK:**
    ```bash
    ./gradlew assembleRelease
    ```
-   El archivo generado se ubicará en `app/build/outputs/apk/release/app-release.apk`.
+   The generated artifact will be available at `app/build/outputs/apk/release/app-release.apk`.
 
 ---
 
-## 👥 Equipo — NASA Space Apps Challenge
+## 👥 Development Team — NASA Space Apps Challenge
 
-Desarrollado con dedicación por estudiantes de la **Universidad Tecnológica Emiliano Zapata del Estado de Morelos (UTEZ)** para el desafío global **NASA Space Apps Challenge**.
+Proudly created and developed by students from:
+- **Universidad Tecnológica Emiliano Zapata del Estado de Morelos (UTEZ)**
+- **Universidad Politécnica del Estado de Morelos (UPEMOR)**
+
+Developed as part of the global **NASA Space Apps Challenge**.
 
 ---
 
-## 📄 Licencia
+## 📄 License
 
-Este proyecto se distribuye bajo la licencia **MIT**. Consulta el archivo `LICENSE` para más detalles.
+This project is open-source and distributed under the **MIT License**. See `LICENSE` for details.
