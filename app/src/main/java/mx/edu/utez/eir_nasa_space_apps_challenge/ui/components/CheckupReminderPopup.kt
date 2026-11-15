@@ -65,22 +65,13 @@ fun CheckupReminderPopup(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(EirSky),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.AccessTimeFilled,
-                                contentDescription = "Reloj",
-                                tint = Color.White,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
+                        MascotAvatar(
+                            emotion = MascotEmotion.CONCERNED,
+                            size = 36.dp,
+                            showGlow = true
+                        )
 
                         Column {
                             Text(

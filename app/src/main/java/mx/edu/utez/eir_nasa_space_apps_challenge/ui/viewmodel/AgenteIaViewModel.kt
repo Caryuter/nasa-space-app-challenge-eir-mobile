@@ -12,13 +12,15 @@ import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.ChatMessage
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.repository.EirHealthRepository
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.EirAiEngine
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LiteRtLmEirEngine
+import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.LiteRtModelStatus
 
 data class AgenteIaUiState(
     val chatMessages: List<ChatMessage> = emptyList(),
     val chatInput: String = "",
     val isAgentLoading: Boolean = false,
-    val engineStatusLabel: String = "Google AI Edge LiteRT-LM • Modo Mindfulness",
-    val personalizedContextPill: String = "Sincronizado: Latidos 68 • Sueño 7.5h • Batería 84%"
+    val modelStatus: LiteRtModelStatus = LiteRtModelStatus.NotDownloaded(),
+    val isChatUnlocked: Boolean = false,
+    val personalizedContextPill: String = "Sincronizado: Latidos 68 • Sueño 7.5h"
 )
 
 class AgenteIaViewModel(application: Application) : AndroidViewModel(application) {
@@ -32,8 +34,8 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
         ChatMessage(
             id = 1L,
             sender = "eir",
-            text = "Hola, comandante. Soy EIR, tu compañía de calma en el espacio. Observo tus datos de hoy: dormiste 7.5 horas, tus latidos están en 68 y tu energía está al 84%. ¿Cómo está tu mente y tu cuerpo en este momento?",
-            canSimplify = true
+            text = "Hola, comandante. Soy EIR. Para chatear con el asistente local sin conexión, descárgalo arriba.",
+            canSimplify = false
         )
     )
 
@@ -52,12 +54,35 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
 
                     _uiState.update {
                         it.copy(
-                            personalizedContextPill = "Sincronizado con tus datos: $heartRate lat/min • ${sleep}h descanso"
+                            personalizedContextPill = "Sincronizado: $heartRate lat/min • ${sleep}h descanso"
                         )
                     }
                 }
             }
         }
+
+        (aiEngine as? LiteRtLmEirEngine)?.let { engine ->
+            viewModelScope.launch {
+                engine.modelStatus.collect { status ->
+                    val isUnlocked = status is LiteRtModelStatus.Ready
+
+                    _uiState.update {
+                        it.copy(
+                            modelStatus = status,
+                            isChatUnlocked = isUnlocked
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    fun startDownloadModel() {
+        (aiEngine as? LiteRtLmEirEngine)?.startModelDownload()
+    }
+
+    fun cancelDownloadModel() {
+        (aiEngine as? LiteRtLmEirEngine)?.cancelModelDownload()
     }
 
     fun setChatInput(text: String) {
@@ -69,6 +94,8 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
         forceSimpler: Boolean = false,
         giveSteps: Boolean = false
     ) {
+        if (!_uiState.value.isChatUnlocked) return
+
         val query = (textOverride ?: _uiState.value.chatInput).trim()
         if (query.isBlank()) return
 

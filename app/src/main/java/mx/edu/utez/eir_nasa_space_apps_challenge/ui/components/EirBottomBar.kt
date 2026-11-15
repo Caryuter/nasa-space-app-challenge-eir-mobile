@@ -1,6 +1,5 @@
 package mx.edu.utez.eir_nasa_space_apps_challenge.ui.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -18,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,6 +33,8 @@ fun EirBottomBar(
     modifier: Modifier = Modifier
 ) {
     val containerBg = if (isDarkMode) EirDarkHeader else EirLightHeader
+    val unselectedColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8)
+    val activeColor = EirEmerald
 
     Box(
         modifier = modifier
@@ -47,8 +47,8 @@ fun EirBottomBar(
                 .fillMaxWidth()
                 .height(68.dp),
             color = containerBg,
-            tonalElevation = 3.dp,
-            shadowElevation = 4.dp
+            tonalElevation = 1.dp,
+            shadowElevation = 2.dp
         ) {
             NavigationBar(
                 containerColor = containerBg,
@@ -73,11 +73,11 @@ fun EirBottomBar(
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = EirSky,
-                        selectedTextColor = EirSky,
-                        indicatorColor = EirSky.copy(alpha = 0.15f),
-                        unselectedIconColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8),
-                        unselectedTextColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8)
+                        selectedIconColor = activeColor,
+                        selectedTextColor = activeColor,
+                        indicatorColor = activeColor.copy(alpha = 0.15f),
+                        unselectedIconColor = unselectedColor,
+                        unselectedTextColor = unselectedColor
                     )
                 )
 
@@ -99,11 +99,11 @@ fun EirBottomBar(
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = EirSky,
-                        selectedTextColor = EirSky,
-                        indicatorColor = EirSky.copy(alpha = 0.15f),
-                        unselectedIconColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8),
-                        unselectedTextColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8)
+                        selectedIconColor = activeColor,
+                        selectedTextColor = activeColor,
+                        indicatorColor = activeColor.copy(alpha = 0.15f),
+                        unselectedIconColor = unselectedColor,
+                        unselectedTextColor = unselectedColor
                     )
                 )
 
@@ -128,11 +128,11 @@ fun EirBottomBar(
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = EirIndigo,
-                        selectedTextColor = EirIndigo,
-                        indicatorColor = EirIndigo.copy(alpha = 0.15f),
-                        unselectedIconColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8),
-                        unselectedTextColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8)
+                        selectedIconColor = activeColor,
+                        selectedTextColor = activeColor,
+                        indicatorColor = activeColor.copy(alpha = 0.15f),
+                        unselectedIconColor = unselectedColor,
+                        unselectedTextColor = unselectedColor
                     )
                 )
 
@@ -154,11 +154,11 @@ fun EirBottomBar(
                         )
                     },
                     colors = NavigationBarItemDefaults.colors(
-                        selectedIconColor = EirSky,
-                        selectedTextColor = EirSky,
-                        indicatorColor = EirSky.copy(alpha = 0.15f),
-                        unselectedIconColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8),
-                        unselectedTextColor = if (isDarkMode) Color(0xFF64748B) else Color(0xFF94A3B8)
+                        selectedIconColor = activeColor,
+                        selectedTextColor = activeColor,
+                        indicatorColor = activeColor.copy(alpha = 0.15f),
+                        unselectedIconColor = unselectedColor,
+                        unselectedTextColor = unselectedColor
                     )
                 )
             }
@@ -174,20 +174,15 @@ fun EirBottomBar(
             FloatingActionButton(
                 onClick = onOpenCheckup,
                 shape = CircleShape,
-                containerColor = Color.Transparent,
+                containerColor = EirCharcoal,
                 contentColor = Color.White,
                 elevation = FloatingActionButtonDefaults.elevation(
-                    defaultElevation = 6.dp,
+                    defaultElevation = 4.dp,
                     pressedElevation = 2.dp
                 ),
                 modifier = Modifier
                     .size(56.dp)
                     .clip(CircleShape)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(EirSky, EirIndigo)
-                        )
-                    )
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -201,7 +196,7 @@ fun EirBottomBar(
                 text = "Chequeo",
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                color = EirSky,
+                color = activeColor,
                 modifier = Modifier.padding(top = 2.dp)
             )
         }

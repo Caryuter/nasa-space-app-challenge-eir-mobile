@@ -26,11 +26,16 @@ fun EirTopBar(
     onOpenSos: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val bg = if (isDarkMode) EirDarkHeader else EirLightHeader
+    val textPrimary = if (isDarkMode) EirDarkTextPrimary else EirLightTextPrimary
+    val textSecondary = if (isDarkMode) EirDarkTextSecondary else EirLightTextSecondary
+    val border = if (isDarkMode) EirDarkBorder else EirLightBorder
+
     Surface(
         modifier = modifier.fillMaxWidth(),
-        color = if (isDarkMode) EirDarkHeader else EirLightHeader,
-        tonalElevation = 2.dp,
-        shadowElevation = 1.dp
+        color = bg,
+        shadowElevation = 0.5.dp,
+        border = androidx.compose.foundation.BorderStroke(0.5.dp, border)
     ) {
         Row(
             modifier = Modifier
@@ -43,16 +48,16 @@ fun EirTopBar(
                 Text(
                     text = "EIR",
                     fontWeight = FontWeight.Black,
-                    fontSize = 20.sp,
+                    fontSize = 22.sp,
                     letterSpacing = (-0.5).sp,
-                    color = EirSky
+                    color = EirEmerald
                 )
 
                 Text(
                     text = "Misión Ares IV • Sol 142",
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
-                    color = if (isDarkMode) EirDarkTextSecondary else EirLightTextSecondary,
+                    color = textSecondary,
                     modifier = Modifier.padding(top = 1.dp)
                 )
             }
@@ -72,12 +77,12 @@ fun EirTopBar(
                     Icon(
                         imageVector = if (isDarkMode) Icons.Default.LightMode else Icons.Default.DarkMode,
                         contentDescription = "Cambiar Tema",
-                        tint = if (isDarkMode) EirAmber else Color(0xFF334155),
+                        tint = if (isDarkMode) EirAmber else textPrimary,
                         modifier = Modifier.size(20.dp)
                     )
                 }
 
-                // Isolated SOS Emergency Button
+                // SOS Emergency Button
                 Button(
                     onClick = onOpenSos,
                     colors = ButtonDefaults.buttonColors(
@@ -86,7 +91,7 @@ fun EirTopBar(
                     ),
                     shape = RoundedCornerShape(12.dp),
                     contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp),
-                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Warning,

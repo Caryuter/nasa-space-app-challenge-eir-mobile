@@ -37,6 +37,8 @@ class LocalDeterministicEirEngine : EirAiEngine {
 
     private val humanOfflineKnowledge = mapOf(
         "default" to "Misión Ares IV • Sol 142. Tus datos preventivos muestran rutina en orden. Si te sientes bien, recuerda mantener tu hidratación diaria con 2 vasos de agua más y completar tu rutina de ejercicio programada para proteger tus huesos.",
+        "quien_eres" to "Soy EIR (Environmental & Individual Resilience), tu asistente de salud y acompañamiento para misiones espaciales de larga duración. Mi objetivo es monitorear tus signos vitales, sugerirte hábitos de descanso y acompañarte durante la misión Ares IV.",
+        "saludo" to "¡Hola, astronauta! Estoy aquí para apoyarte en el Sol 142. Tus datos de bienestar están sincronizados. ¿Cómo puedo ayudarte hoy con tu salud, descanso o rutina?",
         "simple" to "En resumen: tu cuerpo está adaptándose al espacio. Para mantenerte bien hoy, bebe agua despacio, haz tus ejercicios programados para no perder músculo y tómate unos minutos de descanso mental.",
         "pasos" to "Pasos de bienestar rutinario para tu turno:\n1. Bebe 1 vaso de agua despacio con minerales suplementarios.\n2. Completa tu rutina de ejercicio con ligas y caminadora con arnés.\n3. Si sientes cansancio mental, realiza una pausa de respiración 4-4-4-4 en tu Bitácora.",
         "sueno" to "En el espacio la falta de ciclo día/noche altera el reloj interno. Según estándares de la NASA, baja el brillo de las pantallas 1 hora antes de dormir y realiza la sesión de respiración profunda en la Bitácora para favorecer un descanso reparador.",
@@ -91,6 +93,10 @@ class LocalDeterministicEirEngine : EirAiEngine {
         }
 
         return when {
+            q.contains("quien eres") || q.contains("quién eres") || q.contains("tu nombre") || q.contains("que eres") || q.contains("qué eres") ->
+                humanOfflineKnowledge["quien_eres"]!!
+            q.contains("hola") || q.contains("buenas") || q.contains("saludos") || q.contains("hey") ->
+                humanOfflineKnowledge["saludo"]!!
             q.contains("sueño") || q.contains("dorm") || q.contains("insomnio") ->
                 humanOfflineKnowledge["sueno"]!!
             q.contains("hueso") || q.contains("fuerza") || q.contains("ejercicio") || q.contains("pierna") || q.contains("caminadora") ->

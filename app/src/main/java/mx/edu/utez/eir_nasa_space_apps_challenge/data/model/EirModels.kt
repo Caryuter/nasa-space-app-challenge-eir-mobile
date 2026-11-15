@@ -91,8 +91,20 @@ data class VoiceScanFindings(
 )
 
 data class VitalsDraft(
-    val heartRate: Int = 68,
-    val sys: Int = 118,
-    val temp: Float = 36.7f,
-    val sleepHours: Float = 7.5f
-)
+    val heartRateInput: String = "",
+    val sysInput: String = "",
+    val tempInput: String = "",
+    val sleepHoursInput: String = ""
+) {
+    constructor(heartRate: Int, sys: Int, temp: Float, sleepHours: Float) : this(
+        heartRateInput = heartRate.toString(),
+        sysInput = sys.toString(),
+        tempInput = temp.toString(),
+        sleepHoursInput = sleepHours.toString()
+    )
+
+    val heartRate: Int get() = heartRateInput.toIntOrNull() ?: 68
+    val sys: Int get() = sysInput.toIntOrNull() ?: 118
+    val temp: Float get() = tempInput.toFloatOrNull() ?: 36.7f
+    val sleepHours: Float get() = sleepHoursInput.toFloatOrNull() ?: 7.5f
+}

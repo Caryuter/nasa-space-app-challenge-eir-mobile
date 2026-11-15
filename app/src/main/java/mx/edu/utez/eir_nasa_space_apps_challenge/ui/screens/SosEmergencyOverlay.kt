@@ -23,6 +23,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.SosScenario
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.SosStep
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotAvatar
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotEmotion
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.viewmodel.SosUiState
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.viewmodel.SosViewModel
@@ -96,20 +98,11 @@ fun SosEmergencyOverlayContent(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(36.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(EirRoseEmergency),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Shield,
-                                contentDescription = "Emergencia",
-                                tint = Color.White,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
+                        MascotAvatar(
+                            emotion = MascotEmotion.CONCERNED,
+                            size = 42.dp,
+                            showGlow = true
+                        )
 
                         Column {
                             Text(

@@ -694,11 +694,6 @@ class EirViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun openCheckup() {
-        val currentPulse = _uiState.value.healthMetrics.find { it.id == "heartRate" }?.value?.toIntOrNull() ?: 68
-        val currentSys = 118
-        val currentTemp = _uiState.value.healthMetrics.find { it.id == "temp" }?.value?.toFloatOrNull() ?: 36.7f
-        val currentSleep = _uiState.value.healthMetrics.find { it.id == "sleep" }?.value?.toFloatOrNull() ?: 7.5f
-
         _uiState.update {
             it.copy(
                 checkupOpen = true,
@@ -707,7 +702,7 @@ class EirViewModel(application: Application) : AndroidViewModel(application) {
                 faceFindings = null,
                 voiceScanStatus = "idle",
                 voiceFindings = null,
-                vitalsDraft = VitalsDraft(currentPulse, currentSys, currentTemp, currentSleep),
+                vitalsDraft = VitalsDraft(),
                 vitalsConfirmed = false,
                 moodDraftLabel = it.moodLabel,
                 moodDraftPoint = it.moodPoint,

@@ -5,6 +5,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -23,6 +25,8 @@ import androidx.compose.ui.unit.sp
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.BodyZoneInfo
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.HealthMetric
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.BodyZoneStatus
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotAvatar
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotEmotion
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.RealisticBodyScan
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.Sparkline
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
@@ -80,12 +84,69 @@ fun SaludScreenContent(
         quickChips = listOf("Siento presión en la frente", "Ojos cansados", "Me siento un poco mareado")
     )
 
+    val bodyBatteryVal = state.healthMetrics.find { it.id == "bodyBattery" }?.value?.toIntOrNull() ?: 84
+    val mascotReadinessEmotion = when {
+        bodyBatteryVal >= 80 -> MascotEmotion.HAPPY
+        bodyBatteryVal >= 60 -> MascotEmotion.IDLE
+        else -> MascotEmotion.CONCERNED
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+
+        // MASCOT READINESS CARD
+        ElevatedCard(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = if (isDark) Color(0xFF0F172A) else Color(0xFFF0F9FF)
+            ),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 3.dp)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                MascotAvatar(
+                    emotion = mascotReadinessEmotion,
+                    size = 48.dp,
+                    showGlow = true
+                )
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Text(
+                            text = "ESTADO DE PREPARACIÓN $bodyBatteryVal%",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 0.5.sp,
+                            color = EirSky
+                        )
+                    }
+                    Text(
+                        text = when (mascotReadinessEmotion) {
+                            MascotEmotion.HAPPY -> "¡Tus signos vitales y energía están óptimos para operaciones de misión!"
+                            MascotEmotion.IDLE -> "Nivel de energía estable. Recuerda mantener la hidratación en cabina."
+                            else -> "Atención: Nivel de energía o descanso bajo. Te recomendamos tomar una pausa."
+                        },
+                        fontSize = 12.sp,
+                        lineHeight = 16.sp,
+                        color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary,
+                        modifier = Modifier.padding(top = 2.dp)
+                    )
+                }
+            }
+        }
 
         // BODY SCAN SECTION (Elevated Card)
         ElevatedCard(
@@ -371,42 +432,28 @@ fun SaludScreenContent(
                     color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
                 )
                 Text(
-                    text = "Toca “?” para entender",
+                    text = "Desliza para ver más • Toca “?”",
                     fontSize = 10.sp,
                     color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
                 )
             }
 
-            // Grid 2 Columns for Health Metrics
+            // Horizontal Carousel for Health Metrics (1 card per row/view)
             val metrics = if (state.healthMetrics.isNotEmpty()) state.healthMetrics else sampleHealthMetrics
-            for (i in metrics.indices step 2) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    val m1 = metrics[i]
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 2.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                items(metrics, key = { it.id }) { metric ->
                     MetricCard(
-                        metric = m1,
-                        isExpanded = state.expandedMetricId == m1.id,
+                        metric = metric,
+                        isExpanded = state.expandedMetricId == metric.id,
                         isDark = isDark,
                         cardBg = cardBg,
-                        onToggleExpand = { onToggleMetricExpand(m1.id) },
-                        modifier = Modifier.weight(1f)
+                        onToggleExpand = { onToggleMetricExpand(metric.id) },
+                        modifier = Modifier.fillParentMaxWidth(0.85f)
                     )
-
-                    if (i + 1 < metrics.size) {
-                        val m2 = metrics[i + 1]
-                        MetricCard(
-                            metric = m2,
-                            isExpanded = state.expandedMetricId == m2.id,
-                            isDark = isDark,
-                            cardBg = cardBg,
-                            onToggleExpand = { onToggleMetricExpand(m2.id) },
-                            modifier = Modifier.weight(1f)
-                        )
-                    } else {
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
                 }
             }
         }

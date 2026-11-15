@@ -8,6 +8,7 @@ import com.google.ai.edge.litertlm.ConversationConfig
 import com.google.ai.edge.litertlm.Engine
 import com.google.ai.edge.litertlm.EngineConfig
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,6 +21,25 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.util.concurrent.Executors
 import kotlin.time.Duration.Companion.milliseconds
+
+sealed class LiteRtModelStatus {
+    data class NotDownloaded(
+        val sizeLabel: String = "~600 MB",
+        val modelName: String = "Qwen3-0.6B (LiteRT-LM)"
+    ) : LiteRtModelStatus()
+
+    data class Downloading(
+        val progressPercent: Int,
+        val downloadedMb: String,
+        val totalMb: String
+    ) : LiteRtModelStatus()
+
+    object Initializing : LiteRtModelStatus()
+
+    data class Ready(val modelName: String) : LiteRtModelStatus()
+
+    data class Error(val message: String) : LiteRtModelStatus()
+}
 
 data class LiteRtLmState(
     val isInitialized: Boolean = false,
@@ -38,82 +58,150 @@ class LiteRtLmEirEngine(private val context: Context) : EirAiEngine {
     private var engine: Engine? = null
     private var conversation: Conversation? = null
 
+    private val downloader = ModelDownloader(context)
+    private var downloadJob: Job? = null
+
     private val fallbackEngine = LocalDeterministicEirEngine()
+
+    private val _modelStatus = MutableStateFlow<LiteRtModelStatus>(LiteRtModelStatus.NotDownloaded())
+    val modelStatus: StateFlow<LiteRtModelStatus> = _modelStatus.asStateFlow()
 
     private val _state = MutableStateFlow(LiteRtLmState())
     val state: StateFlow<LiteRtLmState> = _state.asStateFlow()
 
+    private val DEFAULT_MODEL_URL = "https://huggingface.co/litert-community/Qwen3-0.6B/resolve/main/Qwen3-0.6B.litertlm"
+    private val DEFAULT_MODEL_NAME = "Qwen3-0.6B.litertlm"
+
     init {
         scope.launch {
-            tryInitLiteRtLmModel()
+            checkExistingModelOrSetNotDownloaded()
         }
     }
 
-    private suspend fun tryInitLiteRtLmModel() {
+    private suspend fun checkExistingModelOrSetNotDownloaded() {
         mutex.withLock {
             val possibleModelFiles = listOf(
+                File(context.filesDir, DEFAULT_MODEL_NAME),
                 File(context.filesDir, "gemma-4-E2B-it.litertlm"),
-                File(context.filesDir, "model.litertlm"),
-                File(context.filesDir, "Qwen3-0.6B.litertlm")
+                File(context.filesDir, "model.litertlm")
             )
 
             val existingModel = possibleModelFiles.firstOrNull { it.exists() && it.length() > 0 }
 
             if (existingModel != null) {
-                try {
-                    val config = EngineConfig(
-                        modelPath = existingModel.absolutePath,
-                        backend = Backend.CPU(),
-                        cacheDir = context.cacheDir.path
-                    )
-                    engine = Engine(config).also { it.initialize() }
-
-                    val systemPromptText = """
-                        Eres EIR, el asistente de bienestar y monitoreo de salud de la tripulación en misiones espaciales de larga duración, basándote en los estándares de investigación de la NASA (Human Research Program - Standard Measures) y la Agencia Espacial Canadiense (CSA).
-
-                        1. PROTOCOLO CRÍTICO DE EMERGENCIAS (PRIORIDAD MÁXIMA)
-                        Si el usuario reporta dolor de pecho, sospecha de infarto, dificultad para respirar, desmayos, mareos severos, pérdida de visión, confusión repentina o cualquier lesión aguda:
-                        - IGNORA los datos rutinarios o históricos (como "batería física" o registros pasados de telemetría). Nunca uses datos normales previos para minimizar un síntoma actual.
-                        - PROHIBIDO recomendar ejercicio físico (como caminadora o entrenamiento de fuerza) o dar consejos de rutina diaria.
-                        - DETÉN cualquier actividad física de inmediato: indícale que se detenga, se siente o recueste en una posición segura y mantenga la calma.
-                        - ACTIVA EL PROTOCOLO DE EMERGENCIA: Indícale de forma clara y directa que contacte de inmediato al oficial médico de la tripulación, active la alerta de emergencia de la nave/estación (botón rojo SOS de EIR) o se comunique con el control de misión.
-                        - LENGUAJE CLARO Y SIN TECNICISMOS: Explica con palabras sencillas qué podría estar pasando y qué hacer paso a paso, asumiendo que el usuario no tiene conocimientos médicos.
-
-                        2. ALCANCE Y LIMITACIONES DEL SISTEMA (TRANSPARENCIA)
-                        - Eres una herramienta de apoyo al bienestar y monitoreo preventivo, NO un dispositivo médico ni de diagnóstico clínico.
-                        - No mides niveles de oxígeno ni detectas hipoxia directamente. Si el usuario menciona dolor de cabeza, confusión, problemas de visión o fatiga extrema, advierte que en entornos espaciales estos síntomas pueden estar asociados a falta de oxígeno (hipoxia) o fatiga severa, y pídele que revise los sensores ambientales de la cabina y reporte el estado al equipo médico.
-                        - Los indicadores de bienestar son autorreportes demostrativos; ante cualquier duda médica real, la evaluación humana y los sensores médicos certificados siempre tienen la última palabra.
-
-                        3. MODO RUTINARIO Y BIENESTAR (SOLO CUANDO NO HAY EMERGENCIA)
-                        Cuando el usuario no presente síntomas de alarma, utiliza los datos del día (Sol) y los principios de NASA Isolation & Confinement y Standard Measures para:
-                        - Explicar en lenguaje sencillo cómo el aislamiento, la carga de trabajo y la alteración del sueño afectan el ánimo, la concentración y el cuerpo.
-                        - Sugerir hábitos preventivos: hidratación adecuada, exposición a iluminación apropiada para regular el sueño, ejercicio físico programado (para contrarrestar la pérdida muscular y ósea en microgravedad) y actividades de reflexión o escritura (journaling).
-                        - Mantener un tono empático, claro, directo y fácil de entender en situaciones de estrés o fatiga.
-                    """.trimIndent()
-
-                    conversation = checkNotNull(engine).createConversation(
-                        ConversationConfig(
-                            systemInstruction = Contents.of(systemPromptText)
-                        )
-                    )
-                    _state.value = LiteRtLmState(
-                        isInitialized = true,
-                        activeModelName = "LiteRT-LM Gemma On-Device (NASA/CSA Protocol)"
-                    )
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    _state.value = LiteRtLmState(
-                        isInitialized = false,
-                        activeModelName = "Modo Mindfulness (Respuesta Local)",
-                        lastError = e.message
-                    )
-                }
+                initLiteRtLmModel(existingModel)
             } else {
-                _state.value = LiteRtLmState(
-                    isInitialized = false,
-                    activeModelName = "Modo Mindfulness (Respuesta Local)"
+                _modelStatus.value = LiteRtModelStatus.NotDownloaded(
+                    sizeLabel = "~600 MB",
+                    modelName = "Qwen3-0.6B (LiteRT-LM)"
                 )
             }
+        }
+    }
+
+    fun startModelDownload(customUrl: String? = null) {
+        if (_modelStatus.value is LiteRtModelStatus.Downloading || _modelStatus.value is LiteRtModelStatus.Initializing) {
+            return
+        }
+
+        downloadJob?.cancel()
+        downloadJob = scope.launch {
+            val url = customUrl ?: DEFAULT_MODEL_URL
+            downloader.downloadModel(url, DEFAULT_MODEL_NAME).collect { state ->
+                when (state) {
+                    is ModelDownloadState.Progress -> {
+                        val downloadedMb = String.format("%.1f MB", state.downloadedBytes / (1024.0 * 1024.0))
+                        val totalMb = if (state.totalBytes > 0) {
+                            String.format("%.1f MB", state.totalBytes / (1024.0 * 1024.0))
+                        } else "Desconocido"
+
+                        _modelStatus.value = LiteRtModelStatus.Downloading(
+                            progressPercent = state.percentage,
+                            downloadedMb = downloadedMb,
+                            totalMb = totalMb
+                        )
+                    }
+                    is ModelDownloadState.Success -> {
+                        mutex.withLock {
+                            _modelStatus.value = LiteRtModelStatus.Initializing
+                            initLiteRtLmModel(state.file)
+                        }
+                    }
+                    is ModelDownloadState.Error -> {
+                        _modelStatus.value = LiteRtModelStatus.Error(state.message)
+                    }
+                    is ModelDownloadState.Canceled -> {
+                        _modelStatus.value = LiteRtModelStatus.NotDownloaded()
+                    }
+                    is ModelDownloadState.Idle -> {}
+                }
+            }
+        }
+    }
+
+    fun cancelModelDownload() {
+        downloadJob?.cancel()
+        downloadJob = null
+
+        val targetFile = File(context.filesDir, DEFAULT_MODEL_NAME)
+        if (targetFile.exists()) {
+            try { targetFile.delete() } catch (_: Exception) {}
+        }
+        _modelStatus.value = LiteRtModelStatus.NotDownloaded()
+    }
+
+    private fun initLiteRtLmModel(modelFile: File) {
+        try {
+            val config = EngineConfig(
+                modelPath = modelFile.absolutePath,
+                backend = Backend.CPU(),
+                cacheDir = context.cacheDir.path
+            )
+            engine = Engine(config).also { it.initialize() }
+
+            val systemPromptText = """
+                Eres EIR, el asistente de bienestar y monitoreo de salud de la tripulación en misiones espaciales de larga duración, basándote en los estándares de investigación de la NASA (Human Research Program - Standard Measures) y la Agencia Espacial Canadiense (CSA).
+
+                1. PROTOCOLO CRÍTICO DE EMERGENCIAS (PRIORIDAD MÁXIMA)
+                Si el usuario reporta dolor de pecho, sospecha de infarto, dificultad para respirar, desmayos, mareos severos, pérdida de visión, confusión repentina o cualquier lesión aguda:
+                - IGNORA los datos rutinarios o históricos (como "batería física" o registros pasados de telemetría). Nunca uses datos normales previos para minimizar un síntoma actual.
+                - PROHIBIDO recomendar ejercicio físico (como caminadora o entrenamiento de fuerza) o dar consejos de rutina diaria.
+                - DETÉN cualquier actividad física de inmediato: indícale que se detenga, se siente o recueste en una posición segura y mantenga la calma.
+                - ACTIVA EL PROTOCOLO DE EMERGENCIA: Indícale de forma clara y directa que contacte de inmediato al oficial médico de la tripulación, active la alerta de emergencia de la nave/estación (botón rojo SOS de EIR) o se comunique con el control de misión.
+                - LENGUAJE CLARO Y SIN TECNICISMOS: Explica con palabras sencillas qué podría estar pasando y qué hacer paso a paso, asumiendo que el usuario no tiene conocimientos médicos.
+
+                2. ALCANCE Y LIMITACIONES DEL SISTEMA (TRANSPARENCIA)
+                - Eres una herramienta de apoyo al bienestar y monitoreo preventivo, NO un dispositivo médico ni de diagnóstico clínico.
+                - No mides niveles de oxígeno ni detectas hipoxia directamente. Si el usuario menciona dolor de cabeza, confusión, problemas de visión o fatiga extrema, advierte que en entornos espaciales estos síntomas pueden estar asociados a falta de oxígeno (hipoxia) o fatiga severa, y pídele que revise los sensores ambientales de la cabina y reporte el estado al equipo médico.
+                - Los indicadores de bienestar son autorreportes demostrativos; ante cualquier duda médica real, la evaluación humana y los sensores médicos certificados siempre tienen la última palabra.
+
+                3. MODO RUTINARIO Y BIENESTAR (SOLO CUANDO NO HAY EMERGENCIA)
+                Cuando el usuario no presente síntomas de alarma, utiliza los datos del día (Sol) y los principios de NASA Isolation & Confinement y Standard Measures para:
+                - Explicar en lenguaje sencillo cómo el aislamiento, la carga de trabajo y la alteración del sueño afectan el ánimo, la concentración y el cuerpo.
+                - Sugerir hábitos preventivos: hidratación adecuada, exposición a iluminación apropiada para regular el sueño, ejercicio físico programado (para contrarrestar la pérdida muscular y ósea en microgravedad) y actividades de reflexión o escritura (journaling).
+                - Mantener un tono empático, claro, directo y fácil de entender en situaciones de estrés o fatiga.
+            """.trimIndent()
+
+            conversation = checkNotNull(engine).createConversation(
+                ConversationConfig(
+                    systemInstruction = Contents.of(systemPromptText)
+                )
+            )
+            _state.value = LiteRtLmState(
+                isInitialized = true,
+                activeModelName = "LiteRT-LM ${modelFile.nameWithoutExtension} On-Device"
+            )
+            _modelStatus.value = LiteRtModelStatus.Ready(
+                modelName = "LiteRT-LM ${modelFile.nameWithoutExtension} On-Device"
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            _state.value = LiteRtLmState(
+                isInitialized = false,
+                activeModelName = "Error de Inicialización",
+                lastError = e.message
+            )
+            _modelStatus.value = LiteRtModelStatus.Error("Error al iniciar el motor de IA: ${e.message}")
         }
     }
 

@@ -3,8 +3,10 @@ package mx.edu.utez.eir_nasa_space_apps_challenge.ui.screens
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Air
 import androidx.compose.material3.*
@@ -14,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -53,6 +54,9 @@ fun BitacoraScreenContent(
 ) {
     val isDark = false
     val cardBg = if (isDark) EirDarkSurface else EirLightSurface
+    val cardBorder = if (isDark) EirDarkBorder else EirLightBorder
+    val textPrimary = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+    val textSecondary = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
 
     val breathGuides = listOf(
         BreathGuide("Toma aire despacio", "Llena tus pulmones sin prisa • 4 seg", 1.25f),
@@ -72,40 +76,154 @@ fun BitacoraScreenContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Atmospheric Emotional Banner (Card)
-        ElevatedCard(
+        // SCREEN HEADER
+        Column {
+            Text(
+                text = "Bitácora de Eir",
+                fontWeight = FontWeight.Black,
+                fontSize = 28.sp,
+                letterSpacing = (-0.5).sp,
+                color = textPrimary
+            )
+            Text(
+                text = "Tu rincón de calma, reflexión y seguimiento de racha",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium,
+                color = textSecondary,
+                modifier = Modifier.padding(top = 2.dp)
+            )
+        }
+
+        // STREAK & COMMITMENT CARD (Screenshot 2 Replica)
+        Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.elevatedCardColors(containerColor = Color.Transparent)
+            color = cardBg,
+            border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+            shadowElevation = 1.dp
         ) {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(
-                        if (isDark) {
-                            Brush.linearGradient(
-                                listOf(
-                                    Color(0xFF1E1B4B).copy(alpha = 0.7f),
-                                    Color(0xFF0F172A),
-                                    Color(0xFF3B0764).copy(alpha = 0.4f)
+                modifier = Modifier.padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Flame Graphic + Streak Number
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(text = "🔥", fontSize = 48.sp)
+                    Text(
+                        text = "3",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 36.sp,
+                        color = textPrimary
+                    )
+                    Text(
+                        text = "Días de racha",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 20.sp,
+                        color = textPrimary
+                    )
+                }
+
+                // Weekly Days Tracker Bar (L M X J V S D - Screenshot 2)
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    color = if (isDark) Color(0xFF0F172A) else Color(0xFFFAFAFA),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(14.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        // Day Labels
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            listOf("L", "M", "X", "J", "V", "S", "D").forEach { day ->
+                                Text(
+                                    text = day,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = textPrimary
                                 )
-                            )
-                        } else {
-                            Brush.linearGradient(
-                                listOf(
-                                    Color(0xFFEEF2FF),
-                                    Color.White,
-                                    Color(0xFFF0FDF4)
-                                )
+                            }
+                        }
+
+                        // Progress Line (3 days completed out of 7)
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(12.dp)
+                                .clip(CircleShape)
+                                .background(if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0))
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(3f / 7f)
+                                    .fillMaxHeight()
+                                    .clip(CircleShape)
+                                    .background(EirAmber)
                             )
                         }
+                    }
+                }
+
+                // Motivational Text
+                Text(
+                    text = "¡Increíble! Ahora, ¡a por el hito de 7 días!",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = textSecondary
+                )
+
+                // Secondary Link "Compartir hito"
+                Text(
+                    text = "Compartir hito",
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = EirEmerald
+                )
+
+                // Dark CTA Button "Me comprometo" (Screenshot 2)
+                Button(
+                    onClick = { },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = EirCharcoal,
+                        contentColor = Color.White
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                ) {
+                    Text(
+                        text = "Me comprometo",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp
                     )
-                    .padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                }
+            }
+        }
+
+        // BREATHING GUIDED CARD (4-4-4-4)
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            color = cardBg,
+            border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+            shadowElevation = 1.dp
+        ) {
+            Column(
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -114,17 +232,15 @@ fun BitacoraScreenContent(
                 ) {
                     Column {
                         Text(
-                            text = "Tu espacio tranquilo • 100% Privado",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = EirIndigo
+                            text = "Pausa de Respiración",
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Black,
+                            color = textPrimary
                         )
                         Text(
-                            text = "Bitácora de Eir",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = (-0.5).sp,
-                            modifier = Modifier.padding(top = 2.dp)
+                            text = "Técnica 4-4-4-4 para desacelerar el ritmo cardiaco",
+                            fontSize = 11.sp,
+                            color = textSecondary
                         )
                     }
 
@@ -132,12 +248,10 @@ fun BitacoraScreenContent(
                         onClick = onToggleBreathing,
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (state.breathingActive) EirIndigo else {
-                                if (isDark) EirIndigo.copy(alpha = 0.2f) else Color.White
-                            },
-                            contentColor = if (state.breathingActive) Color.White else EirIndigo
+                            containerColor = if (state.breathingActive) EirCharcoal else EirEmerald,
+                            contentColor = Color.White
                         ),
-                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 8.dp)
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
                         Icon(
                             imageVector = Icons.Default.Air,
@@ -146,48 +260,41 @@ fun BitacoraScreenContent(
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = if (state.breathingActive) "Detener" else "Respirar 4-4-4-4",
-                            fontSize = 11.sp,
+                            text = if (state.breathingActive) "Detener" else "Iniciar",
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold
                         )
                     }
                 }
 
-                Text(
-                    text = "Aquí no hay números clínicos. Solo un rincón para soltar lo que piensas y recargar calma.",
-                    fontSize = 12.sp,
-                    lineHeight = 16.sp,
-                    color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
-                )
-
                 if (state.breathingActive) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 10.dp),
+                            .padding(vertical = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(90.dp)
+                                .size(100.dp)
                                 .scale(animatedScale)
                                 .clip(CircleShape)
-                                .background(EirIndigo.copy(alpha = 0.2f)),
+                                .background(EirEmerald.copy(alpha = 0.15f)),
                             contentAlignment = Alignment.Center
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(50.dp)
+                                    .size(60.dp)
                                     .clip(CircleShape)
-                                    .background(EirIndigo.copy(alpha = 0.45f)),
+                                    .background(EirEmerald.copy(alpha = 0.35f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Box(
                                     modifier = Modifier
-                                        .size(20.dp)
+                                        .size(24.dp)
                                         .clip(CircleShape)
-                                        .background(EirIndigo)
+                                        .background(EirEmerald)
                                 )
                             }
                         }
@@ -195,28 +302,30 @@ fun BitacoraScreenContent(
                         Text(
                             text = currentGuide.title,
                             fontWeight = FontWeight.Black,
-                            fontSize = 14.sp,
-                            color = EirIndigo
+                            fontSize = 15.sp,
+                            color = EirEmerald
                         )
                         Text(
                             text = currentGuide.sub,
-                            fontSize = 11.sp,
-                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                            fontSize = 12.sp,
+                            color = textSecondary
                         )
                     }
                 }
             }
         }
 
-        // 2D Emotional Quadrant
-        ElevatedCard(
+        // 2D EMOTIONAL QUADRANT CARD
+        Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.elevatedCardColors(containerColor = cardBg)
+            color = cardBg,
+            border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+            shadowElevation = 1.dp
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -224,15 +333,16 @@ fun BitacoraScreenContent(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Cómo te has sentido esta semana",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Black
+                        text = "Estado Emocional",
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Black,
+                        color = textPrimary
                     )
                     Text(
                         text = "Hoy: ${state.moodLabel}",
-                        fontSize = 11.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = EirIndigo
+                        color = EirEmerald
                     )
                 }
 
@@ -246,20 +356,23 @@ fun BitacoraScreenContent(
             }
         }
 
-        // New Personal Journal Entry
-        ElevatedCard(
+        // PERSONAL JOURNAL ENTRY CARD ("Escribe algo para ti hoy")
+        Surface(
             modifier = Modifier.fillMaxWidth(),
             shape = RoundedCornerShape(24.dp),
-            colors = CardDefaults.elevatedCardColors(containerColor = cardBg)
+            color = cardBg,
+            border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+            shadowElevation = 1.dp
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                modifier = Modifier.padding(20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text(
                     text = "Escribe algo para ti hoy",
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Black,
+                    color = textPrimary
                 )
 
                 OutlinedTextField(
@@ -268,13 +381,18 @@ fun BitacoraScreenContent(
                     placeholder = {
                         Text(
                             text = "¿Cómo estuvo tu día en la cabina? Escribe libremente...",
-                            fontSize = 12.sp
+                            fontSize = 13.sp,
+                            color = textSecondary
                         )
                     },
                     minLines = 3,
-                    maxLines = 4,
+                    maxLines = 5,
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp)
+                    shape = RoundedCornerShape(16.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = EirEmerald,
+                        unfocusedBorderColor = cardBorder
+                    )
                 )
 
                 Row(
@@ -284,12 +402,12 @@ fun BitacoraScreenContent(
                     Button(
                         onClick = onSaveJournalEntry,
                         shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = EirIndigo)
+                        colors = ButtonDefaults.buttonColors(containerColor = EirCharcoal)
                     ) {
                         Text(
                             text = "Guardar Nota",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Black,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
                             color = Color.White
                         )
                     }
@@ -297,7 +415,7 @@ fun BitacoraScreenContent(
             }
         }
 
-        // Historical Journal Cards
+        // HISTORICAL JOURNAL ENTRIES
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)
@@ -307,18 +425,20 @@ fun BitacoraScreenContent(
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Black,
                 letterSpacing = 1.sp,
-                color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                color = textSecondary
             )
 
             val entries = if (state.journalEntries.isNotEmpty()) state.journalEntries else sampleJournalEntries
             entries.forEach { entry ->
-                OutlinedCard(
+                Surface(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(20.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    color = cardBg,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
                 ) {
                     Column(
-                        modifier = Modifier.padding(14.dp),
-                        verticalArrangement = Arrangement.spacedBy(6.dp)
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -327,30 +447,30 @@ fun BitacoraScreenContent(
                         ) {
                             Text(
                                 text = entry.sol,
-                                fontSize = 11.sp,
+                                fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = EirIndigo
+                                color = EirEmerald
                             )
 
                             Surface(
                                 shape = CircleShape,
-                                color = EirIndigo.copy(alpha = 0.15f)
+                                color = EirEmerald.copy(alpha = 0.15f)
                             ) {
                                 Text(
                                     text = entry.mood,
-                                    fontSize = 10.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = EirIndigo,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                                    color = EirEmerald,
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 3.dp)
                                 )
                             }
                         }
 
                         Text(
                             text = entry.text,
-                            fontSize = 12.sp,
-                            lineHeight = 16.sp,
-                            color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+                            fontSize = 13.sp,
+                            lineHeight = 18.sp,
+                            color = textPrimary
                         )
                     }
                 }
@@ -365,7 +485,7 @@ val sampleJournalEntries = listOf(
     JournalEntry(3L, "Sol 140 • Hace 2 días", "Motivado", 84f, 80f, "Terminamos de calibrar los paneles solares antes de tiempo. Gran equipo.")
 )
 
-@Preview(showBackground = true, name = "BitacoraScreen Light Preview", heightDp = 900)
+@Preview(showBackground = true, name = "BitacoraScreen Light Preview", heightDp = 950)
 @Composable
 fun BitacoraScreenLightPreview() {
     EirNASASpaceAppsChallengeTheme(darkTheme = false) {
@@ -380,7 +500,7 @@ fun BitacoraScreenLightPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "BitacoraScreen Dark Preview", backgroundColor = 0xFF0B1120, heightDp = 900)
+@Preview(showBackground = true, name = "BitacoraScreen Dark Preview", backgroundColor = 0xFF0F172A, heightDp = 950)
 @Composable
 fun BitacoraScreenDarkPreview() {
     EirNASASpaceAppsChallengeTheme(darkTheme = true) {

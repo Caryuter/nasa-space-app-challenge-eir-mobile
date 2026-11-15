@@ -8,13 +8,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = EirSky,
-    onPrimary = Color.Black,
-    primaryContainer = Color(0xFF0369A1),
-    onPrimaryContainer = Color.White,
-    secondary = EirIndigo,
+    primary = EirEmerald,
+    onPrimary = Color.White,
+    primaryContainer = EirEmerald.copy(alpha = 0.2f),
+    onPrimaryContainer = EirEmeraldLight,
+    secondary = EirCharcoalLight,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFF3730A3),
+    secondaryContainer = Color(0xFF374151),
     onSecondaryContainer = Color.White,
     tertiary = EirAmber,
     background = EirDarkBg,
@@ -29,14 +29,14 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = EirSky,
+    primary = EirEmerald,
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFE0F2FE),
-    onPrimaryContainer = Color(0xFF0369A1),
-    secondary = EirIndigo,
+    primaryContainer = Color(0xFFD1FAE5),
+    onPrimaryContainer = Color(0xFF065F46),
+    secondary = EirCharcoal,
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFEEF2FF),
-    onSecondaryContainer = Color(0xFF3730A3),
+    secondaryContainer = Color(0xFFF3F4F6),
+    onSecondaryContainer = Color(0xFF1F2937),
     tertiary = EirAmber,
     background = EirLightBg,
     onBackground = EirLightTextPrimary,
@@ -52,7 +52,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun EirNASASpaceAppsChallengeTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = false,
+    @Suppress("UNUSED_PARAMETER") dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme

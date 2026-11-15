@@ -86,7 +86,7 @@ class CheckupViewModel(application: Application) : AndroidViewModel(application)
                 voiceScanStatus = "idle",
                 audioMaxAmplitude = 0,
                 voiceFindings = null,
-                vitalsDraft = VitalsDraft(68, 118, 36.7f, 7.5f),
+                vitalsDraft = VitalsDraft(),
                 vitalsConfirmed = false,
                 moodDraftLabel = "Tranquilo",
                 moodDraftPoint = Pair(74f, 64f),

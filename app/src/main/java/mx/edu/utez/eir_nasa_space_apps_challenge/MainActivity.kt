@@ -31,6 +31,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.CheckupReminderPopup
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.EirBottomBar
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.EirTopBar
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotCompanionOverlay
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotEmotion
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.screens.*
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.viewmodel.*
@@ -221,6 +223,22 @@ fun EirApp(
                     }
                 }
             }
+        }
+
+        // Floating Mascot Companion Overlay
+        if (!checkupState.checkupOpen && !sosState.sosOpen) {
+            val currentGlobalMascotEmotion = when {
+                agenteIaState.isAgentLoading -> MascotEmotion.THINKING
+                mainState.showCheckupReminderPopup -> MascotEmotion.CONCERNED
+                mainState.activeTab == "agente" -> MascotEmotion.HAPPY
+                else -> MascotEmotion.IDLE
+            }
+
+            MascotCompanionOverlay(
+                isDarkMode = mainState.isDarkMode,
+                currentEmotion = currentGlobalMascotEmotion,
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
         }
 
         // Modal de Chequeo Diario Obligatorio

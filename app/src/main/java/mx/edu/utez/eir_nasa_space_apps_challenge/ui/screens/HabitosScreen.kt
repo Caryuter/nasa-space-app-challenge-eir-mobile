@@ -5,8 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -15,11 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,291 +63,496 @@ fun HabitosScreenContent(
 ) {
     val isDark = false
     val cardBg = if (isDark) EirDarkSurface else EirLightSurface
+    val cardBorder = if (isDark) EirDarkBorder else EirLightBorder
+    val textPrimary = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+    val textSecondary = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
 
     Column(
         modifier = modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Screen Header
-        Column {
-            Text(
-                text = "Cuidado Diario en Órbita",
-                fontWeight = FontWeight.Black,
-                fontSize = 18.sp
-            )
-            Text(
-                text = "Mantén tu cuerpo fuerte mientras no hay gravedad",
-                fontSize = 12.sp,
-                color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
-                modifier = Modifier.padding(top = 2.dp)
-            )
-        }
+        // TOP HEADER: STREAK BADGES & TITLE
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Text(
+                        text = "Hoy",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 28.sp,
+                        letterSpacing = (-0.5).sp,
+                        color = textPrimary
+                    )
+                    Text(
+                        text = "Semana 175 • Misión Ares IV",
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = textSecondary
+                    )
+                }
 
-        // Filter Chips Row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            listOf(
-                "all" to "Todo",
-                "food" to "Comida y Agua",
-                "exercise" to "Ejercicio"
-            ).forEach { (id, label) ->
-                FilterChip(
-                    selected = state.habitFilter == id,
-                    onClick = { onSetHabitFilter(id) },
-                    label = {
-                        Text(
-                            text = label,
-                            fontSize = 11.sp,
-                            fontWeight = if (state.habitFilter == id) FontWeight.Black else FontWeight.Bold
-                        )
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = EirSky,
-                        selectedLabelColor = Color.White
-                    ),
-                    modifier = Modifier.weight(1f)
-                )
+                // Top Streak & Stats Badges (as seen in screenshot 3)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(text = "💎", fontSize = 12.sp)
+                            Text(
+                                text = "2000",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Black,
+                                color = textPrimary
+                            )
+                        }
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(text = "🔥", fontSize = 12.sp)
+                            Text(
+                                text = "135",
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Black,
+                                color = textPrimary
+                            )
+                        }
+                    }
+
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
+                    ) {
+                        Box(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = "💼", fontSize = 12.sp)
+                        }
+                    }
+                }
+            }
+
+            // FILTER CHIPS ROW
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                listOf(
+                    "all" to "Todo",
+                    "food" to "Nutrición y Agua",
+                    "exercise" to "Actividades"
+                ).forEach { (id, label) ->
+                    val selected = state.habitFilter == id
+                    FilterChip(
+                        selected = selected,
+                        onClick = { onSetHabitFilter(id) },
+                        label = {
+                            Text(
+                                text = label,
+                                fontSize = 11.sp,
+                                fontWeight = if (selected) FontWeight.Black else FontWeight.Bold
+                            )
+                        },
+                        shape = RoundedCornerShape(14.dp),
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = EirCharcoal,
+                            selectedLabelColor = Color.White,
+                            containerColor = if (isDark) Color(0xFF1E293B) else Color(0xFFF1F5F9),
+                            labelColor = textSecondary
+                        ),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
 
         // FOOD & WATER SECTION
         if (state.habitFilter == "all" || state.habitFilter == "food") {
-            // Energy Intake Card
-            Card(
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.Transparent),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(24.dp))
-                    .background(
-                        Brush.linearGradient(
-                            listOf(Color(0xFF0284C7), Color(0xFF4338CA))
-                        )
-                    )
-            ) {
-                Column(
-                    modifier = Modifier.padding(18.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "Energía consumida hoy",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = Color(0xFFE0F2FE)
-                    )
 
-                    Row(
-                        verticalAlignment = Alignment.Bottom,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(
-                            text = "${state.energyIntake}",
-                            fontSize = 24.sp,
-                            fontWeight = FontWeight.Black,
-                            fontFamily = FontFamily.Default,
-                            color = Color.White
-                        )
-                        Text(
-                            text = "/ ${state.energyGoal} kcal diarias",
-                            fontSize = 12.sp,
-                            color = Color(0xFFBAE6FD),
-                            modifier = Modifier.padding(bottom = 3.dp)
-                        )
-                    }
-
-                    val progress = (state.energyIntake.toFloat() / state.energyGoal).coerceIn(0f, 1f)
-                    LinearProgressIndicator(
-                        progress = { progress },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(8.dp)
-                            .clip(CircleShape),
-                        color = EirEmerald,
-                        trackColor = Color.Black.copy(alpha = 0.2f)
-                    )
-
-                    Text(
-                        text = "En el espacio es común perder el apetito; cumple tus 4 comidas para no perder músculo.",
-                        fontSize = 11.sp,
-                        lineHeight = 15.sp,
-                        color = Color(0xFFE0F2FE),
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-            }
-
-            // Water Intake Card
-            ElevatedCard(
+            // SUMMARY CARD (Kcal & Macros Ring - Screenshot 3 Style)
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = cardBg)
+                color = cardBg,
+                border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+                shadowElevation = 1.dp
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.WaterDrop,
-                                contentDescription = "Agua",
-                                tint = EirSky,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Text(
-                                text = "Vasos de Agua Hoy",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Black
-                            )
-                        }
+                        Text(
+                            text = "Summary",
+                            fontWeight = FontWeight.Black,
+                            fontSize = 20.sp,
+                            color = textPrimary
+                        )
 
                         Text(
-                            text = "${state.waterGlasses} de ${state.waterGoal} vasos",
+                            text = "Details",
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Black,
-                            color = EirSky
+                            fontWeight = FontWeight.Bold,
+                            color = EirEmerald,
+                            modifier = Modifier.clickable { }
                         )
                     }
 
-                    // 6 Water Glasses Grid
+                    // Progress Ring + Eaten / Remaining / Burned
+                    val remainingKcal = (state.energyGoal - state.energyIntake).coerceAtLeast(0)
+                    val progressRatio = (state.energyIntake.toFloat() / state.energyGoal).coerceIn(0f, 1f)
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        for (i in 0 until state.waterGoal) {
-                            val isFilled = i < state.waterGlasses
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(44.dp)
-                                    .clip(
-                                        RoundedCornerShape(
-                                            topStart = 6.dp,
-                                            topEnd = 6.dp,
-                                            bottomStart = 12.dp,
-                                            bottomEnd = 12.dp
-                                        )
-                                    )
-                                    .background(
-                                        if (isFilled) EirSky
-                                        else if (isDark) Color(0xFF0F172A)
-                                        else Color(0xFFF1F5F9)
-                                    )
-                                    .border(
-                                        1.dp,
-                                        if (isFilled) EirSkyLight
-                                        else if (isDark) EirDarkBorder
-                                        else Color(0xFFCBD5E1),
-                                        RoundedCornerShape(
-                                            topStart = 6.dp,
-                                            topEnd = 6.dp,
-                                            bottomStart = 12.dp,
-                                            bottomEnd = 12.dp
-                                        )
-                                    )
-                                    .clickable { onAddWaterGlass() },
-                                contentAlignment = Alignment.Center
-                            ) {
+                        // Left: Eaten
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "${state.energyIntake}",
+                                fontWeight = FontWeight.Black,
+                                fontSize = 18.sp,
+                                color = textPrimary
+                            )
+                            Text(
+                                text = "Eaten",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = textSecondary
+                            )
+                        }
+
+                        // Center: Semi-circular/Circular Progress Ring
+                        Box(
+                            modifier = Modifier.size(110.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val ringTrackColor = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+                            val ringFillColor = EirEmerald
+
+                            Canvas(modifier = Modifier.fillMaxSize()) {
+                                val strokeWidth = 10.dp.toPx()
+                                val arcSize = Size(size.width - strokeWidth, size.height - strokeWidth)
+                                val topLeft = Offset(strokeWidth / 2, strokeWidth / 2)
+
+                                // Background Arc (240 degrees)
+                                drawArc(
+                                    color = ringTrackColor,
+                                    startAngle = 150f,
+                                    sweepAngle = 240f,
+                                    useCenter = false,
+                                    topLeft = topLeft,
+                                    size = arcSize,
+                                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                                )
+
+                                // Progress Arc
+                                drawArc(
+                                    color = ringFillColor,
+                                    startAngle = 150f,
+                                    sweepAngle = 240f * progressRatio,
+                                    useCenter = false,
+                                    topLeft = topLeft,
+                                    size = arcSize,
+                                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                                )
+                            }
+
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(
-                                    text = "Vaso ${i + 1}",
-                                    fontSize = 9.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (isFilled) Color.White else {
-                                        if (isDark) EirDarkTextSecondary else EirLightTextSecondary
-                                    }
+                                    text = "$remainingKcal",
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 22.sp,
+                                    color = textPrimary
+                                )
+                                Text(
+                                    text = "Remaining",
+                                    fontSize = 10.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    color = textSecondary
+                                )
+                            }
+                        }
+
+                        // Right: Burned
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(
+                                text = "142",
+                                fontWeight = FontWeight.Black,
+                                fontSize = 18.sp,
+                                color = textPrimary
+                            )
+                            Text(
+                                text = "Burned",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = textSecondary
+                            )
+                        }
+                    }
+
+                    // Macronutrients Progress Bars
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        MacroProgressBar(
+                            name = "Carbs",
+                            current = 97,
+                            target = 207,
+                            color = EirEmerald,
+                            isDark = isDark,
+                            modifier = Modifier.weight(1f)
+                        )
+                        MacroProgressBar(
+                            name = "Protein",
+                            current = 46,
+                            target = 115,
+                            color = EirEmerald,
+                            isDark = isDark,
+                            modifier = Modifier.weight(1f)
+                        )
+                        MacroProgressBar(
+                            name = "Fat",
+                            current = 50,
+                            target = 61,
+                            color = EirEmerald,
+                            isDark = isDark,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+            }
+
+            // WATER TRACKER CARD (Registro de Agua - Screenshot 1 Replica)
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(24.dp),
+                color = cardBg,
+                border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+                shadowElevation = 1.dp
+            ) {
+                Column(
+                    modifier = Modifier.padding(20.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Text(
+                        text = "Registro de agua",
+                        fontWeight = FontWeight.Black,
+                        fontSize = 22.sp,
+                        color = textPrimary,
+                        modifier = Modifier.align(Alignment.Start)
+                    )
+
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "Agua",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp,
+                            color = textPrimary
+                        )
+                        Text(
+                            text = "Objetivo: 2,20 litros",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = textSecondary,
+                            modifier = Modifier.padding(top = 2.dp)
+                        )
+                        val litersVal = String.format(java.util.Locale.US, "%.2f L", state.waterGlasses * 0.355f)
+                        Text(
+                            text = litersVal,
+                            fontWeight = FontWeight.Black,
+                            fontSize = 32.sp,
+                            color = textPrimary,
+                            modifier = Modifier.padding(top = 4.dp)
+                        )
+                    }
+
+                    // Grid of 8 Water Glasses (as in screenshot 1)
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // Row 1 (4 glasses)
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            for (i in 0 until 4) {
+                                WaterGlassIcon(
+                                    isFilled = i < state.waterGlasses,
+                                    isLastFilled = (i == state.waterGlasses - 1 && i < state.waterGoal),
+                                    isNextToAdd = (i == state.waterGlasses),
+                                    onClick = onAddWaterGlass
+                                )
+                            }
+                        }
+                        // Row 2 (4 glasses)
+                        Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            for (i in 4 until 8) {
+                                WaterGlassIcon(
+                                    isFilled = i < state.waterGlasses,
+                                    isLastFilled = (i == state.waterGlasses - 1 && i < state.waterGoal),
+                                    isNextToAdd = (i == state.waterGlasses),
+                                    onClick = onAddWaterGlass
                                 )
                             }
                         }
                     }
 
-                    Button(
-                        onClick = onAddWaterGlass,
-                        enabled = state.waterGlasses < state.waterGoal,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = EirSky.copy(alpha = 0.15f),
-                            contentColor = EirSky
-                        )
-                    ) {
-                        Text(text = "+ Tomé 1 vaso de agua", fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                    }
+                    Text(
+                        text = "+ Agua de los alimentos: 0 mL",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = textSecondary
+                    )
                 }
             }
 
-            // Daily Meals Checklist
-            ElevatedCard(
+            // NUTRITION / DAILY MEALS CHECKLIST (Screenshot 3 Style)
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = cardBg)
+                color = cardBg,
+                border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+                shadowElevation = 1.dp
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    Text(
-                        text = "COMIDAS Y VITAMINAS DEL DÍA",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 1.sp,
-                        color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Nutrition",
+                            fontWeight = FontWeight.Black,
+                            fontSize = 20.sp,
+                            color = textPrimary
+                        )
+
+                        Text(
+                            text = "More",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = EirEmerald,
+                            modifier = Modifier.clickable { }
+                        )
+                    }
 
                     state.dailyMeals.forEach { meal ->
-                        OutlinedCard(
-                            onClick = { onToggleMeal(meal.id) },
-                            shape = RoundedCornerShape(16.dp),
-                            modifier = Modifier.fillMaxWidth()
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable { onToggleMeal(meal.id) }
+                                .padding(vertical = 6.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(12.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.weight(1f),
+                                horizontalArrangement = Arrangement.spacedBy(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(
-                                    modifier = Modifier.weight(1f),
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                // Circular Progress Icon for Meal
+                                Box(
+                                    modifier = Modifier
+                                        .size(44.dp)
+                                        .clip(CircleShape)
+                                        .background(if (meal.done) EirEmerald.copy(alpha = 0.15f) else Color(0xFFF1F5F9)),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
-                                        imageVector = if (meal.done) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
-                                        contentDescription = "Estado",
-                                        tint = if (meal.done) EirEmerald else if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8),
-                                        modifier = Modifier.size(18.dp)
-                                    )
-
-                                    Text(
-                                        text = meal.name,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold,
-                                        textDecoration = if (meal.done) TextDecoration.LineThrough else TextDecoration.None,
-                                        color = if (meal.done) {
-                                            if (isDark) EirDarkTextSecondary else EirLightTextSecondary
-                                        } else {
-                                            if (isDark) EirDarkTextPrimary else EirLightTextPrimary
-                                        }
+                                        imageVector = if (meal.done) Icons.Default.Check else Icons.Default.Restaurant,
+                                        contentDescription = meal.name,
+                                        tint = if (meal.done) EirEmerald else textSecondary,
+                                        modifier = Modifier.size(20.dp)
                                     )
                                 }
 
-                                Text(
-                                    text = "${meal.kcal} kcal",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                                Column {
+                                    Text(
+                                        text = meal.name.take(24),
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (meal.done) textSecondary else textPrimary,
+                                        textDecoration = if (meal.done) TextDecoration.LineThrough else TextDecoration.None
+                                    )
+                                    Text(
+                                        text = "${meal.kcal} / ${meal.kcal + 100} Cal",
+                                        fontSize = 11.sp,
+                                        color = textSecondary
+                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                                        modifier = Modifier.padding(top = 2.dp)
+                                    ) {
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = Color(0xFFEDE9FE)
+                                        ) {
+                                            Text(
+                                                text = "AI",
+                                                fontSize = 9.sp,
+                                                fontWeight = FontWeight.Black,
+                                                color = Color(0xFF7C3AED),
+                                                modifier = Modifier.padding(horizontal = 4.dp, vertical = 1.dp)
+                                            )
+                                        }
+                                        Text(
+                                            text = meal.name,
+                                            fontSize = 10.sp,
+                                            color = textSecondary,
+                                            maxLines = 1
+                                        )
+                                    }
+                                }
+                            }
+
+                            // Black Plus Action Button
+                            IconButton(
+                                onClick = { onToggleMeal(meal.id) },
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(EirCharcoal)
+                            ) {
+                                Icon(
+                                    imageVector = if (meal.done) Icons.Default.Check else Icons.Default.Add,
+                                    contentDescription = "Toggle",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(18.dp)
                                 )
                             }
                         }
@@ -355,141 +561,171 @@ fun HabitosScreenContent(
             }
         }
 
-        // EXERCISE SECTION
+        // EXERCISE & ACTIVITIES SECTION
         if (state.habitFilter == "all" || state.habitFilter == "exercise") {
-            ElevatedCard(
+
+            // ACTIVITIES CARD (Actividades - Screenshot 1 Replica)
+            Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.elevatedCardColors(containerColor = cardBg)
+                color = cardBg,
+                border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder),
+                shadowElevation = 1.dp
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    modifier = Modifier.padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
-                            Text(
-                                text = "PROTECCIÓN DE HUESOS Y MÚSCULOS",
-                                fontSize = 10.sp,
-                                fontWeight = FontWeight.Black,
-                                letterSpacing = 1.sp,
-                                color = EirTeal
-                            )
-                            Text(
-                                text = "Caminadora con Arnés",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Black
-                            )
-                        }
-
-                        val mins = (state.treadmillTimerSec / 60).toString().padStart(2, '0')
-                        val secs = (state.treadmillTimerSec % 60).toString().padStart(2, '0')
                         Text(
-                            text = "$mins:$secs",
-                            fontSize = 22.sp,
+                            text = "Actividades",
                             fontWeight = FontWeight.Black,
-                            fontFamily = FontFamily.Monospace
+                            fontSize = 22.sp,
+                            color = textPrimary
+                        )
+
+                        Text(
+                            text = "Más",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = EirEmerald,
+                            modifier = Modifier.clickable { }
                         )
                     }
 
-                    // Space Treadmill Graphic Container
+                    // Steps / Treadmill Card
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(16.dp),
-                        color = if (isDark) Color(0xFF0F172A) else Color(0xFFF0FDF4)
+                        shape = RoundedCornerShape(20.dp),
+                        color = if (isDark) Color(0xFF0F172A) else Color(0xFFFAFAFA),
+                        border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
                     ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            Canvas(modifier = Modifier.size(width = 110.dp, height = 60.dp)) {
-                                val strokeW = 3.dp.toPx()
-                                // Treadmill band
-                                drawLine(
-                                    color = Color(0xFF0D9488),
-                                    start = Offset(10f, size.height - 10f),
-                                    end = Offset(size.width - 10f, size.height - 20f),
-                                    strokeWidth = strokeW,
-                                    cap = StrokeCap.Round
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = "👟",
+                                    fontSize = 28.sp
                                 )
-                                // Elastic Harness Lines
-                                drawLine(
-                                    color = Color(0xFF38BDF8),
-                                    start = Offset(30f, size.height - 15f),
-                                    end = Offset(50f, size.height / 2f),
-                                    strokeWidth = 1.5.dp.toPx(),
-                                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
+
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "Pasos",
+                                        fontWeight = FontWeight.Black,
+                                        fontSize = 16.sp,
+                                        color = textPrimary
+                                    )
+                                    Text(
+                                        text = "Registro automático",
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Medium,
+                                        color = textSecondary
+                                    )
+                                }
+
+                                Text(
+                                    text = "👾",
+                                    fontSize = 28.sp
                                 )
-                                drawLine(
-                                    color = Color(0xFF38BDF8),
-                                    start = Offset(80f, size.height - 20f),
-                                    end = Offset(60f, size.height / 2f),
-                                    strokeWidth = 1.5.dp.toPx(),
-                                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 6f), 0f)
+                            }
+
+                            // Dark Primary CTA Button "Conectar"
+                            Button(
+                                onClick = onToggleTreadmill,
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = EirCharcoal,
+                                    contentColor = Color.White
+                                ),
+                                modifier = Modifier.height(44.dp)
+                            ) {
+                                Text(
+                                    text = if (state.isTreadmillRunning) "Pausar" else "Conectar",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    modifier = Modifier.padding(horizontal = 16.dp)
                                 )
-                                // Running Astronaut Body
-                                drawCircle(color = Color(0xFF0EA5E9), radius = 6.dp.toPx(), center = Offset(55f, 15f))
-                                drawLine(color = Color(0xFF0EA5E9), start = Offset(55f, 20f), end = Offset(55f, 38f), strokeWidth = 3.dp.toPx())
-                                drawLine(color = Color(0xFF0EA5E9), start = Offset(55f, 38f), end = Offset(40f, 52f), strokeWidth = 2.5.dp.toPx())
-                                drawLine(color = Color(0xFF0EA5E9), start = Offset(55f, 38f), end = Offset(68f, 50f), strokeWidth = 2.5.dp.toPx())
                             }
 
                             Text(
-                                text = "Las ligas te sujetan a la banda para simular el peso de la Tierra y mantener tus huesos firmes.",
-                                fontSize = 11.sp,
-                                lineHeight = 15.sp,
-                                modifier = Modifier.weight(1f).padding(start = 10.dp)
-                            )
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Button(
-                            onClick = onToggleTreadmill,
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = EirTeal)
-                        ) {
-                            Icon(
-                                imageVector = if (state.isTreadmillRunning) Icons.Default.Pause else Icons.Default.PlayArrow,
-                                contentDescription = "Timer",
-                                tint = Color.Black,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = if (state.isTreadmillRunning) "Pausar" else "Iniciar Caminadora",
+                                text = "Registrar pasos manualmente",
                                 fontSize = 12.sp,
-                                fontWeight = FontWeight.Black,
-                                color = Color.Black
-                            )
-                        }
-
-                        IconButton(
-                            onClick = onResetTreadmill,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(if (isDark) Color(0xFF0F172A) else Color(0xFFF1F5F9))
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Refresh,
-                                contentDescription = "Reiniciar",
-                                modifier = Modifier.size(18.dp)
+                                fontWeight = FontWeight.Bold,
+                                color = EirEmerald,
+                                modifier = Modifier.clickable { }
                             )
                         }
                     }
 
-                    // Exercises Checklist
+                    // Quick Add Row (Añadir + 361 kcal)
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Add Button Card
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(72.dp),
+                                shape = RoundedCornerShape(20.dp),
+                                color = cardBg,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        imageVector = Icons.Default.AddCircleOutline,
+                                        contentDescription = "Añadir",
+                                        tint = textPrimary,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
+                            }
+                            Text(
+                                text = "Añadir",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = textPrimary
+                            )
+                        }
+
+                        // Burned Kcal Card
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Surface(
+                                modifier = Modifier.size(72.dp),
+                                shape = RoundedCornerShape(20.dp),
+                                color = cardBg,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, cardBorder)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(text = "🏃", fontSize = 24.sp)
+                                }
+                            }
+                            Text(
+                                text = "361 kcal",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = textPrimary
+                            )
+                        }
+                    }
+
+                    // EXERCISES LIST CHECKLIST
                     state.exercises.forEach { ex ->
                         OutlinedCard(
                             onClick = { onToggleExercise(ex.id) },
@@ -499,7 +735,7 @@ fun HabitosScreenContent(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(12.dp),
+                                    .padding(14.dp),
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -511,30 +747,31 @@ fun HabitosScreenContent(
                                     Icon(
                                         imageVector = if (ex.done) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked,
                                         contentDescription = "Estado",
-                                        tint = if (ex.done) EirTeal else if (isDark) Color(0xFF64748B) else Color(0xFF94A3B8),
-                                        modifier = Modifier.size(18.dp)
+                                        tint = if (ex.done) EirEmerald else textSecondary,
+                                        modifier = Modifier.size(20.dp)
                                     )
 
                                     Column {
                                         Text(
                                             text = ex.name,
-                                            fontSize = 12.sp,
+                                            fontSize = 13.sp,
                                             fontWeight = FontWeight.Bold,
+                                            color = textPrimary,
                                             textDecoration = if (ex.done) TextDecoration.LineThrough else TextDecoration.None
                                         )
                                         Text(
                                             text = ex.why,
                                             fontSize = 10.sp,
-                                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                                            color = textSecondary
                                         )
                                     }
                                 }
 
                                 Text(
                                     text = ex.duration,
-                                    fontSize = 10.sp,
+                                    fontSize = 11.sp,
                                     fontWeight = FontWeight.Bold,
-                                    color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                                    color = EirEmerald
                                 )
                             }
                         }
@@ -545,20 +782,127 @@ fun HabitosScreenContent(
     }
 }
 
+@Composable
+private fun MacroProgressBar(
+    name: String,
+    current: Int,
+    target: Int,
+    color: Color,
+    isDark: Boolean,
+    modifier: Modifier = Modifier
+) {
+    val progress = (current.toFloat() / target).coerceIn(0f, 1f)
+    val trackBg = if (isDark) Color(0xFF334155) else Color(0xFFE2E8F0)
+
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(
+            text = name,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Medium,
+            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+        )
+
+        LinearProgressIndicator(
+            progress = { progress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(CircleShape),
+            color = color,
+            trackColor = trackBg
+        )
+
+        Text(
+            text = "$current / $target g",
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            color = if (isDark) EirDarkTextPrimary else EirLightTextPrimary
+        )
+    }
+}
+
+@Composable
+private fun WaterGlassIcon(
+    isFilled: Boolean,
+    isLastFilled: Boolean,
+    isNextToAdd: Boolean,
+    onClick: () -> Unit
+) {
+    val glassColor = if (isFilled) Color(0xFF38BDF8) else Color(0xFFE0F2FE)
+    val borderColor = if (isFilled) Color(0xFF0284C7) else Color(0xFFBAE6FD)
+
+    Box(
+        modifier = Modifier
+            .width(36.dp)
+            .height(52.dp)
+            .clip(
+                RoundedCornerShape(
+                    topStart = 4.dp,
+                    topEnd = 4.dp,
+                    bottomStart = 8.dp,
+                    bottomEnd = 8.dp
+                )
+            )
+            .background(glassColor)
+            .border(
+                1.dp,
+                borderColor,
+                RoundedCornerShape(
+                    topStart = 4.dp,
+                    topEnd = 4.dp,
+                    bottomStart = 8.dp,
+                    bottomEnd = 8.dp
+                )
+            )
+            .clickable { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        if (isLastFilled) {
+            // Green Checkmark badge on the last filled glass (Screenshot 1)
+            Box(
+                modifier = Modifier
+                    .size(16.dp)
+                    .clip(CircleShape)
+                    .background(EirEmerald),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Check,
+                    contentDescription = "Complete",
+                    tint = Color.White,
+                    modifier = Modifier.size(10.dp)
+                )
+            }
+        } else if (isNextToAdd) {
+            // Plus symbol for next glass to add
+            Text(
+                text = "+",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Black,
+                color = EirCharcoal
+            )
+        }
+    }
+}
+
 val sampleMeals = listOf(
-    Meal(1L, "Desayuno energético + Vitamina D (para huesos)", 550, true),
+    Meal(1L, "Desayuno energético + Vitamina D", 550, true),
     Meal(2L, "Comida principal rica en proteína", 700, true),
     Meal(3L, "Colación de frutos secos y calcio", 500, true),
-    Meal(4L, "Cena ligera + Sobres de sales minerales", 650, false)
+    Meal(4L, "Cena ligera + Sobres de minerales", 650, false)
 )
 
 val sampleExercises = listOf(
-    Exercise(1L, "Sentadillas con ligas de resistencia", "Mantiene fuertes los huesos de cadera y piernas", "20 min", true),
-    Exercise(2L, "Caminadora espacial con arnés", "Cuida tu corazón y evita que pierdas condición", "15 min", false),
-    Exercise(3L, "Remo de espalda y abdomen", "Evita dolor de espalda baja por flotar", "10 min", false)
+    Exercise(1L, "Sentadillas con ligas de resistencia", "Mantiene fuertes los huesos", "20 min", true),
+    Exercise(2L, "Caminadora espacial con arnés", "Cuida tu corazón y condición", "15 min", false),
+    Exercise(3L, "Remo de espalda y abdomen", "Evita dolor de espalda baja", "10 min", false)
 )
 
-@Preview(showBackground = true, name = "HabitosScreen Light Preview", heightDp = 900)
+@Preview(showBackground = true, name = "HabitosScreen Light Preview", heightDp = 950)
 @Composable
 fun HabitosScreenLightPreview() {
     EirNASASpaceAppsChallengeTheme(darkTheme = false) {
@@ -576,7 +920,7 @@ fun HabitosScreenLightPreview() {
     }
 }
 
-@Preview(showBackground = true, name = "HabitosScreen Dark Preview", backgroundColor = 0xFF0B1120, heightDp = 900)
+@Preview(showBackground = true, name = "HabitosScreen Dark Preview", backgroundColor = 0xFF0F172A, heightDp = 950)
 @Composable
 fun HabitosScreenDarkPreview() {
     EirNASASpaceAppsChallengeTheme(darkTheme = true) {

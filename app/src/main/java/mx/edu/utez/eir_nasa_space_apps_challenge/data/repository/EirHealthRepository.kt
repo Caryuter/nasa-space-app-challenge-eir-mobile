@@ -32,7 +32,7 @@ class EirHealthRepository private constructor(
         .build()
 
     private val retrofit = Retrofit.Builder()
-        .baseUrl("https://api.example.org")
+        .baseUrl("https://eri.siges.lat")
         .client(okHttpClient)
         .addConverterFactory(GsonConverterFactory.create())
         .build()

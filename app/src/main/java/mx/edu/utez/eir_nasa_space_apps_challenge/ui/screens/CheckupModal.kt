@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -37,8 +38,10 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,6 +49,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.VitalsDraft
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.Emotional2DQuadrant
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotAvatar
+import mx.edu.utez.eir_nasa_space_apps_challenge.ui.components.MascotEmotion
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.theme.*
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.viewmodel.CheckupUiState
 import mx.edu.utez.eir_nasa_space_apps_challenge.ui.viewmodel.CheckupViewModel
@@ -144,8 +149,7 @@ fun CheckupModalContent(
                 .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
                 .background(modalBg)
                 .border(1.dp, modalBorder, RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-                .padding(20.dp)
-                .verticalScroll(rememberScrollState()),
+                .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Header & 4-Step Progress Bar
@@ -155,25 +159,34 @@ fun CheckupModalContent(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text(
-                            text = "PASO ${state.checkupStep} DE 4 • OBLIGATORIO",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 1.sp,
-                            color = EirSky
-                        )
-                        Text(
-                            text = when (state.checkupStep) {
-                                1 -> "1. Escaneo Facial Rápido"
-                                2 -> "2. Prueba de Voz Guiada"
-                                3 -> "3. Signos Básicos del Kit"
-                                else -> "4. Ánimo y Energía Hoy"
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        MascotAvatar(
+                            emotion = when (state.checkupStep) {
+                                1 -> MascotEmotion.IDLE
+                                2 -> MascotEmotion.THINKING
+                                3 -> MascotEmotion.CONCERNED
+                                else -> MascotEmotion.HAPPY
                             },
-                            fontWeight = FontWeight.Black,
-                            fontSize = 17.sp,
-                            modifier = Modifier.padding(top = 2.dp)
+                            size = 40.dp,
+                            showGlow = true
                         )
+
+                        Column {
+                            Text(
+                                text = when (state.checkupStep) {
+                                    1 -> "1. Escaneo Facial Rápido"
+                                    2 -> "2. Prueba de Voz Guiada"
+                                    3 -> "3. Signos Básicos del Kit"
+                                    else -> "4. Ánimo y Energía Hoy"
+                                },
+                                fontWeight = FontWeight.Black,
+                                fontSize = 16.sp,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        }
                     }
 
                     IconButton(
@@ -207,322 +220,430 @@ fun CheckupModalContent(
                 }
             }
 
-            // STEP 1: REAL CAMERA FACE SCAN
-            if (state.checkupStep == 1) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        text = "Toma una foto real de tu rostro. Usamos la cámara del dispositivo para verificar hinchazón microgravitacional o cansancio en los ojos.",
-                        fontSize = 12.sp,
-                        color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
-                        lineHeight = 16.sp
-                    )
+            // Scrollable Content Area for current step
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // STEP 1: REAL CAMERA FACE SCAN
+                if (state.checkupStep == 1) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            text = "Toma una foto real de tu rostro. Usamos la cámara del dispositivo para verificar hinchazón microgravitacional o cansancio en los ojos.",
+                            fontSize = 12.sp,
+                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
+                            lineHeight = 16.sp
+                        )
 
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(20.dp),
-                        color = Color(0xFF0F172A)
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(20.dp),
+                            color = Color(0xFF0F172A)
                         ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(width = 160.dp, height = 200.dp)
-                                    .clip(RoundedCornerShape(70.dp))
-                                    .background(Color(0xFF1E293B)),
-                                contentAlignment = Alignment.Center
+                            Column(
+                                modifier = Modifier.padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                if (hasCameraPermission) {
-                                    if (state.capturedFaceBitmap != null) {
-                                        // Show real captured photo
-                                        Image(
-                                            bitmap = state.capturedFaceBitmap.asImageBitmap(),
-                                            contentDescription = "Foto capturada",
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                    } else {
-                                        // Live CameraX Preview Feed inside Oval Frame
-                                        CameraPreviewView(
-                                            imageCapture = imageCapture,
-                                            modifier = Modifier.fillMaxSize()
-                                        )
-                                    }
-                                } else {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        modifier = Modifier.padding(12.dp)
-                                    ) {
-                                        Icon(Icons.Default.CameraAlt, contentDescription = "Camera", tint = EirSky, modifier = Modifier.size(32.dp))
-                                        Text(text = "Se requiere acceso a la Cámara", fontSize = 10.sp, color = Color.White, modifier = Modifier.padding(top = 4.dp))
-                                    }
-                                }
-
-                                Canvas(modifier = Modifier.fillMaxSize()) {
-                                    drawCircle(
-                                        color = EirSky,
-                                        radius = size.width * 0.45f,
-                                        style = Stroke(
-                                            width = 2.dp.toPx(),
-                                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-                                        )
-                                    )
-                                }
-                            }
-
-                            if (!hasCameraPermission) {
-                                Button(
-                                    onClick = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
-                                    shape = RoundedCornerShape(14.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = EirSky)
+                                Box(
+                                    modifier = Modifier
+                                        .size(width = 160.dp, height = 200.dp)
+                                        .clip(RoundedCornerShape(70.dp))
+                                        .background(Color(0xFF1E293B)),
+                                    contentAlignment = Alignment.Center
                                 ) {
-                                    Text(text = "Permitir uso de Cámara", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color.Black)
-                                }
-                            } else {
-                                Button(
-                                    onClick = {
+                                    if (hasCameraPermission) {
                                         if (state.capturedFaceBitmap != null) {
-                                            onSetFaceScanning()
+                                            // Show real captured photo
+                                            Image(
+                                                bitmap = state.capturedFaceBitmap.asImageBitmap(),
+                                                contentDescription = "Foto capturada",
+                                                modifier = Modifier.fillMaxSize()
+                                            )
                                         } else {
+                                            // Live CameraX Preview Feed inside Oval Frame
+                                            CameraPreviewView(
+                                                imageCapture = imageCapture,
+                                                modifier = Modifier.fillMaxSize()
+                                            )
+                                        }
+                                    } else {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier.padding(12.dp)
+                                        ) {
+                                            Icon(Icons.Default.CameraAlt, contentDescription = "Camera", tint = EirSky, modifier = Modifier.size(32.dp))
+                                            Text(text = "Se requiere acceso a la Cámara", fontSize = 10.sp, color = Color.White, modifier = Modifier.padding(top = 4.dp))
+                                        }
+                                    }
+
+                                    Canvas(modifier = Modifier.fillMaxSize()) {
+                                        drawCircle(
+                                            color = EirSky,
+                                            radius = size.width * 0.45f,
+                                            style = Stroke(
+                                                width = 2.dp.toPx(),
+                                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+                                            )
+                                        )
+                                    }
+                                }
+
+                                if (hasCameraPermission && (state.capturedFaceBitmap != null || state.faceScanStatus == "done")) {
+                                    OutlinedButton(
+                                        onClick = {
                                             onSetFaceScanning()
                                             takeRealPhoto(context, imageCapture) { bmp ->
                                                 onFacePhotoCaptured(bmp)
                                             }
-                                        }
-                                    },
-                                    enabled = state.faceScanStatus != "scanning",
-                                    shape = RoundedCornerShape(14.dp),
-                                    colors = ButtonDefaults.buttonColors(containerColor = EirSky)
-                                ) {
-                                    Text(
-                                        text = if (state.faceScanStatus == "scanning") "Escaneando rostro..."
-                                        else if (state.capturedFaceBitmap != null) "Repetir Foto"
-                                        else "Tomar Foto del Rostro",
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Black,
-                                        color = Color.Black
-                                    )
+                                        },
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
+                                    ) {
+                                        Icon(Icons.Default.Refresh, contentDescription = null, modifier = Modifier.size(16.dp), tint = Color.White)
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(text = "Repetir Foto", fontSize = 11.sp, color = Color.White)
+                                    }
                                 }
                             }
                         }
                     }
+                }
 
-                    if (state.faceFindings != null) {
-                        Surface(
+                // STEP 2: REAL VOICE RECORDING & RANDOM PHRASE CATALOG
+                if (state.checkupStep == 2) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(
+                            text = "Lee en voz alta la frase aleatoria asignada. Grabamos el audio del micrófono real para analizar tono, ritmo de respiración y modulación.",
+                            fontSize = 12.sp,
+                            color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
+                            lineHeight = 16.sp
+                        )
+
+                        OutlinedCard(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Text(text = "FRASE ALEATORIA DEL CATÁLOGO:", fontSize = 10.sp, fontWeight = FontWeight.Black, color = EirIndigo)
+                                    Text(
+                                        text = "🎲 Otra frase",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = EirIndigo,
+                                        modifier = Modifier.clickable { onCyclePhrase() }
+                                    )
+                                }
+                                Text(text = "“${state.currentPhraseText}”", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 18.sp)
+                            }
+                        }
+
+                        Column(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(16.dp),
-                            color = EirEmerald.copy(alpha = 0.15f)
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(text = "Análisis óptico facial completado:", fontWeight = FontWeight.Black, fontSize = 11.sp, color = EirEmerald)
-                                Text(text = "• ${state.faceFindings.fluidShift}", fontSize = 11.sp)
-                                Text(text = "• ${state.faceFindings.eyeFatigue}", fontSize = 11.sp)
-                                Text(text = "• ${state.faceFindings.skinTone}", fontSize = 11.sp)
+                            if (!hasAudioPermission) {
+                                Text(
+                                    text = "Se requiere permiso de micrófono para realizar la prueba de voz.",
+                                    fontSize = 12.sp,
+                                    color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary
+                                )
+                            } else {
+                                IconButton(
+                                    onClick = {
+                                        if (state.voiceScanStatus == "recording") {
+                                            onStopAudioRecording()
+                                        } else {
+                                            onStartAudioRecording()
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .size(68.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (state.voiceScanStatus == "recording") EirRoseEmergency
+                                            else if (state.voiceScanStatus == "done") EirEmerald
+                                            else EirSky
+                                        )
+                                ) {
+                                    Icon(
+                                        imageVector = if (state.voiceScanStatus == "done") Icons.Default.Check
+                                        else if (state.voiceScanStatus == "recording") Icons.Default.Stop
+                                        else Icons.Default.Mic,
+                                        contentDescription = "Micrófono Real",
+                                        tint = Color.White,
+                                        modifier = Modifier.size(28.dp)
+                                    )
+                                }
+
+                                // Live audio waveform amplitude visualization
+                                if (state.voiceScanStatus == "recording") {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(3.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        for (i in 0..7) {
+                                            val barHeight = ((state.audioMaxAmplitude % (i + 5)) * 3 + 10).coerceIn(6, 28)
+                                            Box(
+                                                modifier = Modifier
+                                                    .width(4.dp)
+                                                    .height(barHeight.dp)
+                                                    .clip(CircleShape)
+                                                    .background(EirRoseEmergency)
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Text(
+                                    text = when (state.voiceScanStatus) {
+                                        "idle" -> "Toca el micrófono para grabar la frase"
+                                        "recording" -> "Grabando micrófono real... Toca para finalizar"
+                                        else -> "Prueba de voz grabada"
+                                    },
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold
+                                )
                             }
                         }
                     }
+                }
 
-                    Button(
-                        onClick = { onSetStep(2) },
-                        enabled = state.faceScanStatus == "done",
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = EirSky)
-                    ) {
-                        Text(text = "Siguiente: Prueba de Voz →", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color.White)
+                // STEP 3: VITALS
+                if (state.checkupStep == 3) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(text = "Introduce manualmente o ajusta los 4 datos básicos de tu kit de bolsillo y confirma.", fontSize = 12.sp)
+
+                        VitalRow(
+                            label = "Latidos por minuto",
+                            hint = "Normal: 60-85",
+                            placeholder = "Ej. 70",
+                            value = state.vitalsDraft.heartRateInput,
+                            unit = "bpm",
+                            onValueChange = { newValue ->
+                                onUpdateVitalsDraft { it.copy(heartRateInput = newValue) }
+                            },
+                            onMinus = {
+                                val current = state.vitalsDraft.heartRateInput.toIntOrNull() ?: 68
+                                val updated = (current - 1).coerceAtLeast(40)
+                                onUpdateVitalsDraft { it.copy(heartRateInput = updated.toString()) }
+                            },
+                            onPlus = {
+                                val current = state.vitalsDraft.heartRateInput.toIntOrNull() ?: 68
+                                val updated = (current + 1).coerceAtMost(160)
+                                onUpdateVitalsDraft { it.copy(heartRateInput = updated.toString()) }
+                            },
+                            keyboardType = KeyboardType.Number,
+                            isDark = isDark
+                        )
+
+                        VitalRow(
+                            label = "Presión arterial alta",
+                            hint = "Normal: 115-125",
+                            placeholder = "Ej. 120",
+                            value = state.vitalsDraft.sysInput,
+                            unit = "mmHg",
+                            onValueChange = { newValue ->
+                                onUpdateVitalsDraft { it.copy(sysInput = newValue) }
+                            },
+                            onMinus = {
+                                val current = state.vitalsDraft.sysInput.toIntOrNull() ?: 118
+                                val updated = (current - 2).coerceAtLeast(80)
+                                onUpdateVitalsDraft { it.copy(sysInput = updated.toString()) }
+                            },
+                            onPlus = {
+                                val current = state.vitalsDraft.sysInput.toIntOrNull() ?: 118
+                                val updated = (current + 2).coerceAtMost(180)
+                                onUpdateVitalsDraft { it.copy(sysInput = updated.toString()) }
+                            },
+                            keyboardType = KeyboardType.Number,
+                            isDark = isDark
+                        )
+
+                        VitalRow(
+                            label = "Calor corporal (°C)",
+                            hint = "Normal: 36.2°-37.2°",
+                            placeholder = "Ej. 36.7",
+                            value = state.vitalsDraft.tempInput,
+                            unit = "°C",
+                            onValueChange = { newValue ->
+                                onUpdateVitalsDraft { it.copy(tempInput = newValue) }
+                            },
+                            onMinus = {
+                                val current = state.vitalsDraft.tempInput.toFloatOrNull() ?: 36.7f
+                                val updated = (current - 0.1f).coerceAtLeast(35f)
+                                onUpdateVitalsDraft { it.copy(tempInput = String.format(java.util.Locale.US, "%.1f", updated)) }
+                            },
+                            onPlus = {
+                                val current = state.vitalsDraft.tempInput.toFloatOrNull() ?: 36.7f
+                                val updated = (current + 0.1f).coerceAtMost(41f)
+                                onUpdateVitalsDraft { it.copy(tempInput = String.format(java.util.Locale.US, "%.1f", updated)) }
+                            },
+                            keyboardType = KeyboardType.Decimal,
+                            isDark = isDark
+                        )
+
+                        VitalRow(
+                            label = "Horas que dormiste",
+                            hint = "Ideal: 7-8 horas",
+                            placeholder = "Ej. 7.5",
+                            value = state.vitalsDraft.sleepHoursInput,
+                            unit = "hrs",
+                            onValueChange = { newValue ->
+                                onUpdateVitalsDraft { it.copy(sleepHoursInput = newValue) }
+                            },
+                            onMinus = {
+                                val current = state.vitalsDraft.sleepHoursInput.toFloatOrNull() ?: 7.5f
+                                val updated = (current - 0.5f).coerceAtLeast(1f)
+                                onUpdateVitalsDraft { it.copy(sleepHoursInput = String.format(java.util.Locale.US, "%.1f", updated)) }
+                            },
+                            onPlus = {
+                                val current = state.vitalsDraft.sleepHoursInput.toFloatOrNull() ?: 7.5f
+                                val updated = (current + 0.5f).coerceAtMost(16f)
+                                onUpdateVitalsDraft { it.copy(sleepHoursInput = String.format(java.util.Locale.US, "%.1f", updated)) }
+                            },
+                            keyboardType = KeyboardType.Decimal,
+                            isDark = isDark
+                        )
+
+                        OutlinedButton(
+                            onClick = onToggleVitalsConfirmed,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(14.dp)
+                        ) {
+                            Icon(imageVector = if (state.vitalsConfirmed) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked, contentDescription = "Confirmar", tint = if (state.vitalsConfirmed) EirEmerald else Color.Gray)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(text = "Confirmo que estos son mis valores de hoy", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+
+                // STEP 4: MOOD & ENERGY
+                if (state.checkupStep == 4) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Text(text = "Por último, toca en el cuadro cómo está tu ánimo y cuánta energía sientes hoy.", fontSize = 12.sp)
+
+                        Emotional2DQuadrant(
+                            selectedPoint = state.moodDraftPoint,
+                            isInteractive = true,
+                            isDarkMode = isDark,
+                            height = 150.dp,
+                            onPointChanged = { x, y -> onSetMoodDraftPoint(x, y) }
+                        )
+
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            listOf("Tranquilo", "Enfocado", "Motivado", "Cansado").forEach { tag ->
+                                FilterChip(
+                                    selected = state.moodDraftLabel == tag,
+                                    onClick = { onSetMoodDraftLabel(tag) },
+                                    label = { Text(text = tag, fontSize = 11.sp) },
+                                    modifier = Modifier.weight(1f)
+                                )
+                            }
+                        }
                     }
                 }
             }
 
-            // STEP 2: REAL VOICE RECORDING & RANDOM PHRASE CATALOG
-            if (state.checkupStep == 2) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(
-                        text = "Lee en voz alta la frase aleatoria asignada. Grabamos el audio del micrófono real para analizar tono, ritmo de respiración y modulación.",
-                        fontSize = 12.sp,
-                        color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary,
-                        lineHeight = 16.sp
-                    )
-
-                    OutlinedCard(shape = RoundedCornerShape(20.dp), modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                                Text(text = "FRASE ALEATORIA DEL CATÁLOGO:", fontSize = 10.sp, fontWeight = FontWeight.Black, color = EirIndigo)
+            // Fixed Primary Action Button at bottom of screen modal
+            Box(
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                when (state.checkupStep) {
+                    1 -> {
+                        if (!hasCameraPermission) {
+                            Button(
+                                onClick = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = EirSky)
+                            ) {
+                                Text(text = "Permitir uso de Cámara", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.Black)
+                            }
+                        } else if (state.faceScanStatus == "done") {
+                            Button(
+                                onClick = { onSetStep(2) },
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = EirSky)
+                            ) {
+                                Text(text = "Siguiente: Prueba de Voz →", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
+                            }
+                        } else {
+                            Button(
+                                onClick = {
+                                    onSetFaceScanning()
+                                    takeRealPhoto(context, imageCapture) { bmp ->
+                                        onFacePhotoCaptured(bmp)
+                                    }
+                                },
+                                enabled = state.faceScanStatus != "scanning",
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = EirSky)
+                            ) {
                                 Text(
-                                    text = "🎲 Otra frase",
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = EirIndigo,
-                                    modifier = Modifier.clickable { onCyclePhrase() }
+                                    text = if (state.faceScanStatus == "scanning") "Escaneando rostro..." else "Tomar Foto del Rostro",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = Color.Black
                                 )
                             }
-                            Text(text = "“${state.currentPhraseText}”", fontSize = 13.sp, fontWeight = FontWeight.ExtraBold, lineHeight = 18.sp)
                         }
                     }
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
+                    2 -> {
                         if (!hasAudioPermission) {
                             Button(
                                 onClick = { audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO) },
-                                shape = RoundedCornerShape(14.dp),
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(16.dp),
                                 colors = ButtonDefaults.buttonColors(containerColor = EirSky)
                             ) {
-                                Text(text = "Permitir uso del Micrófono", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color.Black)
+                                Text(text = "Permitir uso del Micrófono", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.Black)
+                            }
+                        } else if (state.voiceScanStatus == "recording") {
+                            Button(
+                                onClick = onStopAudioRecording,
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = EirRoseEmergency)
+                            ) {
+                                Text(text = "Detener Grabación", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
                             }
                         } else {
-                            IconButton(
-                                onClick = {
-                                    if (state.voiceScanStatus == "recording") {
-                                        onStopAudioRecording()
-                                    } else {
-                                        onStartAudioRecording()
-                                    }
-                                },
-                                modifier = Modifier
-                                    .size(68.dp)
-                                    .clip(CircleShape)
-                                    .background(
-                                        if (state.voiceScanStatus == "recording") EirRoseEmergency
-                                        else if (state.voiceScanStatus == "done") EirEmerald
-                                        else EirSky
-                                    )
+                            Button(
+                                onClick = { onSetStep(3) },
+                                enabled = state.voiceScanStatus == "done",
+                                modifier = Modifier.fillMaxWidth().height(52.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(containerColor = EirSky)
                             ) {
-                                Icon(
-                                    imageVector = if (state.voiceScanStatus == "done") Icons.Default.Check
-                                    else if (state.voiceScanStatus == "recording") Icons.Default.Stop
-                                    else Icons.Default.Mic,
-                                    contentDescription = "Micrófono Real",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(28.dp)
-                                )
+                                Text(text = "Siguiente: Signos Básicos →", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
                             }
-
-                            // Live audio waveform amplitude visualization
-                            if (state.voiceScanStatus == "recording") {
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(3.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    for (i in 0..7) {
-                                        val barHeight = ((state.audioMaxAmplitude % (i + 5)) * 3 + 10).coerceIn(6, 28)
-                                        Box(
-                                            modifier = Modifier
-                                                .width(4.dp)
-                                                .height(barHeight.dp)
-                                                .clip(CircleShape)
-                                                .background(EirRoseEmergency)
-                                        )
-                                    }
-                                }
-                            }
-
-                            Text(
-                                text = when (state.voiceScanStatus) {
-                                    "idle" -> "Toca el micrófono para grabar la frase"
-                                    "recording" -> "Grabando micrófono real... Toca para finalizar"
-                                    else -> "Prueba de voz grabada y analizada"
-                                },
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold
-                            )
                         }
                     }
-
-                    if (state.voiceFindings != null) {
-                        Surface(
-                            modifier = Modifier.fillMaxWidth(),
+                    3 -> {
+                        Button(
+                            onClick = { onSetStep(4) },
+                            enabled = state.vitalsConfirmed,
+                            modifier = Modifier.fillMaxWidth().height(52.dp),
                             shape = RoundedCornerShape(16.dp),
-                            color = EirEmerald.copy(alpha = 0.15f)
+                            colors = ButtonDefaults.buttonColors(containerColor = EirSky)
                         ) {
-                            Column(modifier = Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(text = "Resultado de análisis acústico de voz:", fontWeight = FontWeight.Black, fontSize = 11.sp, color = EirEmerald)
-                                Text(text = "• ${state.voiceFindings.breathingPace}", fontSize = 11.sp)
-                                Text(text = "• ${state.voiceFindings.vocalFatigue}", fontSize = 11.sp)
-                                Text(text = "• ${state.voiceFindings.nasalCongestion}", fontSize = 11.sp)
-                            }
+                            Text(text = "Siguiente: Ánimo y Energía →", fontSize = 13.sp, fontWeight = FontWeight.Black, color = Color.White)
                         }
                     }
-
-                    Button(
-                        onClick = { onSetStep(3) },
-                        enabled = state.voiceScanStatus == "done",
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = EirSky)
-                    ) {
-                        Text(text = "Siguiente: Signos Básicos →", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color.White)
-                    }
-                }
-            }
-
-            // STEP 3: VITALS
-            if (state.checkupStep == 3) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(text = "Ajusta los 4 datos básicos de tu kit de bolsillo y confirma que los revisaste hoy.", fontSize = 12.sp)
-
-                    VitalRow(label = "Latidos por minuto", hint = "Normal: 60-85", value = "${state.vitalsDraft.heartRate}", onMinus = { onUpdateVitalsDraft { it.copy(heartRate = (it.heartRate - 1).coerceAtLeast(40)) } }, onPlus = { onUpdateVitalsDraft { it.copy(heartRate = (it.heartRate + 1).coerceAtMost(160)) } }, isDark = isDark)
-                    VitalRow(label = "Presión arterial alta", hint = "Normal: 115-125", value = "${state.vitalsDraft.sys}", onMinus = { onUpdateVitalsDraft { it.copy(sys = (it.sys - 2).coerceAtLeast(80)) } }, onPlus = { onUpdateVitalsDraft { it.copy(sys = (it.sys + 2).coerceAtMost(180)) } }, isDark = isDark)
-                    VitalRow(label = "Calor corporal (°C)", hint = "Normal: 36.2°-37.2°", value = "${state.vitalsDraft.temp}°", onMinus = { onUpdateVitalsDraft { it.copy(temp = (it.temp - 0.1f).coerceAtLeast(35f)) } }, onPlus = { onUpdateVitalsDraft { it.copy(temp = (it.temp + 0.1f).coerceAtMost(41f)) } }, isDark = isDark)
-                    VitalRow(label = "Horas que dormiste", hint = "Ideal: 7-8 horas", value = "${state.vitalsDraft.sleepHours}h", onMinus = { onUpdateVitalsDraft { it.copy(sleepHours = (it.sleepHours - 0.5f).coerceAtLeast(2f)) } }, onPlus = { onUpdateVitalsDraft { it.copy(sleepHours = (it.sleepHours + 0.5f).coerceAtMost(12f)) } }, isDark = isDark)
-
-                    OutlinedButton(
-                        onClick = onToggleVitalsConfirmed,
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(14.dp)
-                    ) {
-                        Icon(imageVector = if (state.vitalsConfirmed) Icons.Default.CheckCircle else Icons.Default.RadioButtonUnchecked, contentDescription = "Confirmar", tint = if (state.vitalsConfirmed) EirEmerald else Color.Gray)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = "Confirmo que estos son mis valores de hoy", fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                    }
-
-                    Button(
-                        onClick = { onSetStep(4) },
-                        enabled = state.vitalsConfirmed,
-                        modifier = Modifier.fillMaxWidth().height(48.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = EirSky)
-                    ) {
-                        Text(text = "Siguiente: Ánimo y Energía →", fontSize = 12.sp, fontWeight = FontWeight.Black, color = Color.White)
-                    }
-                }
-            }
-
-            // STEP 4: MOOD & ENERGY
-            if (state.checkupStep == 4) {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(text = "Por último, toca en el cuadro cómo está tu ánimo y cuánta energía sientes hoy.", fontSize = 12.sp)
-
-                    Emotional2DQuadrant(
-                        selectedPoint = state.moodDraftPoint,
-                        isInteractive = true,
-                        isDarkMode = isDark,
-                        height = 150.dp,
-                        onPointChanged = { x, y -> onSetMoodDraftPoint(x, y) }
-                    )
-
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        listOf("Tranquilo", "Enfocado", "Motivado", "Cansado").forEach { tag ->
-                            FilterChip(
-                                selected = state.moodDraftLabel == tag,
-                                onClick = { onSetMoodDraftLabel(tag) },
-                                label = { Text(text = tag, fontSize = 11.sp) },
-                                modifier = Modifier.weight(1f)
-                            )
+                    4 -> {
+                        Button(
+                            onClick = onCompleteCheckup,
+                            modifier = Modifier.fillMaxWidth().height(52.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = EirEmerald)
+                        ) {
+                            Text(text = "Finalizar Chequeo Diario ✓", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.Black)
                         }
-                    }
-
-                    Button(
-                        onClick = onCompleteCheckup,
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = EirEmerald)
-                    ) {
-                        Text(text = "Finalizar Chequeo Diario ✓", fontSize = 14.sp, fontWeight = FontWeight.Black, color = Color.Black)
                     }
                 }
             }
@@ -536,6 +657,11 @@ private fun CameraPreviewView(
     imageCapture: ImageCapture,
     modifier: Modifier = Modifier
 ) {
+    if (LocalInspectionMode.current) {
+        Box(modifier = modifier)
+        return
+    }
+
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
 
@@ -609,15 +735,23 @@ private fun imageProxyToBitmap(image: ImageProxy): Bitmap {
 private fun VitalRow(
     label: String,
     hint: String,
+    placeholder: String,
     value: String,
+    unit: String,
+    onValueChange: (String) -> Unit,
     onMinus: () -> Unit,
     onPlus: () -> Unit,
+    keyboardType: KeyboardType = KeyboardType.Number,
     isDark: Boolean
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = if (isDark) Color(0xFF0F172A) else Color(0xFFF8FAFC)
+        color = if (isDark) Color(0xFF0F172A) else Color(0xFFF8FAFC),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            if (isDark) Color(0xFF1E293B) else Color(0xFFE2E8F0)
+        )
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
@@ -629,12 +763,60 @@ private fun VitalRow(
                 Text(text = hint, fontSize = 10.sp, color = if (isDark) EirDarkTextSecondary else EirLightTextSecondary)
             }
 
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                IconButton(onClick = onMinus, modifier = Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(Color(0xFFE2E8F0))) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                IconButton(
+                    onClick = onMinus,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(if (isDark) Color(0xFF1E293B) else Color(0xFFE2E8F0))
+                ) {
                     Text(text = "-", fontWeight = FontWeight.Black, fontSize = 16.sp)
                 }
-                Text(text = value, fontWeight = FontWeight.Black, fontSize = 14.sp)
-                IconButton(onClick = onPlus, modifier = Modifier.size(32.dp).clip(RoundedCornerShape(10.dp)).background(EirSky.copy(alpha = 0.2f))) {
+
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = { newValue ->
+                        val filtered = if (keyboardType == KeyboardType.Decimal) {
+                            newValue.filter { it.isDigit() || it == '.' }
+                        } else {
+                            newValue.filter { it.isDigit() }
+                        }
+                        onValueChange(filtered)
+                    },
+                    placeholder = {
+                        Text(text = placeholder, fontSize = 11.sp, color = Color.Gray)
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+                    modifier = Modifier.width(96.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    suffix = if (unit.isNotEmpty()) {
+                        { Text(text = unit, fontSize = 10.sp, fontWeight = FontWeight.Bold, color = EirSky) }
+                    } else null,
+                    textStyle = LocalTextStyle.current.copy(
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Black,
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = EirSky,
+                        unfocusedBorderColor = if (isDark) Color(0xFF334155) else Color(0xFFCBD5E1),
+                        focusedContainerColor = if (isDark) Color(0xFF1E293B) else Color.White,
+                        unfocusedContainerColor = if (isDark) Color(0xFF1E293B) else Color.White
+                    )
+                )
+
+                IconButton(
+                    onClick = onPlus,
+                    modifier = Modifier
+                        .size(32.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(EirSky.copy(alpha = 0.2f))
+                ) {
                     Text(text = "+", fontWeight = FontWeight.Black, fontSize = 16.sp, color = EirSky)
                 }
             }
