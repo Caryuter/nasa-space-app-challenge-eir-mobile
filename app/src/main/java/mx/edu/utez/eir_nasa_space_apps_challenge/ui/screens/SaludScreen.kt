@@ -80,13 +80,17 @@ fun SaludScreenContent(
     val cardBg = MaterialTheme.colorScheme.surface
     val currentZone = bodyZonesInfo[state.selectedZoneId] ?: bodyZonesInfo["head"] ?: BodyZoneInfo(
         id = "head",
-        title = "Cabeza, Ojos y Descanso",
-        summary = "7.5h de sueño • Rostro revisado",
-        vsWeek = "Dormiste 20 min más que tu promedio de la semana",
+        title = stringResource(R.string.zone_head_title),
+        summary = stringResource(R.string.zone_head_summary, "7.5"),
+        vsWeek = stringResource(R.string.zone_head_vs_week),
         trend = listOf(7f, 7.5f),
         color = EirIndigo,
-        whySpaceFeelsWeird = "¿Por qué sientes presión o cara hinchada? En la Tierra la gravedad jala los líquidos hacia tus pies; aquí suben hacia tu cabeza. Es normal y se alivia tomando agua despacio.",
-        quickChips = listOf("Siento presión en la frente", "Ojos cansados", "Me siento un poco mareado")
+        whySpaceFeelsWeird = stringResource(R.string.zone_head_why_space),
+        quickChips = listOf(
+            stringResource(R.string.zone_head_chip_1),
+            stringResource(R.string.zone_head_chip_2),
+            stringResource(R.string.zone_head_chip_3)
+        )
     )
 
     val bodyBatteryVal = state.healthMetrics.find { it.id == "bodyBattery" }?.value?.toIntOrNull() ?: 84
@@ -703,16 +707,18 @@ private fun MetricCard(
     }
 }
 
-val sampleHealthMetrics = listOf(
-    HealthMetric("heartRate", "Ritmo del Corazón", "68", "lat/min", "Latidos tranquilos", "Hace 15 min", listOf(71f, 69f, 72f, 70f, 68f, 69f, 68f), "Tu corazón late a un ritmo relajado.", "Sigue con tu rutina normal.", EirSky),
-    HealthMetric("bodyBattery", "Batería de tu Cuerpo", "84", "%", "Batería física alta", "Hoy 07:30", listOf(76f, 79f, 78f, 81f, 85f, 82f, 84f), "Mide la recuperación del cuerpo.", "Buen día para hacer ejercicio.", EirIndigo),
-    HealthMetric("oxygen", "Aire en tu Sangre", "98", "%", "Aire en sangre óptimo", "Hace 15 min", listOf(98f, 99f, 98f, 97f, 98f, 98f, 98f), "Tus pulmones llevan oxígeno de maravilla.", "Cabina bien ventilada.", EirCyan),
-    HealthMetric("bloodPressure", "Fuerza de Circulación", "118/76", "fuerza", "Circulación estable", "Hace 2 h", listOf(120f, 119f, 122f, 118f, 117f, 119f, 118f), "La presión de tu sangre está equilibrada.", "Evita levantarte de golpe.", EirBlue),
-    HealthMetric("sleep", "Sueño y Descanso", "7.5", "hrs", "Descanso reparador", "Hoy 07:30", listOf(6.8f, 7.0f, 7.4f, 6.5f, 7.8f, 7.2f, 7.5f), "Dormiste lo suficiente para reparar tus músculos.", "Mantén la misma hora para dormir.", EirPurple),
-    HealthMetric("temp", "Calor Corporal", "36.7", "°C", "Temperatura normal", "Hace 2 h", listOf(36.6f, 36.7f, 36.6f, 36.8f, 36.6f, 36.7f, 36.7f), "No tienes fiebre.", "Todo en orden.", EirAmber),
-    HealthMetric("energySugar", "Combustible Diario", "92", "nivel", "Combustible estable", "Hace 1 h", listOf(95f, 92f, 96f, 91f, 93f, 94f, 92f), "Energía en sangre pareja.", "Come a tu hora programada.", EirEmerald),
-    HealthMetric("hydration", "Agua en tu Cuerpo", "4/6", "vasos", "Faltan 2 vasos", "Hace 25 min", listOf(5f, 6f, 4f, 6f, 5f, 6f, 4f), "El cuerpo quita la sed en el espacio.", "Toma 1 vaso ahora.", EirTeal)
-)
+val sampleHealthMetrics: List<HealthMetric>
+    @Composable
+    get() = listOf(
+        HealthMetric("heartRate", stringResource(R.string.metric_heart_rate_title), "68", stringResource(R.string.metric_heart_rate_unit), stringResource(R.string.metric_heart_rate_label), stringResource(R.string.time_15m_ago), listOf(71f, 69f, 72f, 70f, 68f, 69f, 68f), stringResource(R.string.metric_heart_rate_meaning), stringResource(R.string.metric_heart_rate_action), EirSky),
+        HealthMetric("bodyBattery", stringResource(R.string.metric_body_battery_title), "84", "%", stringResource(R.string.metric_body_battery_label), stringResource(R.string.time_today_0730), listOf(76f, 79f, 78f, 81f, 85f, 82f, 84f), stringResource(R.string.metric_body_battery_meaning), stringResource(R.string.metric_body_battery_action), EirIndigo),
+        HealthMetric("oxygen", stringResource(R.string.metric_oxygen_title), "98", "%", stringResource(R.string.metric_oxygen_label), stringResource(R.string.time_15m_ago), listOf(98f, 99f, 98f, 97f, 98f, 98f, 98f), stringResource(R.string.metric_oxygen_meaning), stringResource(R.string.metric_oxygen_action), EirCyan),
+        HealthMetric("bloodPressure", stringResource(R.string.metric_bp_title), "118/76", stringResource(R.string.metric_bp_unit), stringResource(R.string.metric_bp_label), stringResource(R.string.time_2h_ago), listOf(120f, 119f, 122f, 118f, 117f, 119f, 118f), stringResource(R.string.metric_bp_meaning), stringResource(R.string.metric_bp_action), EirBlue),
+        HealthMetric("sleep", stringResource(R.string.metric_sleep_title), "7.5", stringResource(R.string.metric_sleep_unit), stringResource(R.string.metric_sleep_label), stringResource(R.string.time_today_0730), listOf(6.8f, 7.0f, 7.4f, 6.5f, 7.8f, 7.2f, 7.5f), stringResource(R.string.metric_sleep_meaning), stringResource(R.string.metric_sleep_action), EirPurple),
+        HealthMetric("temp", stringResource(R.string.metric_temp_title), "36.7", "°C", stringResource(R.string.metric_temp_label), stringResource(R.string.time_2h_ago), listOf(36.6f, 36.7f, 36.6f, 36.8f, 36.6f, 36.7f, 36.7f), stringResource(R.string.metric_temp_meaning), stringResource(R.string.metric_temp_action), EirAmber),
+        HealthMetric("energySugar", stringResource(R.string.metric_sugar_title), "92", stringResource(R.string.metric_sugar_unit), stringResource(R.string.metric_sugar_label), stringResource(R.string.time_1h_ago), listOf(95f, 92f, 96f, 91f, 93f, 94f, 92f), stringResource(R.string.metric_sugar_meaning), stringResource(R.string.metric_sugar_action), EirEmerald),
+        HealthMetric("hydration", stringResource(R.string.metric_hydration_title), "4/6", stringResource(R.string.metric_hydration_unit), stringResource(R.string.metric_hydration_label), stringResource(R.string.time_25m_ago), listOf(5f, 6f, 4f, 6f, 5f, 6f, 4f), stringResource(R.string.metric_hydration_meaning), stringResource(R.string.metric_hydration_action), EirTeal)
+    )
 
 @Preview(showBackground = true, name = "SaludScreen Full Light Preview", heightDp = 1100)
 @Composable

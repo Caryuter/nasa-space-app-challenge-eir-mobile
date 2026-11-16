@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.JournalEntry
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.repository.EirHealthRepository
 import java.util.Locale
@@ -42,35 +43,44 @@ class BitacoraViewModel(application: Application) : AndroidViewModel(application
 
     private val repository = EirHealthRepository.getInstance(application)
 
-    private val initialJournal = listOf(
-        JournalEntry(
-            id = 1L,
-            sol = "Sol 142 • Hoy 08:15",
-            mood = "Tranquilo",
-            x = 74f,
-            y = 64f,
-            text = "Dormí mucho mejor después de bajar un poco la temperatura de mi cabina. Me siento listo para las pruebas de hoy."
-        ),
-        JournalEntry(
-            id = 2L,
-            sol = "Sol 141 • Ayer 21:30",
-            mood = "Nostálgico",
-            x = 50f,
-            y = 44f,
-            text = "Vi una foto de mi familia antes de dormir. Se siente la distancia de casa, pero hacer los ejercicios de respiración me relajó."
-        ),
-        JournalEntry(
-            id = 3L,
-            sol = "Sol 140 • Hace 2 días",
-            mood = "Motivado",
-            x = 84f,
-            y = 80f,
-            text = "Terminamos de calibrar los paneles solares antes de tiempo. Gran equipo a bordo."
+    private val initialJournal by lazy {
+        listOf(
+            JournalEntry(
+                id = 1L,
+                sol = application.getString(R.string.journal_entry_1_sol),
+                mood = application.getString(R.string.mood_tag_calm),
+                x = 74f,
+                y = 64f,
+                text = application.getString(R.string.journal_entry_1_text)
+            ),
+            JournalEntry(
+                id = 2L,
+                sol = application.getString(R.string.journal_entry_2_sol),
+                mood = "Nostálgico",
+                x = 50f,
+                y = 44f,
+                text = application.getString(R.string.journal_entry_2_text)
+            ),
+            JournalEntry(
+                id = 3L,
+                sol = application.getString(R.string.journal_entry_3_sol),
+                mood = application.getString(R.string.mood_tag_motivated),
+                x = 84f,
+                y = 80f,
+                text = application.getString(R.string.journal_entry_3_text)
+            )
         )
-    )
+    }
 
-    private val _uiState = MutableStateFlow(BitacoraUiState(journalEntries = initialJournal))
-    val uiState: StateFlow<BitacoraUiState> = _uiState.asStateFlow()
+    private val _uiState by lazy {
+        MutableStateFlow(
+            BitacoraUiState(
+                moodLabel = application.getString(R.string.mood_tag_calm),
+                journalEntries = initialJournal
+            )
+        )
+    }
+    val uiState: StateFlow<BitacoraUiState> by lazy { _uiState.asStateFlow() }
 
     private var breathingJob: Job? = null
     private var recordingTimerJob: Job? = null

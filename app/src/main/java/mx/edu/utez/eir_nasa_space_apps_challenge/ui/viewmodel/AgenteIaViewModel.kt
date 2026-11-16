@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import mx.edu.utez.eir_nasa_space_apps_challenge.R
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.model.ChatMessage
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.repository.EirHealthRepository
 import mx.edu.utez.eir_nasa_space_apps_challenge.domain.engine.EirAiEngine
@@ -21,7 +22,7 @@ data class AgenteIaUiState(
     val isAgentLoading: Boolean = false,
     val modelStatus: LiteRtModelStatus = LiteRtModelStatus.NotDownloaded(),
     val isChatUnlocked: Boolean = false,
-    val personalizedContextPill: String = "Sincronizado: Latidos 68 • Sueño 7.5h",
+    val personalizedContextPill: String = "",
     val isDownloadingOrConnecting: Boolean = false
 )
 
@@ -32,17 +33,26 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
 
     private var currentBiometricContext: String = "Latidos: 68/min, Batería: 84%, Sueño: 7.5h, Agua: 4/6, Ánimo: Tranquilo"
 
-    private val initialChat = listOf(
-        ChatMessage(
-            id = 1L,
-            sender = "eir",
-            text = "Hola, comandante. Soy EIR. Para chatear con el asistente local sin conexión, descárgalo arriba.",
-            canSimplify = false
+    private val initialChat by lazy {
+        listOf(
+            ChatMessage(
+                id = 1L,
+                sender = "eir",
+                text = application.getString(R.string.agent_initial_msg),
+                canSimplify = false
+            )
         )
-    )
+    }
 
-    private val _uiState = MutableStateFlow(AgenteIaUiState(chatMessages = initialChat))
-    val uiState: StateFlow<AgenteIaUiState> = _uiState.asStateFlow()
+    private val _uiState by lazy {
+        MutableStateFlow(
+            AgenteIaUiState(
+                chatMessages = initialChat,
+                personalizedContextPill = application.getString(R.string.agent_default_pill)
+            )
+        )
+    }
+    val uiState: StateFlow<AgenteIaUiState> by lazy { _uiState.asStateFlow() }
 
     init {
         viewModelScope.launch {
@@ -56,7 +66,7 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
 
                     _uiState.update {
                         it.copy(
-                            personalizedContextPill = "Sincronizado: $heartRate lat/min • ${sleep}h descanso"
+                            personalizedContextPill = getApplication<Application>().getString(R.string.agent_synced_pill, heartRate, String.format(java.util.Locale.US, "%.1f", sleep))
                         )
                     }
                 }
@@ -152,7 +162,7 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
                     }
 
                 if (isFirstChunk) {
-                    val errorMsg = "⚠️ No se recibió respuesta del modelo local. Intenta reformular tu consulta."
+                    val errorMsg = getApplication<Application>().getString(R.string.agent_error_no_response)
                     val botMsg = ChatMessage(botMsgId, "eir", errorMsg, canSimplify = false)
                     _uiState.update { state ->
                         state.copy(
@@ -163,7 +173,8 @@ class AgenteIaViewModel(application: Application) : AndroidViewModel(application
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                val errorMsg = "⚠️ Error en el asistente de IA local: ${e.localizedMessage ?: e.message}"
+                val errorDetail = e.localizedMessage ?: e.message ?: ""
+                val errorMsg = getApplication<Application>().getString(R.string.agent_error_prefix, errorDetail)
                 val botMsg = ChatMessage(botMsgId, "eir", errorMsg, canSimplify = false)
                 _uiState.update { state ->
                     val exists = state.chatMessages.any { it.id == botMsgId }

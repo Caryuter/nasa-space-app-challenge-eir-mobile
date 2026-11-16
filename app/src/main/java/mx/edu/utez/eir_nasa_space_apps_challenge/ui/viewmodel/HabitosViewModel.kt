@@ -178,14 +178,17 @@ class HabitosViewModel(application: Application) : AndroidViewModel(application)
         )
     )
 
-    private val _uiState = MutableStateFlow(
-        HabitosUiState(
-            dailyMeals = initialMeals,
-            exercises = initialExercises,
-            isWorkoutRunning = true
+    private val _uiState by lazy {
+        MutableStateFlow(
+            HabitosUiState(
+                routineName = getApplication<Application>().getString(R.string.routine_space_countermeasures),
+                dailyMeals = initialMeals,
+                exercises = initialExercises,
+                isWorkoutRunning = true
+            )
         )
-    )
-    val uiState: StateFlow<HabitosUiState> = _uiState.asStateFlow()
+    }
+    val uiState: StateFlow<HabitosUiState> by lazy { _uiState.asStateFlow() }
 
     private var workoutTimerJob: Job? = null
     private var restTimerJob: Job? = null

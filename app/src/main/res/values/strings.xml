@@ -97,6 +97,117 @@
     <string name="bpm_sub">%1$s bpm</string>
     <string name="battery_sub">Bat. %1$s%%</string>
 
+    <!-- Body Zone Details (Head) -->
+    <string name="zone_head_title">Head, Eyes &amp; Rest</string>
+    <string name="zone_head_summary">%1$sh sleep • Face checked</string>
+    <string name="zone_head_vs_week">You slept 20 min more than your weekly average</string>
+    <string name="zone_head_why_space">Why does your head feel pressure or puffy? On Earth gravity pulls fluids down to your feet; here they shift toward your head. This is normal and eases by drinking water slowly.</string>
+    <string name="zone_head_chip_1">Pressure on my forehead</string>
+    <string name="zone_head_chip_2">Tired eyes</string>
+    <string name="zone_head_chip_3">Feeling slightly dizzy</string>
+
+    <!-- Body Zone Details (Chest) -->
+    <string name="zone_chest_title">Chest, Heart &amp; Breathing</string>
+    <string name="zone_chest_summary">%1$s bpm • Air %2$s%%</string>
+    <string name="zone_chest_vs_week">Your heart is beating as calm as throughout the week</string>
+    <string name="zone_chest_why_space">Without gravity, your heart doesn\'t have to pump blood uphill from your feet. It works differently and you may feel occasional palpitations when moving quickly.</string>
+    <string name="zone_chest_chip_1">Heart beating fast</string>
+    <string name="zone_chest_chip_2">Chest feels tight</string>
+    <string name="zone_chest_chip_3">Short of breath</string>
+
+    <!-- Body Zone Details (Abdomen) -->
+    <string name="zone_abdomen_title">Stomach, Water &amp; Energy</string>
+    <string name="zone_abdomen_summary">Hydration at stable level • Steady energy</string>
+    <string name="zone_abdomen_vs_week">Your blood energy level has remained even over the last 7 days</string>
+    <string name="zone_abdomen_why_space">In space food floats in the stomach, often reducing hunger or thirst cues. Eating on schedule prevents dizziness and energy drops.</string>
+    <string name="zone_abdomen_chip_1">Queasy stomach</string>
+    <string name="zone_abdomen_chip_2">Neither thirsty nor hungry</string>
+    <string name="zone_abdomen_chip_3">Fullness after eating</string>
+
+    <!-- Body Zone Details (Arms) -->
+    <string name="zone_arms_title">Arms, Shoulders &amp; Muscle Tone</string>
+    <string name="zone_arms_summary">Muscle battery %1$s%% • Constant strength</string>
+    <string name="zone_arms_vs_week">Your strength in arms and shoulders remains stable</string>
+    <string name="zone_arms_why_space">In microgravity you constantly use arms to propel and hold onto handrails. Keeping shoulders relaxed prevents muscle tightness.</string>
+    <string name="zone_arms_chip_1">Shoulder fatigue</string>
+    <string name="zone_arms_chip_2">Forearm tiredness</string>
+    <string name="zone_arms_chip_3">Tension gripping handrails</string>
+
+    <!-- Body Zone Details (Legs) -->
+    <string name="zone_legs_title">Legs, Back &amp; Bones</string>
+    <string name="zone_legs_summary">Physical battery %1$s%% • 1 of 3 workouts today</string>
+    <string name="zone_legs_vs_week">Your muscle recovery increased by 5% this week</string>
+    <string name="zone_legs_why_space">Floating all day means legs and spine bear zero weight. Without resistance exercise, bones weaken and lower back aches as it lengthens.</string>
+    <string name="zone_legs_chip_1">Lower back pain</string>
+    <string name="zone_legs_chip_2">Tired legs</string>
+    <string name="zone_legs_chip_3">Mild knee twinge</string>
+
+    <!-- Discomforts default & Times -->
+    <string name="discomfort_mild_legs">Mild leg muscle fatigue</string>
+    <string name="time_today_0910">Today 09:10</string>
+    <string name="time_just_now">Just now</string>
+    <string name="time_15m_ago">15 min ago</string>
+    <string name="time_25m_ago">25 min ago</string>
+    <string name="time_1h_ago">1h ago</string>
+    <string name="time_2h_ago">2h ago</string>
+    <string name="time_today_0730">Today 07:30</string>
+
+    <!-- Health Metrics Detail -->
+    <string name="metric_heart_rate_title">Heart Rate</string>
+    <string name="metric_heart_rate_unit">bpm</string>
+    <string name="metric_heart_rate_label">Calm heartbeat</string>
+    <string name="metric_heart_rate_label_fast">Slightly elevated heartbeat</string>
+    <string name="metric_heart_rate_meaning">Your heart beats at a relaxed pace, just like when resting on Earth.</string>
+    <string name="metric_heart_rate_action">No special action needed; continue with your normal routine.</string>
+
+    <string name="metric_body_battery_title">Body Battery</string>
+    <string name="metric_body_battery_label">High physical battery</string>
+    <string name="metric_body_battery_meaning">Measures how well your body recovered while sleeping. You have good energy reserves today.</string>
+    <string name="metric_body_battery_action">It\'s a good day to complete your strength routine without overexerting.</string>
+
+    <string name="metric_oxygen_title">Blood Oxygen</string>
+    <string name="metric_oxygen_label">Optimal blood oxygen</string>
+    <string name="metric_oxygen_meaning">Your lungs are delivering oxygen wonderfully throughout your body.</string>
+    <string name="metric_oxygen_action">Cabin air is clean and well-ventilated.</string>
+
+    <string name="metric_bp_title">Circulation Pressure</string>
+    <string name="metric_bp_unit">level</string>
+    <string name="metric_bp_label">Stable circulation</string>
+    <string name="metric_bp_meaning">The force with which your blood travels is balanced, despite having zero gravity.</string>
+    <string name="metric_bp_action">Avoid sudden standing or twisting to prevent mild dizziness.</string>
+
+    <string name="metric_sleep_title">Sleep &amp; Rest</string>
+    <string name="metric_sleep_unit">hrs</string>
+    <string name="metric_sleep_label">Restful sleep</string>
+    <string name="metric_sleep_label_short">Short sleep today</string>
+    <string name="metric_sleep_meaning">You slept long enough for your mind and muscles to repair.</string>
+    <string name="metric_sleep_action">Maintain the same bedtime tonight.</string>
+
+    <string name="metric_temp_title">Body Temperature</string>
+    <string name="metric_temp_label">Normal temperature</string>
+    <string name="metric_temp_label_warm">Slightly elevated</string>
+    <string name="metric_temp_meaning">No fever or signs of infection detected.</string>
+    <string name="metric_temp_action">All parameters in order.</string>
+
+    <string name="metric_sugar_title">Daily Fuel</string>
+    <string name="metric_sugar_unit">level</string>
+    <string name="metric_sugar_label">Stable fuel</string>
+    <string name="metric_sugar_meaning">Your blood energy level is steady; you have no sugar crashes.</string>
+    <string name="metric_sugar_action">Eat your next meal at the scheduled time.</string>
+
+    <string name="metric_hydration_title">Body Water</string>
+    <string name="metric_hydration_unit">glasses</string>
+    <string name="metric_hydration_label">2 glasses remaining</string>
+    <string name="metric_hydration_meaning">In space the body suppresses thirst even when it needs water.</string>
+    <string name="metric_hydration_action">Drink 1 glass now and another before exercising.</string>
+
+    <string name="routine_space_countermeasures">Space Countermeasures</string>
+    <string name="agent_initial_msg">Hello Commander, I am EIR. To chat with the local assistant offline, please download it above.</string>
+    <string name="agent_synced_pill">Synced: %1$d bpm • %2$sh rest</string>
+    <string name="agent_default_pill">Synced: Heart rate 68 • Sleep 7.5h</string>
+    <string name="agent_error_no_response">⚠️ No response received from the local model. Please rephrase your query.</string>
+    <string name="agent_error_prefix">⚠️ Error in local AI assistant: %1$s</string>
+
     <!-- Habits Screen (Habitos) -->
     <string name="habits_today">Today</string>
     <string name="habits_week_mission">Week 175 • Ares IV Mission</string>
@@ -203,6 +314,12 @@
     <string name="save_note">Save Note</string>
     <string name="previous_days_header">YOUR PREVIOUS DAYS</string>
     <string name="listen_tts_cd">Listen with Text-to-Speech</string>
+    <string name="journal_entry_1_sol">Sol 142 • Today 08:15</string>
+    <string name="journal_entry_1_text">I slept much better after slightly lowering my cabin temperature. I feel ready for today\'s tasks.</string>
+    <string name="journal_entry_2_sol">Sol 141 • Yesterday 21:30</string>
+    <string name="journal_entry_2_text">I looked at a photo of my family before sleeping. Distance from home is felt, but breathing exercises relaxed me.</string>
+    <string name="journal_entry_3_sol">Sol 140 • 2 days ago</string>
+    <string name="journal_entry_3_text">We finished calibrating the solar panels ahead of schedule. Great crew onboard.</string>
 
     <!-- AI Agent Screen (Agente IA) -->
     <string name="ai_assistant_header">EIR • Medical Assistant</string>

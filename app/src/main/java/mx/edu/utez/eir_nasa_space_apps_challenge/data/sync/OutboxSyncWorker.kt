@@ -2,13 +2,8 @@ package mx.edu.utez.eir_nasa_space_apps_challenge.data.sync
 
 import android.content.Context
 import androidx.work.*
-import com.google.gson.Gson
 import mx.edu.utez.eir_nasa_space_apps_challenge.data.local.db.EirDatabase
-import mx.edu.utez.eir_nasa_space_apps_challenge.data.remote.api.EirApiService
-import mx.edu.utez.eir_nasa_space_apps_challenge.data.remote.api.MockEirApiInterceptor
-import okhttp3.OkHttpClient
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import mx.edu.utez.eir_nasa_space_apps_challenge.data.remote.config.EirNetworkModule
 import java.util.concurrent.TimeUnit
 
 class OutboxSyncWorker(
@@ -18,20 +13,14 @@ class OutboxSyncWorker(
 
     override suspend fun doWork(): Result {
         val db = EirDatabase.getInstance(applicationContext)
+        val apiService = EirNetworkModule.getApiService(applicationContext)
+        val sessionManager = EirNetworkModule.getSessionManager(applicationContext)
 
-        val okHttpClient = OkHttpClient.Builder()
-            .addInterceptor(MockEirApiInterceptor())
-            .connectTimeout(10, TimeUnit.SECONDS)
-            .build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.example.org")
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val apiService = retrofit.create(EirApiService::class.java)
-        val syncManager = OutboxSyncManager(db, apiService)
+        val syncManager = OutboxSyncManager(
+            db = db,
+            apiService = apiService,
+            sessionManager = sessionManager
+        )
 
         val syncResult = syncManager.syncPendingRecords()
         return if (syncResult.isSuccess) {
@@ -61,7 +50,12 @@ class OutboxSyncWorker(
         }
 
         fun scheduleOneTime(context: Context) {
+            val constraints = Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+
             val request = OneTimeWorkRequestBuilder<OutboxSyncWorker>()
+                .setConstraints(constraints)
                 .build()
 
             WorkManager.getInstance(context).enqueueUniqueWork(

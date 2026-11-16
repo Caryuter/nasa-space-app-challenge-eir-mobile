@@ -22,7 +22,8 @@ data class HealthRecordEntity(
     val sleepHours: Double?,
     val systolicBpMmhg: Int?,
     val diastolicBpMmhg: Int?,
-    val recordedAt: String
+    val recordedAt: String,
+    val userId: String = ""
 )
 
 @Entity(tableName = "wellbeing_checkins")
@@ -34,7 +35,8 @@ data class WellbeingCheckinEntity(
     val purpose: Int,
     val sleep: Int,
     val note: String?,
-    val recordedAt: String
+    val recordedAt: String,
+    val userId: String = ""
 )
 
 @Entity(tableName = "outbox")
@@ -42,8 +44,9 @@ data class OutboxEntity(
     @PrimaryKey val recordId: String,
     val recordType: String, // "health_record" or "wellbeing_checkin"
     val payloadJson: String,
-    val status: String, // "PENDING", "IN_PROGRESS", "ACKNOWLEDGED", "FAILED"
+    val status: String, // "PENDING", "IN_PROGRESS", "ACKNOWLEDGED", "FAILED", "RETRYABLE", "REJECTED", "CONFLICT"
     val createdAt: Long = System.currentTimeMillis(),
     val retryCount: Int = 0,
-    val lastError: String? = null
+    val lastError: String? = null,
+    val userId: String = ""
 )

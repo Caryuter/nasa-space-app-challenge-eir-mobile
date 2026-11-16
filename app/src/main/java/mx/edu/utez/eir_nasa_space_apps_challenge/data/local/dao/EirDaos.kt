@@ -14,6 +14,9 @@ interface ProfileDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProfile(profile: AstronautProfileEntity)
+
+    @Query("DELETE FROM astronaut_profile")
+    suspend fun clearProfile()
 }
 
 @Dao
@@ -29,6 +32,9 @@ interface HealthRecordDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllHealthRecords(records: List<HealthRecordEntity>)
+
+    @Query("DELETE FROM health_records")
+    suspend fun clearAll()
 }
 
 @Dao
@@ -41,12 +47,24 @@ interface WellbeingDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertAllWellbeingCheckins(checkins: List<WellbeingCheckinEntity>)
+
+    @Query("DELETE FROM wellbeing_checkins")
+    suspend fun clearAll()
 }
 
 @Dao
 interface OutboxDao {
-    @Query("SELECT * FROM outbox WHERE status IN ('PENDING', 'RETRYABLE') ORDER BY createdAt ASC LIMIT 20")
-    suspend fun getPendingOutboxEntries(): List<OutboxEntity>
+    @Query("SELECT * FROM outbox WHERE status IN ('PENDING', 'RETRYABLE') ORDER BY createdAt ASC LIMIT :limit")
+    suspend fun getPendingOutboxEntries(limit: Int = 20): List<OutboxEntity>
+
+    @Query("SELECT * FROM outbox WHERE status IN ('PENDING', 'RETRYABLE') AND (userId = :userId OR userId = '') ORDER BY createdAt ASC LIMIT :limit")
+    suspend fun getPendingOutboxEntriesForUser(userId: String, limit: Int = 20): List<OutboxEntity>
+
+    @Query("SELECT recordId FROM outbox WHERE status IN ('PENDING', 'IN_PROGRESS', 'RETRYABLE')")
+    suspend fun getAllPendingRecordIds(): List<String>
+
+    @Query("SELECT * FROM outbox ORDER BY createdAt ASC")
+    suspend fun getAllOutboxEntries(): List<OutboxEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOutboxEntry(entry: OutboxEntity)
@@ -60,6 +78,15 @@ interface OutboxDao {
     @Query("DELETE FROM outbox WHERE status = 'ACKNOWLEDGED'")
     suspend fun deleteAcknowledged()
 
-    @Query("SELECT COUNT(*) FROM outbox WHERE status = 'PENDING'")
+    @Query("DELETE FROM outbox WHERE recordId IN (:recordIds)")
+    suspend fun deleteByIds(recordIds: List<String>)
+
+    @Query("SELECT COUNT(*) FROM outbox WHERE status IN ('PENDING', 'RETRYABLE', 'IN_PROGRESS')")
     fun getPendingCountFlow(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM outbox WHERE status IN ('PENDING', 'RETRYABLE')")
+    suspend fun getPendingCount(): Int
+
+    @Query("DELETE FROM outbox")
+    suspend fun clearAll()
 }

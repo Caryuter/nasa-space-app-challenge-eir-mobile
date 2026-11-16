@@ -97,6 +97,117 @@
     <string name="bpm_sub">%1$s lat/m</string>
     <string name="battery_sub">Bat. %1$s%%</string>
 
+    <!-- Body Zone Details (Head) -->
+    <string name="zone_head_title">Cabeza, Ojos y Descanso</string>
+    <string name="zone_head_summary">%1$sh de sueño • Rostro revisado</string>
+    <string name="zone_head_vs_week">Dormiste 20 min más que tu promedio de la semana</string>
+    <string name="zone_head_why_space">¿Por qué sientes presión o cara hinchada? En la Tierra la gravedad jala los líquidos hacia tus pies; aquí suben hacia tu cabeza. Es normal y se alivia tomando agua despacio.</string>
+    <string name="zone_head_chip_1">Siento presión en la frente</string>
+    <string name="zone_head_chip_2">Ojos cansados</string>
+    <string name="zone_head_chip_3">Me siento un poco mareado</string>
+
+    <!-- Body Zone Details (Chest) -->
+    <string name="zone_chest_title">Pecho, Corazón y Respiración</string>
+    <string name="zone_chest_summary">%1$s latidos/min • Aire %2$s%%</string>
+    <string name="zone_chest_vs_week">Tu corazón late igual de tranquilo que toda la semana</string>
+    <string name="zone_chest_why_space">Como no hay gravedad, tu corazón no tiene que bombear sangre cuesta arriba desde los pies. Por eso trabaja distinto y a veces sientes palpitaciones al moverte rápido.</string>
+    <string name="zone_chest_chip_1">Me late rápido el corazón</string>
+    <string name="zone_chest_chip_2">Siento el pecho apretado</string>
+    <string name="zone_chest_chip_3">Me falta un poco el aire</string>
+
+    <!-- Body Zone Details (Abdomen) -->
+    <string name="zone_abdomen_title">Estómago, Agua y Energía</string>
+    <string name="zone_abdomen_summary">Agua e hidratación en nivel estable • Energía pareja</string>
+    <string name="zone_abdomen_vs_week">Tu nivel de energía en sangre sigue parejo los últimos 7 días</string>
+    <string name="zone_abdomen_why_space">En el espacio la comida flota en el estómago y suele dar menos hambre o sed de lo normal. Comer a tus horas evita mareos y bajones de ánimo.</string>
+    <string name="zone_abdomen_chip_1">Tengo el estómago revuelto</string>
+    <string name="zone_abdomen_chip_2">No tengo sed ni hambre</string>
+    <string name="zone_abdomen_chip_3">Pesadez después de comer</string>
+
+    <!-- Body Zone Details (Arms) -->
+    <string name="zone_arms_title">Brazos, Hombros y Tono Muscular</string>
+    <string name="zone_arms_summary">Batería muscular %1$s%% • Fuerza constante</string>
+    <string name="zone_arms_vs_week">Tu fuerza en brazos y hombros se mantiene estable</string>
+    <string name="zone_arms_why_space">En microgravedad usas los brazos constantemente para impulsarte y sujetarte de los rieles. Mantener los hombros relajados evita contracturas.</string>
+    <string name="zone_arms_chip_1">Cansancio en hombros</string>
+    <string name="zone_arms_chip_2">Fatiga en antebrazos</string>
+    <string name="zone_arms_chip_3">Tensión al sujetar rieles</string>
+
+    <!-- Body Zone Details (Legs) -->
+    <string name="zone_legs_title">Piernas, Espalda y Huesos</string>
+    <string name="zone_legs_summary">Batería física %1$s%% • 1 de 3 ejercicios hoy</string>
+    <string name="zone_legs_vs_week">Tu recuperación muscular subió un 5% esta semana</string>
+    <string name="zone_legs_why_space">Al flotar todo el día, tus piernas y espalda no cargan tu peso. Si no haces ejercicios con ligas, tus huesos se vuelven frágiles y la espalda baja duele al estirarse.</string>
+    <string name="zone_legs_chip_1">Dolor en la espalda baja</string>
+    <string name="zone_legs_chip_2">Piernas cansadas</string>
+    <string name="zone_legs_chip_3">Punzada leve en rodilla</string>
+
+    <!-- Discomforts default & Times -->
+    <string name="discomfort_mild_legs">Cansancio muscular leve en piernas</string>
+    <string name="time_today_0910">Hoy 09:10</string>
+    <string name="time_just_now">Hace un momento</string>
+    <string name="time_15m_ago">Hace 15 min</string>
+    <string name="time_25m_ago">Hace 25 min</string>
+    <string name="time_1h_ago">Hace 1 h</string>
+    <string name="time_2h_ago">Hace 2 h</string>
+    <string name="time_today_0730">Hoy 07:30</string>
+
+    <!-- Health Metrics Detail -->
+    <string name="metric_heart_rate_title">Ritmo del Corazón</string>
+    <string name="metric_heart_rate_unit">lat/min</string>
+    <string name="metric_heart_rate_label">Latidos tranquilos</string>
+    <string name="metric_heart_rate_label_fast">Latidos algo rápidos</string>
+    <string name="metric_heart_rate_meaning">Tu corazón late a un ritmo relajado, igual que cuando estás descansando en la Tierra.</string>
+    <string name="metric_heart_rate_action">No necesitas hacer nada especial; sigue con tu rutina normal.</string>
+
+    <string name="metric_body_battery_title">Batería de tu Cuerpo</string>
+    <string name="metric_body_battery_label">Batería física alta</string>
+    <string name="metric_body_battery_meaning">Mide qué tan bien se recuperó tu cuerpo mientras dormías. Hoy tienes buena reserva de energía.</string>
+    <string name="metric_body_battery_action">Es un buen día para completar tu rutina de fuerza sin exigirte de más.</string>
+
+    <string name="metric_oxygen_title">Aire en tu Sangre</string>
+    <string name="metric_oxygen_label">Aire en sangre óptimo</string>
+    <string name="metric_oxygen_meaning">Tus pulmones están llevando oxígeno de maravilla a todo tu cuerpo.</string>
+    <string name="metric_oxygen_action">El aire de la cabina está limpio y bien ventilado.</string>
+
+    <string name="metric_bp_title">Fuerza de Circulación</string>
+    <string name="metric_bp_unit">fuerza</string>
+    <string name="metric_bp_label">Circulación estable</string>
+    <string name="metric_bp_meaning">La fuerza con la que viaja tu sangre está equilibrada, a pesar de no tener gravedad.</string>
+    <string name="metric_bp_action">Evita levantarte o girar de golpe para no sentir mareo leve.</string>
+
+    <string name="metric_sleep_title">Sueño y Descanso</string>
+    <string name="metric_sleep_unit">hrs</string>
+    <string name="metric_sleep_label">Descanso reparador</string>
+    <string name="metric_sleep_label_short">Dormiste poco hoy</string>
+    <string name="metric_sleep_meaning">Dormiste el tiempo suficiente para que tu mente y músculos se reparen.</string>
+    <string name="metric_sleep_action">Mantén la misma hora para acostarte hoy.</string>
+
+    <string name="metric_temp_title">Calor Corporal</string>
+    <string name="metric_temp_label">Temperatura normal</string>
+    <string name="metric_temp_label_warm">Un poco caliente</string>
+    <string name="metric_temp_meaning">No tienes fiebre ni señales de infección.</string>
+    <string name="metric_temp_action">Todo en orden.</string>
+
+    <string name="metric_sugar_title">Combustible Diario</string>
+    <string name="metric_sugar_unit">nivel</string>
+    <string name="metric_sugar_label">Combustible estable</string>
+    <string name="metric_sugar_meaning">Tu nivel de energía en sangre está parejo; no tienes bajones de azúcar.</string>
+    <string name="metric_sugar_action">Come tu siguiente ración a la hora programada.</string>
+
+    <string name="metric_hydration_title">Agua en tu Cuerpo</string>
+    <string name="metric_hydration_unit">vasos</string>
+    <string name="metric_hydration_label">Faltan 2 vasos</string>
+    <string name="metric_hydration_meaning">En el espacio el cuerpo engaña al cerebro y quita la sed aunque necesites agua.</string>
+    <string name="metric_hydration_action">Toma 1 vaso ahora y otro antes de tu ejercicio.</string>
+
+    <string name="routine_space_countermeasures">Contramedidas Espaciales</string>
+    <string name="agent_initial_msg">Hola, comandante. Soy EIR. Para chatear con el asistente local sin conexión, descárgalo arriba.</string>
+    <string name="agent_synced_pill">Sincronizado: %1$d lat/min • %2$sh descanso</string>
+    <string name="agent_default_pill">Sincronizado: Latidos 68 • Sueño 7.5h</string>
+    <string name="agent_error_no_response">⚠️ No se recibió respuesta del modelo local. Intenta reformular tu consulta.</string>
+    <string name="agent_error_prefix">⚠️ Error en el asistente de IA local: %1$s</string>
+
     <!-- Habits Screen (Habitos) -->
     <string name="habits_today">Hoy</string>
     <string name="habits_week_mission">Semana 175 • Misión Ares IV</string>
@@ -203,6 +314,12 @@
     <string name="save_note">Guardar Nota</string>
     <string name="previous_days_header">TUS DÍAS ANTERIORES</string>
     <string name="listen_tts_cd">Escuchar con Text-to-Speech</string>
+    <string name="journal_entry_1_sol">Sol 142 • Hoy 08:15</string>
+    <string name="journal_entry_1_text">Dormí mucho mejor después de bajar un poco la temperatura de mi cabina. Me siento listo para las pruebas de hoy.</string>
+    <string name="journal_entry_2_sol">Sol 141 • Ayer 21:30</string>
+    <string name="journal_entry_2_text">Vi una foto de mi familia antes de dormir. Se siente la distancia de casa, pero hacer los ejercicios de respiración me relajó.</string>
+    <string name="journal_entry_3_sol">Sol 140 • Hace 2 días</string>
+    <string name="journal_entry_3_text">Terminamos de calibrar los paneles solares antes de tiempo. Gran equipo a bordo.</string>
 
     <!-- AI Agent Screen (Agente IA) -->
     <string name="ai_assistant_header">EIR • Asistente Médico</string>

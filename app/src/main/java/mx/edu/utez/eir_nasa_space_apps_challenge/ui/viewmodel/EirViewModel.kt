@@ -934,6 +934,7 @@ class EirViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getBodyZonesInfo(): Map<String, BodyZoneInfo> {
+        val app = getApplication<Application>()
         val state = _uiState.value
         val sleepMetric = state.healthMetrics.find { it.id == "sleep" }
         val heartMetric = state.healthMetrics.find { it.id == "heartRate" }
@@ -941,56 +942,81 @@ class EirViewModel(application: Application) : AndroidViewModel(application) {
         val batteryMetric = state.healthMetrics.find { it.id == "bodyBattery" }
         val sugarMetric = state.healthMetrics.find { it.id == "energySugar" }
 
+        val sleepVal = sleepMetric?.value ?: "7.5"
+        val heartVal = heartMetric?.value ?: "68"
+        val oxygenVal = oxygenMetric?.value ?: "98"
+        val batteryVal = batteryMetric?.value ?: "84"
+
         return mapOf(
             "head" to BodyZoneInfo(
                 id = "head",
-                title = "Cabeza, Ojos y Descanso",
-                summary = "${sleepMetric?.value ?: "7.5"}h de sueño • Rostro revisado",
-                vsWeek = "Dormiste 20 min más que tu promedio de la semana",
+                title = app.getString(R.string.zone_head_title),
+                summary = app.getString(R.string.zone_head_summary, sleepVal),
+                vsWeek = app.getString(R.string.zone_head_vs_week),
                 trend = sleepMetric?.history ?: listOf(7f, 7.5f),
                 color = EirIndigo,
-                whySpaceFeelsWeird = "¿Por qué sientes presión o cara hinchada? En la Tierra la gravedad jala los líquidos hacia tus pies; aquí suben hacia tu cabeza. Es normal y se alivia tomando agua despacio.",
-                quickChips = listOf("Siento presión en la frente", "Ojos cansados", "Me siento un poco mareado")
+                whySpaceFeelsWeird = app.getString(R.string.zone_head_why_space),
+                quickChips = listOf(
+                    app.getString(R.string.zone_head_chip_1),
+                    app.getString(R.string.zone_head_chip_2),
+                    app.getString(R.string.zone_head_chip_3)
+                )
             ),
             "chest" to BodyZoneInfo(
                 id = "chest",
-                title = "Pecho, Corazón y Respiración",
-                summary = "${heartMetric?.value ?: "68"} latidos/min • Aire ${oxygenMetric?.value ?: "98"}%",
-                vsWeek = "Tu corazón late igual de tranquilo que toda la semana",
+                title = app.getString(R.string.zone_chest_title),
+                summary = app.getString(R.string.zone_chest_summary, heartVal, oxygenVal),
+                vsWeek = app.getString(R.string.zone_chest_vs_week),
                 trend = heartMetric?.history ?: listOf(68f, 70f),
                 color = EirSky,
-                whySpaceFeelsWeird = "Como no hay gravedad, tu corazón no tiene que bombear sangre cuesta arriba desde los pies. Por eso trabaja distinto y a veces sientes palpitaciones al moverte rápido.",
-                quickChips = listOf("Me late rápido el corazón", "Siento el pecho apretado", "Me falta un poco el aire")
+                whySpaceFeelsWeird = app.getString(R.string.zone_chest_why_space),
+                quickChips = listOf(
+                    app.getString(R.string.zone_chest_chip_1),
+                    app.getString(R.string.zone_chest_chip_2),
+                    app.getString(R.string.zone_chest_chip_3)
+                )
             ),
             "abdomen" to BodyZoneInfo(
                 id = "abdomen",
-                title = "Estómago, Agua y Energía",
-                summary = "${state.waterGlasses} de ${state.waterGoal} vasos de agua • Energía estable",
-                vsWeek = "Tu nivel de energía en sangre sigue parejo los últimos 7 días",
+                title = app.getString(R.string.zone_abdomen_title),
+                summary = app.getString(R.string.zone_abdomen_summary),
+                vsWeek = app.getString(R.string.zone_abdomen_vs_week),
                 trend = sugarMetric?.history ?: listOf(92f, 94f),
                 color = EirTeal,
-                whySpaceFeelsWeird = "En el espacio la comida flota en el estómago y suele dar menos hambre o sed de lo normal. Comer a tus horas evita mareos y bajones de ánimo.",
-                quickChips = listOf("Tengo el estómago revuelto", "No tengo sed ni hambre", "Pesadez después de comer")
+                whySpaceFeelsWeird = app.getString(R.string.zone_abdomen_why_space),
+                quickChips = listOf(
+                    app.getString(R.string.zone_abdomen_chip_1),
+                    app.getString(R.string.zone_abdomen_chip_2),
+                    app.getString(R.string.zone_abdomen_chip_3)
+                )
             ),
             "arms" to BodyZoneInfo(
                 id = "arms",
-                title = "Brazos, Hombros y Tono Muscular",
-                summary = "Batería muscular ${batteryMetric?.value ?: "84"}% • Fuerza constante",
-                vsWeek = "Tu fuerza en brazos y hombros se mantiene estable",
+                title = app.getString(R.string.zone_arms_title),
+                summary = app.getString(R.string.zone_arms_summary, batteryVal),
+                vsWeek = app.getString(R.string.zone_arms_vs_week),
                 trend = batteryMetric?.history ?: listOf(80f, 84f),
                 color = EirCyan,
-                whySpaceFeelsWeird = "En microgravedad usas los brazos constantemente para impulsarte y sujetarte de los rieles. Mantener los hombros relajados evita contracturas.",
-                quickChips = listOf("Cansancio en hombros", "Fatiga en antebrazos", "Tensión al sujetar rieles")
+                whySpaceFeelsWeird = app.getString(R.string.zone_arms_why_space),
+                quickChips = listOf(
+                    app.getString(R.string.zone_arms_chip_1),
+                    app.getString(R.string.zone_arms_chip_2),
+                    app.getString(R.string.zone_arms_chip_3)
+                )
             ),
             "legs" to BodyZoneInfo(
                 id = "legs",
-                title = "Piernas, Espalda y Huesos",
-                summary = "Batería física ${batteryMetric?.value ?: "84"}% • 1 de 3 ejercicios hoy",
-                vsWeek = "Tu recuperación muscular subió un 5% esta semana",
+                title = app.getString(R.string.zone_legs_title),
+                summary = app.getString(R.string.zone_legs_summary, batteryVal),
+                vsWeek = app.getString(R.string.zone_legs_vs_week),
                 trend = batteryMetric?.history ?: listOf(80f, 84f),
                 color = EirAmber,
-                whySpaceFeelsWeird = "Al flotar todo el día, tus piernas y espalda no cargan tu peso. Si no haces ejercicios con ligas, tus huesos se vuelven frágiles y la espalda baja duele al estirarse.",
-                quickChips = listOf("Dolor en la espalda baja", "Piernas cansadas", "Punzada leve en rodilla")
+                whySpaceFeelsWeird = app.getString(R.string.zone_legs_why_space),
+                quickChips = listOf(
+                    app.getString(R.string.zone_legs_chip_1),
+                    app.getString(R.string.zone_legs_chip_2),
+                    app.getString(R.string.zone_legs_chip_3)
+                )
             )
         )
     }

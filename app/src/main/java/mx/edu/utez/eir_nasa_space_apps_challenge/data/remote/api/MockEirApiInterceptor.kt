@@ -8,6 +8,10 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
+/**
+ * Mock interceptor for MOCK environment only.
+ * In REAL environment, this interceptor is never installed.
+ */
 class MockEirApiInterceptor : Interceptor {
 
     private val gson = Gson()
@@ -16,21 +20,84 @@ class MockEirApiInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         val path = request.url.encodedPath
-
-        try {
-            val networkResponse = chain.proceed(request)
-            if (networkResponse.isSuccessful) return networkResponse
-        } catch (_: Exception) {
-            // Fallback to local OpenAPI mock engine
-        }
-
         val jsonContentType = "application/json; charset=utf-8".toMediaType()
 
         return when {
+            path.endsWith("/api/v1/auth/login") -> {
+                val mockLogin = LoginResponseDto(
+                    accessToken = "mock_access_token_ares_142",
+                    refreshToken = "mock_refresh_token_ares_142",
+                    tokenType = "Bearer",
+                    expiresIn = 900,
+                    user = AstronautProfileDto(
+                        userId = "usr_ares_142",
+                        astronautId = "ASTRO-ARES-IV-07",
+                        username = "commander_eir",
+                        displayName = "Comandante Eir",
+                        missionId = "ARES-IV-MARS",
+                        profileVersion = 1
+                    ),
+                    onlineAuthenticatedAt = Instant.now().toString()
+                )
+
+                Response.Builder()
+                    .code(200)
+                    .message("OK")
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_1)
+                    .body(gson.toJson(mockLogin).toResponseBody(jsonContentType))
+                    .build()
+            }
+
+            path.endsWith("/api/v1/auth/refresh") -> {
+                val mockTokens = SessionTokensDto(
+                    accessToken = "mock_rotated_access_token_" + System.currentTimeMillis(),
+                    refreshToken = "mock_rotated_refresh_token_" + System.currentTimeMillis(),
+                    tokenType = "Bearer",
+                    expiresIn = 900
+                )
+
+                Response.Builder()
+                    .code(200)
+                    .message("OK")
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_1)
+                    .body(gson.toJson(mockTokens).toResponseBody(jsonContentType))
+                    .build()
+            }
+
+            path.endsWith("/api/v1/auth/logout") -> {
+                Response.Builder()
+                    .code(204)
+                    .message("No Content")
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_1)
+                    .body("".toResponseBody(jsonContentType))
+                    .build()
+            }
+
+            path.endsWith("/api/v1/users/me") -> {
+                val profile = AstronautProfileDto(
+                    userId = "usr_ares_142",
+                    astronautId = "ASTRO-ARES-IV-07",
+                    username = "commander_eir",
+                    displayName = "Comandante Eir",
+                    missionId = "ARES-IV-MARS",
+                    profileVersion = 1
+                )
+
+                Response.Builder()
+                    .code(200)
+                    .message("OK")
+                    .request(request)
+                    .protocol(Protocol.HTTP_1_1)
+                    .body(gson.toJson(profile).toResponseBody(jsonContentType))
+                    .build()
+            }
+
             path.contains("/api/v1/users/me/bootstrap") -> {
                 val now = Instant.now()
 
-                // Synthetic 7-day health history from backend contract
                 val mockHealthRecords = listOf(
                     StoredHealthRecordDto(
                         recordId = "a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11",
@@ -73,7 +140,6 @@ class MockEirApiInterceptor : Interceptor {
                     )
                 )
 
-                // Synthetic 7-day wellbeing checkins from backend contract
                 val mockWellbeingCheckins = listOf(
                     StoredWellbeingCheckinDto(
                         recordId = "b1ffcd88-8b0a-3ef7-aa5c-5aa8ac270b22",
@@ -126,7 +192,8 @@ class MockEirApiInterceptor : Interceptor {
                         profileVersion = 1
                     ),
                     healthRecords = mockHealthRecords,
-                    wellbeingCheckins = mockWellbeingCheckins
+                    wellbeingCheckins = mockWellbeingCheckins,
+                    nextCursor = null
                 )
 
                 Response.Builder()
@@ -168,7 +235,7 @@ class MockEirApiInterceptor : Interceptor {
                     .build()
             }
 
-            path.contains("/api/v1/health") -> {
+            path.endsWith("/api/v1/health") -> {
                 Response.Builder()
                     .code(200)
                     .message("OK")

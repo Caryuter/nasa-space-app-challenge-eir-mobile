@@ -19,7 +19,7 @@ import mx.edu.utez.eir_nasa_space_apps_challenge.data.local.entity.*
         WellbeingCheckinEntity::class,
         OutboxEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class EirDatabase : RoomDatabase() {
@@ -27,6 +27,10 @@ abstract class EirDatabase : RoomDatabase() {
     abstract fun healthRecordDao(): HealthRecordDao
     abstract fun wellbeingDao(): WellbeingDao
     abstract fun outboxDao(): OutboxDao
+
+    abstract fun <T> runInTransaction(block: () -> T): T
+    abstract suspend fun insertHealthRecordWithOutbox(record: HealthRecordEntity, outbox: OutboxEntity)
+    abstract suspend fun insertWellbeingCheckinWithOutbox(record: WellbeingCheckinEntity, outbox: OutboxEntity)
 
     companion object {
         @Volatile
@@ -39,13 +43,24 @@ abstract class EirDatabase : RoomDatabase() {
                 instance
             }
         }
+
+        fun createInMemoryOrDirect(context: Context, name: String? = null): EirDatabase {
+            return EirDatabase_Impl(context.applicationContext, name)
+        }
     }
 }
 
-class EirDatabase_Impl(private val context: Context) : EirDatabase() {
+class EirDatabase_Impl(
+    private val context: Context,
+    dbName: String? = "eir_health_v2.db"
+) : EirDatabase() {
 
-    private val dbHelper = object : SQLiteOpenHelper(context, "eir_health_v2.db", null, 1) {
+    private val dbHelper = object : SQLiteOpenHelper(context, dbName, null, 2) {
         override fun onCreate(db: SQLiteDatabase) {
+            createTables(db)
+        }
+
+        private fun createTables(db: SQLiteDatabase) {
             db.execSQL(
                 """
                 CREATE TABLE IF NOT EXISTS astronaut_profile (
@@ -69,7 +84,8 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                     sleepHours REAL,
                     systolicBpMmhg INTEGER,
                     diastolicBpMmhg INTEGER,
-                    recordedAt TEXT NOT NULL
+                    recordedAt TEXT NOT NULL,
+                    userId TEXT NOT NULL DEFAULT ''
                 )
                 """.trimIndent()
             )
@@ -84,7 +100,8 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                     purpose INTEGER NOT NULL,
                     sleep INTEGER NOT NULL,
                     note TEXT,
-                    recordedAt TEXT NOT NULL
+                    recordedAt TEXT NOT NULL,
+                    userId TEXT NOT NULL DEFAULT ''
                 )
                 """.trimIndent()
             )
@@ -98,18 +115,24 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                     status TEXT NOT NULL,
                     createdAt INTEGER NOT NULL,
                     retryCount INTEGER NOT NULL,
-                    lastError TEXT
+                    lastError TEXT,
+                    userId TEXT NOT NULL DEFAULT ''
                 )
                 """.trimIndent()
             )
         }
 
         override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-            db.execSQL("DROP TABLE IF EXISTS astronaut_profile")
-            db.execSQL("DROP TABLE IF EXISTS health_records")
-            db.execSQL("DROP TABLE IF EXISTS wellbeing_checkins")
-            db.execSQL("DROP TABLE IF EXISTS outbox")
-            onCreate(db)
+            // Safe upgrade: add columns if migrating from v1
+            try {
+                db.execSQL("ALTER TABLE health_records ADD COLUMN userId TEXT NOT NULL DEFAULT ''")
+            } catch (_: Exception) {}
+            try {
+                db.execSQL("ALTER TABLE wellbeing_checkins ADD COLUMN userId TEXT NOT NULL DEFAULT ''")
+            } catch (_: Exception) {}
+            try {
+                db.execSQL("ALTER TABLE outbox ADD COLUMN userId TEXT NOT NULL DEFAULT ''")
+            } catch (_: Exception) {}
         }
     }
 
@@ -119,12 +142,114 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
     private val _wellbeingFlow = MutableStateFlow<List<WellbeingCheckinEntity>>(emptyList())
     private val _pendingOutboxFlow = MutableStateFlow(0)
 
+    init {
+        // Pre-populate flows from existing tables on launch
+        try {
+            refreshProfileCache()
+            refreshHealthCache()
+            refreshWellbeingCache()
+            refreshOutboxCount()
+        } catch (_: Exception) {}
+    }
+
+    override fun <T> runInTransaction(block: () -> T): T {
+        val db = dbHelper.writableDatabase
+        db.beginTransaction()
+        try {
+            val result = block()
+            db.setTransactionSuccessful()
+            return result
+        } finally {
+            db.endTransaction()
+        }
+    }
+
+    override suspend fun insertHealthRecordWithOutbox(
+        record: HealthRecordEntity,
+        outbox: OutboxEntity
+    ) {
+        val db = dbHelper.writableDatabase
+        db.beginTransaction()
+        try {
+            val cvRecord = ContentValues().apply {
+                put("recordId", record.recordId)
+                put("heartRateBpm", record.heartRateBpm)
+                put("glucoseMgDl", record.glucoseMgDl)
+                put("temperatureC", record.temperatureC)
+                put("sleepHours", record.sleepHours)
+                put("systolicBpMmhg", record.systolicBpMmhg)
+                put("diastolicBpMmhg", record.diastolicBpMmhg)
+                put("recordedAt", record.recordedAt)
+                put("userId", record.userId)
+            }
+            db.insertWithOnConflict("health_records", null, cvRecord, SQLiteDatabase.CONFLICT_REPLACE)
+
+            val cvOutbox = ContentValues().apply {
+                put("recordId", outbox.recordId)
+                put("recordType", outbox.recordType)
+                put("payloadJson", outbox.payloadJson)
+                put("status", outbox.status)
+                put("createdAt", outbox.createdAt)
+                put("retryCount", outbox.retryCount)
+                put("lastError", outbox.lastError)
+                put("userId", outbox.userId)
+            }
+            db.insertWithOnConflict("outbox", null, cvOutbox, SQLiteDatabase.CONFLICT_REPLACE)
+
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+        refreshHealthCache()
+        refreshOutboxCount()
+    }
+
+    override suspend fun insertWellbeingCheckinWithOutbox(
+        record: WellbeingCheckinEntity,
+        outbox: OutboxEntity
+    ) {
+        val db = dbHelper.writableDatabase
+        db.beginTransaction()
+        try {
+            val cvRecord = ContentValues().apply {
+                put("recordId", record.recordId)
+                put("mood", record.mood)
+                put("connection", record.connection)
+                put("energy", record.energy)
+                put("purpose", record.purpose)
+                put("sleep", record.sleep)
+                put("note", record.note)
+                put("recordedAt", record.recordedAt)
+                put("userId", record.userId)
+            }
+            db.insertWithOnConflict("wellbeing_checkins", null, cvRecord, SQLiteDatabase.CONFLICT_REPLACE)
+
+            val cvOutbox = ContentValues().apply {
+                put("recordId", outbox.recordId)
+                put("recordType", outbox.recordType)
+                put("payloadJson", outbox.payloadJson)
+                put("status", outbox.status)
+                put("createdAt", outbox.createdAt)
+                put("retryCount", outbox.retryCount)
+                put("lastError", outbox.lastError)
+                put("userId", outbox.userId)
+            }
+            db.insertWithOnConflict("outbox", null, cvOutbox, SQLiteDatabase.CONFLICT_REPLACE)
+
+            db.setTransactionSuccessful()
+        } finally {
+            db.endTransaction()
+        }
+        refreshWellbeingCache()
+        refreshOutboxCount()
+    }
+
     private val profileDaoImpl = object : ProfileDao {
         override fun getProfile(): Flow<AstronautProfileEntity?> = _profileFlow.asStateFlow()
 
         override suspend fun getProfileSync(): AstronautProfileEntity? {
             val db = dbHelper.readableDatabase
-            db.rawQuery("SELECT * FROM astronaut_profile LIMIT 1", null).use { cursor ->
+            db.rawQuery("SELECT userId, astronautId, username, displayName, missionId, profileVersion FROM astronaut_profile LIMIT 1", null).use { cursor ->
                 if (cursor.moveToFirst()) {
                     return AstronautProfileEntity(
                         userId = cursor.getString(0),
@@ -152,6 +277,30 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
             db.insertWithOnConflict("astronaut_profile", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
             _profileFlow.value = profile
         }
+
+        override suspend fun clearProfile() {
+            val db = dbHelper.writableDatabase
+            db.delete("astronaut_profile", null, null)
+            _profileFlow.value = null
+        }
+    }
+
+    private fun refreshProfileCache() {
+        val db = dbHelper.readableDatabase
+        db.rawQuery("SELECT userId, astronautId, username, displayName, missionId, profileVersion FROM astronaut_profile LIMIT 1", null).use { cursor ->
+            if (cursor.moveToFirst()) {
+                _profileFlow.value = AstronautProfileEntity(
+                    userId = cursor.getString(0),
+                    astronautId = cursor.getString(1),
+                    username = cursor.getString(2),
+                    displayName = cursor.getString(3),
+                    missionId = cursor.getString(4),
+                    profileVersion = cursor.getInt(5)
+                )
+            } else {
+                _profileFlow.value = null
+            }
+        }
     }
 
     private val healthRecordDaoImpl = object : HealthRecordDao {
@@ -170,6 +319,7 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                 put("systolicBpMmhg", record.systolicBpMmhg)
                 put("diastolicBpMmhg", record.diastolicBpMmhg)
                 put("recordedAt", record.recordedAt)
+                put("userId", record.userId)
             }
             db.insertWithOnConflict("health_records", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
             refreshHealthCache()
@@ -189,6 +339,7 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                         put("systolicBpMmhg", record.systolicBpMmhg)
                         put("diastolicBpMmhg", record.diastolicBpMmhg)
                         put("recordedAt", record.recordedAt)
+                        put("userId", record.userId)
                     }
                     db.insertWithOnConflict("health_records", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
                 }
@@ -198,12 +349,18 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
             }
             refreshHealthCache()
         }
+
+        override suspend fun clearAll() {
+            val db = dbHelper.writableDatabase
+            db.delete("health_records", null, null)
+            refreshHealthCache()
+        }
     }
 
     private fun refreshHealthCache() {
         val list = mutableListOf<HealthRecordEntity>()
         val db = dbHelper.readableDatabase
-        db.rawQuery("SELECT * FROM health_records ORDER BY recordedAt DESC", null).use { cursor ->
+        db.rawQuery("SELECT recordId, heartRateBpm, glucoseMgDl, temperatureC, sleepHours, systolicBpMmhg, diastolicBpMmhg, recordedAt, userId FROM health_records ORDER BY recordedAt DESC", null).use { cursor ->
             while (cursor.moveToNext()) {
                 list.add(
                     HealthRecordEntity(
@@ -214,7 +371,8 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                         sleepHours = if (cursor.isNull(4)) null else cursor.getDouble(4),
                         systolicBpMmhg = if (cursor.isNull(5)) null else cursor.getInt(5),
                         diastolicBpMmhg = if (cursor.isNull(6)) null else cursor.getInt(6),
-                        recordedAt = cursor.getString(7)
+                        recordedAt = cursor.getString(7),
+                        userId = if (cursor.isNull(8)) "" else cursor.getString(8)
                     )
                 )
             }
@@ -237,6 +395,7 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                 put("sleep", checkin.sleep)
                 put("note", checkin.note)
                 put("recordedAt", checkin.recordedAt)
+                put("userId", checkin.userId)
             }
             db.insertWithOnConflict("wellbeing_checkins", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
             refreshWellbeingCache()
@@ -256,6 +415,7 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                         put("sleep", checkin.sleep)
                         put("note", checkin.note)
                         put("recordedAt", checkin.recordedAt)
+                        put("userId", checkin.userId)
                     }
                     db.insertWithOnConflict("wellbeing_checkins", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
                 }
@@ -265,12 +425,18 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
             }
             refreshWellbeingCache()
         }
+
+        override suspend fun clearAll() {
+            val db = dbHelper.writableDatabase
+            db.delete("wellbeing_checkins", null, null)
+            refreshWellbeingCache()
+        }
     }
 
     private fun refreshWellbeingCache() {
         val list = mutableListOf<WellbeingCheckinEntity>()
         val db = dbHelper.readableDatabase
-        db.rawQuery("SELECT * FROM wellbeing_checkins ORDER BY recordedAt DESC", null).use { cursor ->
+        db.rawQuery("SELECT recordId, mood, connection, energy, purpose, sleep, note, recordedAt, userId FROM wellbeing_checkins ORDER BY recordedAt DESC", null).use { cursor ->
             while (cursor.moveToNext()) {
                 list.add(
                     WellbeingCheckinEntity(
@@ -281,7 +447,8 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                         purpose = cursor.getInt(4),
                         sleep = cursor.getInt(5),
                         note = if (cursor.isNull(6)) null else cursor.getString(6),
-                        recordedAt = cursor.getString(7)
+                        recordedAt = cursor.getString(7),
+                        userId = if (cursor.isNull(8)) "" else cursor.getString(8)
                     )
                 )
             }
@@ -290,12 +457,12 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
     }
 
     private val outboxDaoImpl = object : OutboxDao {
-        override suspend fun getPendingOutboxEntries(): List<OutboxEntity> {
+        override suspend fun getPendingOutboxEntries(limit: Int): List<OutboxEntity> {
             val list = mutableListOf<OutboxEntity>()
             val db = dbHelper.readableDatabase
             db.rawQuery(
-                "SELECT * FROM outbox WHERE status IN ('PENDING', 'RETRYABLE') ORDER BY createdAt ASC LIMIT 20",
-                null
+                "SELECT recordId, recordType, payloadJson, status, createdAt, retryCount, lastError, userId FROM outbox WHERE status IN ('PENDING', 'RETRYABLE') ORDER BY createdAt ASC LIMIT ?",
+                arrayOf(limit.toString())
             ).use { cursor ->
                 while (cursor.moveToNext()) {
                     list.add(
@@ -306,7 +473,69 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                             status = cursor.getString(3),
                             createdAt = cursor.getLong(4),
                             retryCount = cursor.getInt(5),
-                            lastError = if (cursor.isNull(6)) null else cursor.getString(6)
+                            lastError = if (cursor.isNull(6)) null else cursor.getString(6),
+                            userId = if (cursor.isNull(7)) "" else cursor.getString(7)
+                        )
+                    )
+                }
+            }
+            return list
+        }
+
+        override suspend fun getPendingOutboxEntriesForUser(userId: String, limit: Int): List<OutboxEntity> {
+            val list = mutableListOf<OutboxEntity>()
+            val db = dbHelper.readableDatabase
+            db.rawQuery(
+                "SELECT recordId, recordType, payloadJson, status, createdAt, retryCount, lastError, userId FROM outbox WHERE status IN ('PENDING', 'RETRYABLE') AND (userId = ? OR userId = '') ORDER BY createdAt ASC LIMIT ?",
+                arrayOf(userId, limit.toString())
+            ).use { cursor ->
+                while (cursor.moveToNext()) {
+                    list.add(
+                        OutboxEntity(
+                            recordId = cursor.getString(0),
+                            recordType = cursor.getString(1),
+                            payloadJson = cursor.getString(2),
+                            status = cursor.getString(3),
+                            createdAt = cursor.getLong(4),
+                            retryCount = cursor.getInt(5),
+                            lastError = if (cursor.isNull(6)) null else cursor.getString(6),
+                            userId = if (cursor.isNull(7)) "" else cursor.getString(7)
+                        )
+                    )
+                }
+            }
+            return list
+        }
+
+        override suspend fun getAllPendingRecordIds(): List<String> {
+            val list = mutableListOf<String>()
+            val db = dbHelper.readableDatabase
+            db.rawQuery(
+                "SELECT recordId FROM outbox WHERE status IN ('PENDING', 'IN_PROGRESS', 'RETRYABLE')",
+                null
+            ).use { cursor ->
+                while (cursor.moveToNext()) {
+                    list.add(cursor.getString(0))
+                }
+            }
+            return list
+        }
+
+        override suspend fun getAllOutboxEntries(): List<OutboxEntity> {
+            val list = mutableListOf<OutboxEntity>()
+            val db = dbHelper.readableDatabase
+            db.rawQuery("SELECT recordId, recordType, payloadJson, status, createdAt, retryCount, lastError, userId FROM outbox ORDER BY createdAt ASC", null).use { cursor ->
+                while (cursor.moveToNext()) {
+                    list.add(
+                        OutboxEntity(
+                            recordId = cursor.getString(0),
+                            recordType = cursor.getString(1),
+                            payloadJson = cursor.getString(2),
+                            status = cursor.getString(3),
+                            createdAt = cursor.getLong(4),
+                            retryCount = cursor.getInt(5),
+                            lastError = if (cursor.isNull(6)) null else cursor.getString(6),
+                            userId = if (cursor.isNull(7)) "" else cursor.getString(7)
                         )
                     )
                 }
@@ -324,6 +553,7 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
                 put("createdAt", entry.createdAt)
                 put("retryCount", entry.retryCount)
                 put("lastError", entry.lastError)
+                put("userId", entry.userId)
             }
             db.insertWithOnConflict("outbox", null, cv, SQLiteDatabase.CONFLICT_REPLACE)
             refreshOutboxCount()
@@ -353,12 +583,36 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
             refreshOutboxCount()
         }
 
+        override suspend fun deleteByIds(recordIds: List<String>) {
+            if (recordIds.isEmpty()) return
+            val db = dbHelper.writableDatabase
+            val placeholders = recordIds.joinToString(",") { "?" }
+            db.delete("outbox", "recordId IN ($placeholders)", recordIds.toTypedArray())
+            refreshOutboxCount()
+        }
+
         override fun getPendingCountFlow(): Flow<Int> = _pendingOutboxFlow.asStateFlow()
+
+        override suspend fun getPendingCount(): Int {
+            val db = dbHelper.readableDatabase
+            db.rawQuery("SELECT COUNT(*) FROM outbox WHERE status IN ('PENDING', 'RETRYABLE')", null).use { cursor ->
+                if (cursor.moveToFirst()) {
+                    return cursor.getInt(0)
+                }
+            }
+            return 0
+        }
+
+        override suspend fun clearAll() {
+            val db = dbHelper.writableDatabase
+            db.delete("outbox", null, null)
+            refreshOutboxCount()
+        }
     }
 
     private fun refreshOutboxCount() {
         val db = dbHelper.readableDatabase
-        db.rawQuery("SELECT COUNT(*) FROM outbox WHERE status = 'PENDING'", null).use { cursor ->
+        db.rawQuery("SELECT COUNT(*) FROM outbox WHERE status IN ('PENDING', 'RETRYABLE', 'IN_PROGRESS')", null).use { cursor ->
             if (cursor.moveToFirst()) {
                 _pendingOutboxFlow.value = cursor.getInt(0)
             }
@@ -389,5 +643,9 @@ class EirDatabase_Impl(private val context: Context) : EirDatabase() {
         db.execSQL("DELETE FROM health_records")
         db.execSQL("DELETE FROM wellbeing_checkins")
         db.execSQL("DELETE FROM outbox")
+        refreshProfileCache()
+        refreshHealthCache()
+        refreshWellbeingCache()
+        refreshOutboxCount()
     }
 }
